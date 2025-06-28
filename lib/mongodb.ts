@@ -1,10 +1,12 @@
-// src/lib/mongodb.ts
 import mongoose from 'mongoose';
+import dotenv from 'dotenv';
 
-const MONGODB_URI = process.env.MONGODB_URI || 'your-mongodb-uri-here';
+dotenv.config(); // 👈 โหลด .env.local
+
+const MONGODB_URI = process.env.MONGODB_URI as string;
 
 if (!MONGODB_URI) {
-  throw new Error('⚠️ กรุณาตั้งค่า MONGODB_URI ใน .env');
+  throw new Error('⚠️ กรุณาตั้งค่า MONGODB_URI ใน .env.local');
 }
 
 let cached = (global as any).mongoose || { conn: null, promise: null };
