@@ -8,7 +8,7 @@ const MenuSchema = new Schema({
   healthNote: String,
   tags: [String],
   ingredients: [String],
-  instructions: String,
+  instructions: [String], // ✅ ตรงนี้สำคัญมาก
   image: String, // 👈 ชื่อไฟล์รูป เช่น "friedrice.png"
 }, { timestamps: true });
 

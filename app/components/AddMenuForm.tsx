@@ -62,7 +62,7 @@ export default function AddMenuForm() {
       const res = await fetch('/api/menu/bulk', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(menus),
+        body: JSON.stringify({ menus }), // ✅ ต้องห่อใน object
       });
 
       if (!res.ok) throw new Error('Upload failed');
