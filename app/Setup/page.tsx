@@ -55,7 +55,7 @@ export default function Home() {
             {/* ส่วนล่างสุด (เมนู/ต่อไป) */}
             <div className="absolute bottom-0 left-0 right-0 flex justify-center font-prompt">
                 <div className="bg-white w-[500px] px-[4rem] py-[4.5rem] rounded-t-4xl shadow-lg flex justify-between">
-                    <div onClick={goto} className="flex items-center">
+                    <div onClick={goto} className="flex items-center cursor-pointer">
                         <h1 className='bg-[#ff9e303e] text-2xl rounded-4xl py-[0.3rem] px-[1.5rem]'>ต่อไป</h1>
                         <img className='absolute left-[9.2rem] p-[0.5rem] w-[2.5rem] h-[2.5rem] rounded-4xl bg-[#FFBA9F] ' src="/image%2082.png" alt='Next'></img>
                     </div> 

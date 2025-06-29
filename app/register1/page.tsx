@@ -12,7 +12,7 @@ export default function Home() {
     };
 
     return (
-        <div onClick={goto} className="relative h-screen w-screen flex flex-col items-center bg-gradient-to-br from-orange-300 to-orange-100">
+        <div onClick={goto} className="relative h-screen w-screen cursor-pointer flex flex-col items-center bg-gradient-to-br from-orange-300 to-orange-100">
             <div className="absolute left-0">
                 <img src="/group%2099.png"></img>
             </div>
@@ -36,7 +36,7 @@ export default function Home() {
             {/* ----------------------------------------------------- */}
             {/* ส่วนรูปภาพที่ต้องการให้โดนจอกิน (จัดกลางแนวตั้ง, ชิดขวา, กินขอบ) */}
             {/* ----------------------------------------------------- */}
-            <div className="flex justify-center z-10 mt-[2rem]"> 
+            <div className="flex justify-center z-10 mt-[2rem] overflow-hidden"> 
                 <img
                     src="/image%2085.png"
                     alt='Decor'
