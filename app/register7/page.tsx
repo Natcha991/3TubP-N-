@@ -3,13 +3,12 @@
 import { useRouter, useSearchParams } from 'next/navigation';
 import { useState } from 'react';
 
-export default function Register5() {
+export default function Register7() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const userId = searchParams.get('id');
 
-  const [weight, setWeight] = useState('');
-  const [height, setHeight] = useState('');
+  const [condition, setCondition] = useState('');
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -22,38 +21,26 @@ export default function Register5() {
     const res = await fetch(`/api/user/${userId}`, {
       method: 'PATCH',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({
-        weight: Number(weight),
-        height: Number(height),
-      }),
+      body: JSON.stringify({ condition }),
     });
 
     if (res.ok) {
-      router.push(`/register6?id=${userId}`); // ✅ ไปหน้าเก็บเป้าหมาย
+      router.push(`/register8?id=${userId}`); // ✅ ไปหน้า lifestyle
     } else {
-      alert('❌ เกิดข้อผิดพลาดในการบันทึกน้ำหนัก/ส่วนสูง');
+      alert('❌ เกิดข้อผิดพลาดในการบันทึกเงื่อนไขสุขภาพ');
     }
   };
 
   return (
     <div className="min-h-screen flex items-center justify-center bg-orange-100">
       <form onSubmit={handleSubmit} className="bg-white p-6 rounded shadow-md space-y-4 w-[300px]">
-        <h1 className="text-xl font-bold text-center">ระบุน้ำหนักและส่วนสูง</h1>
+        <h1 className="text-xl font-bold text-center">คุณมีโรคประจำตัวหรือเงื่อนไขสุขภาพหรือไม่?</h1>
 
         <input
-          type="number"
-          placeholder="น้ำหนัก (kg)"
-          value={weight}
-          onChange={(e) => setWeight(e.target.value)}
-          required
-          className="w-full border p-2 rounded"
-        />
-
-        <input
-          type="number"
-          placeholder="ส่วนสูง (cm)"
-          value={height}
-          onChange={(e) => setHeight(e.target.value)}
+          type="text"
+          placeholder="เช่น เบาหวาน, ความดัน, ไม่มี"
+          value={condition}
+          onChange={(e) => setCondition(e.target.value)}
           required
           className="w-full border p-2 rounded"
         />
