@@ -1,20 +1,27 @@
-// app/api/recommend-ai/route.ts
 import { NextResponse } from 'next/server';
 import { GoogleGenerativeAI } from '@google/generative-ai';
-import { connectToDatabase } from '@/lib/mongodb'; // ✅ ใช้ตาม lib ของคุณ
+import { connectToDatabase } from '@/lib/mongodb';
 
 const genAI = new GoogleGenerativeAI(process.env.NEXT_PUBLIC_GEMINI_API_KEY || '');
 
 interface MenuItem {
+  _id: any;
   name: string;
   calories: number;
   image?: string;
   tags?: string[];
 }
 
+interface AIMenu {
+  name: string;
+  calories: number;
+  image?: string;
+  reason?: string;
+}
+
 export async function GET() {
   try {
-    const mongoose = await connectToDatabase(); // ✅ เชื่อม Mongoose แล้วดึง connection
+    const mongoose = await connectToDatabase();
     const db = mongoose.connection.db;
 
     const user = await db.collection('users').findOne({}, { sort: { _id: -1 } });
@@ -51,7 +58,23 @@ ${menus.map((m: MenuItem, i: number) => `${i + 1}. ${m.name} (${m.calories} KCAL
     const jsonStart = responseText.indexOf('[');
     const jsonEnd = responseText.lastIndexOf(']');
     const jsonStr = responseText.slice(jsonStart, jsonEnd + 1);
-    const recommendedMenus = JSON.parse(jsonStr);
+    const parsedMenus: AIMenu[] = JSON.parse(jsonStr);
+
+    // ทำ map หา _id จริงจาก database ให้ Home ใช้ push(`/menu/${_id}`) ได้
+    const menuMap = Object.fromEntries(
+      menus.map((m: MenuItem) => [m.name.trim(), m])
+    );
+
+    const recommendedMenus = parsedMenus.map((aiMenu: AIMenu) => {
+      const matched = menuMap[aiMenu.name.trim()];
+      return {
+        _id: matched?._id?.toString() || 'undefined',
+        name: aiMenu.name,
+        calories: aiMenu.calories,
+        image: matched?.image || '/default.png',
+        reason: aiMenu.reason || '',
+      };
+    }).filter((m) => m._id !== 'undefined'); // ตัดเมนูที่ไม่มี _id ออก
 
     return NextResponse.json({ recommendedMenus });
   } catch (error) {
