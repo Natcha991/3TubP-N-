@@ -1,5 +1,5 @@
 // pages/login.tsx (สำหรับ Pages Router)
-// หรือ app/login/page.tsx (สำหรับ App Router) - ต้องใส่ 'use client'; ด้านบน
+// หรือ app/login/page.tsx (สำหรับ App Router)
 
 'use client'; // จำเป็นสำหรับ App Router และ Pages Router ที่ใช้ Hooks
 
@@ -12,8 +12,12 @@ export default function LoginPage() {
   const [error, setError] = useState<string | null>(null);
   const router = useRouter();
 
+  const goRegister = () => { 
+    router.push('/register1')
+  }
+
   const handleLogin = async (event: React.FormEvent) => {
-    event.preventDefault(); // ป้องกันการ reload หน้าเมื่อ submit form
+    event.preventDefault(); // ป้องกันการ reload หน้าเมื่อ submit form 
 
     if (!username.trim()) {
       setError('กรุณาป้อนชื่อผู้ใช้');
@@ -21,7 +25,7 @@ export default function LoginPage() {
     }
 
     setLoading(true);
-    setError(null);
+    setError(null); // เคลียร์ข้อผิดพลาดเก่าเมื่อพยายาม Login ใหม่
 
     try {
       // ส่ง username ไปยัง Backend API
@@ -51,47 +55,83 @@ export default function LoginPage() {
         const errorData = await res.json();
         setError(errorData.message || 'เกิดข้อผิดพลาดในการเข้าสู่ระบบ');
       }
-    } catch (err) {
+    } catch (err: any) { // ใช้ 'any' เพื่อให้ TypeScript ไม่ฟ้อง unknown type
       console.error('Login error:', err);
-      setError('เกิดข้อผิดพลาดในการเชื่อมต่อเซิร์ฟเวอร์');
+      // ปรับปรุงการแสดงข้อความ error ให้ยืดหยุ่นขึ้น
+      setError(err.message || 'เกิดข้อผิดพลาดในการเชื่อมต่อเซิร์ฟเวอร์');
     } finally {
       setLoading(false);
     }
   };
 
   return (
-    <div className="flex min-h-screen items-center justify-center bg-gray-100">
-      <div className="w-full max-w-md rounded-lg bg-white p-8 shadow-md">
-        <h2 className="mb-6 text-center text-3xl font-bold text-gray-800">เข้าสู่ระบบ</h2>
-        <form onSubmit={handleLogin} className="space-y-6">
-          <div>
-            <label htmlFor="username" className="block text-sm font-medium text-gray-700">
-              ชื่อผู้ใช้
-            </label>
-            <input
-              id="username"
-              name="username"
-              type="text"
-              required
-              value={username}
-              onChange={(e) => setUsername(e.target.value)}
-              className="mt-1 block w-full rounded-md border border-gray-300 px-3 py-2 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm"
-              placeholder="ป้อนชื่อผู้ใช้ของคุณ"
-            />
-          </div>
+    <div className="relative flex h-screen w-screen flex-col items-center bg-gradient-to-br from-orange-300 to-orange-100">
+      <div className="absolute left-0">
+        <img src="/group%2099.png" alt="Decoration"></img>
+      </div>
+      <div className="absolute right-0 rotate-[180deg] top-[30rem]">
+        <img src="/group%2099.png" alt="Decoration"></img>
+      </div>
+      <div className="absolute top-[20rem] left-[1.5rem] animate-shakeright">
+        <img className='' src="/image%2084.png" alt="Decoration"></img>
+      </div>
+      <div className="absolute top-[35rem] left-[19rem] rotate-[35deg] animate-shakeright2">
+        <img src="/image%2084.png" className='w-[140px]' alt="Decoration"></img>
+      </div>
 
-          {error && <p className="text-center text-sm text-red-600">{error}</p>}
-
-          <div>
-            <button
-              type="submit"
-              disabled={loading}
-              className="flex w-full justify-center rounded-md border border-transparent bg-indigo-600 py-2 px-4 text-sm font-medium text-white shadow-sm hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
-            >
-              {loading ? 'กำลังเข้าสู่ระบบ...' : 'เข้าสู่ระบบ'}
-            </button>
-          </div>
+      {/* ส่วนข้อความด้านบน */}
+      <div className="mt-[8rem] flex flex-col items-center">
+        <div className="w-full">
+          <h1 className='w-[330px] text-center font-prompt text-3xl font-[500] text-[#333333] mt-2'>
+            กรอกชื่อเพื่อเข้าสู่ระบบ
+          </h1>
+        </div>
+        <form onSubmit={handleLogin} className='font-prompt relative z-107 mt-[2rem] flex items-center'>
+          <input
+            id="username"
+            name="username"
+            type="text"
+            required
+            value={username}
+            onChange={(e) => setUsername(e.target.value)}
+            className='rounded-3xl border-2 border-[#333333] bg-white p-[0.5rem] px-[0.8rem]'
+            placeholder='ชื่อของคุณ'
+          />
+          <button
+            type='submit'
+            disabled={loading}
+            className='bg-grey-400 relative ml-[0.5rem] flex h-[45px] w-[45px] cursor-pointer items-center justify-center rounded-4xl border-2 border-[#333333] transition duration-300 hover:scale-105 disabled:cursor-not-allowed disabled:opacity-50'
+          >
+            <img src="/image%2082.png" alt="Login Icon" className="w-[20px] object-cover" /> {/* ไอคอน */}
+            {/* ✅ แก้ไขตรงนี้: ข้อความสถานะการโหลด */}
+            {loading && (
+              <span className="absolute inset-0 flex items-center justify-center text-[0.6rem] text-white bg-black bg-opacity-50 rounded-4xl">
+                กำลังโหลด...
+              </span>
+            )}
+          </button>
         </form>
+        <div className="">
+            <h1 onClick={goRegister} className='text-md text-brown mt-2 font-prompt cursor-pointer'>ยังไม่มีรหัส?</h1>
+        </div>
+        {/* ✅ เพิ่มการแสดงผลข้อผิดพลาดตรงนี้ */}
+        {error && (
+          <p className="mt-4 text-center text-sm text-red-600 z-107">
+            {error}
+          </p>
+        )}
+      </div>
+
+      {/* ----------------------------------------------------- */}
+      {/* ส่วนรูปภาพที่ต้องการให้โดนจอกิน (จัดกลางแนวตั้ง, ชิดขวา, กินขอบ) */}
+      {/* ----------------------------------------------------- */}
+      <div className="z-10 mt-[4rem] flex justify-center overflow-hidden">
+        <img
+          src="/image%2086.png"
+          alt='Decor'
+          // กำหนดความกว้างและความสูงคงที่
+          className="h-[540px] w-full"
+        />
       </div>
     </div>
   );
