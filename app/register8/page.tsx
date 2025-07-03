@@ -76,7 +76,7 @@ export default function Register8() { // เปลี่ยนชื่อ Compo
 
       if (res.ok) {
         alert('บันทึกข้อมูลเรียบร้อยแล้ว');
-        router.push('/'); // ✅ ไปหน้าเมนู หรือจะเปลี่ยนหน้าอื่นก็ได้ตามที่ระบุ
+        router.push(`/home?id=${userId}`); // ✅ แก้ไขให้ถูกต้อง
       } else {
         alert('❌ เกิดข้อผิดพลาดในการบันทึกไลฟ์สไตล์');
       }
