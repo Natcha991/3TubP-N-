@@ -1,7 +1,7 @@
 import mongoose from 'mongoose';
 import dotenv from 'dotenv';
 
-dotenv.config(); // 👈 โหลด .env.local
+dotenv.config(); // โหลด .env.local
 
 const MONGODB_URI = process.env.MONGODB_URI as string;
 
