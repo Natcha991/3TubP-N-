@@ -1,15 +1,16 @@
+// models/Chat.ts
 import mongoose from "mongoose";
 
-const ChatMessageSchema = new mongoose.Schema({
-  from: { type: String, enum: ["user", "ai"], required: true },
-  text: { type: String, required: true },
-  timestamp: { type: String, required: true },
+const ChatSchema = new mongoose.Schema({
+  sessionId: String,
+  chatLog: [
+    {
+      from: String,
+      text: String,
+      timestamp: String,
+    }
+  ],
+  createdAt: { type: Date, default: Date.now }
 });
 
-const ChatSessionSchema = new mongoose.Schema({
-  sessionId: { type: String, required: true },
-  chatLog: [ChatMessageSchema],
-  createdAt: { type: Date, default: Date.now },
-});
-
-export const ChatModel = mongoose.models.Chat || mongoose.model("Chat", ChatSessionSchema);
+export default mongoose.models.Chat || mongoose.model("Chat", ChatSchema);
