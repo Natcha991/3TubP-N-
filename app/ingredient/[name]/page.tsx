@@ -46,15 +46,15 @@ export default function IngredientPage() {
       <img
         src={
           ingredient.image
-            ? ingredient.image
-            : 'https://via.placeholder.com/400x250.png?text=No+Image'
+            ? `/ingredients/${ingredient.image}`
+            : '/default.png'
         }
         alt={ingredient.name}
         className="w-full max-h-[300px] object-contain my-4 rounded"
         onError={(e) => {
           const target = e.target as HTMLImageElement;
           target.onerror = null;
-          target.src = 'https://via.placeholder.com/400x250.png?text=No+Image';
+          target.src = '/default.png';
         }}
       />
 
