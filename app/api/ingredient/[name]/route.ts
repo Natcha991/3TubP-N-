@@ -1,21 +1,22 @@
 // app/api/ingredient/[name]/route.ts
-import { connectToDatabase } from '@/lib/mongodb';
 import { NextRequest, NextResponse } from 'next/server';
+import { connectToDatabase } from '@/lib/mongodb';
 
 export async function GET(req: NextRequest, { params }: { params: { name: string } }) {
-  const { name } = params;
-
   try {
     const mongoose = await connectToDatabase();
     const db = mongoose.connection.db;
-    const ingredient = await db.collection('ingredients').findOne({ name });
+
+    const ingredientName = decodeURIComponent(params.name); // 🔁 สำคัญ! แก้ชื่อให้เป็น UTF-8
+    const ingredient = await db.collection('ingredients').findOne({ name: ingredientName });
 
     if (!ingredient) {
       return NextResponse.json({ error: 'ไม่พบวัตถุดิบ' }, { status: 404 });
     }
 
     return NextResponse.json(ingredient);
-  } catch (err) {
-    return NextResponse.json({ error: 'เกิดข้อผิดพลาด' }, { status: 500 });
+  } catch (error) {
+    console.error('Error fetching ingredient:', error);
+    return NextResponse.json({ error: 'เกิดข้อผิดพลาดในระบบ' }, { status: 500 });
   }
 }

@@ -15,14 +15,24 @@ interface MenuItem {
   tags: string[];
 }
 
-export default function MenuDetailPage() {
-  const { id } = useParams() as { id: string };
-  const router = useRouter();
-  const goto = () => router.back();
+interface Ingredient {
+  name: string;
+  image: string;
+  description: string;
+  price: number;
+}
 
+export default function MenuPage() {
+  const router = useRouter();
+  const { id } = useParams() as { id: string };
   const methodCardsContainerRef = useRef<HTMLDivElement>(null);
+
   const [menu, setMenu] = useState<MenuItem | null>(null);
-  const [isLoading, setIsLoading] = useState(true);
+  const [ingredientsData, setIngredientsData] = useState<Ingredient[]>([]);
+  const [displayedSteps, setDisplayedSteps] = useState<string[]>([]);
+  const [nextStepIndex, setNextStepIndex] = useState(0);
+
+  const goto = () => router.push("/");
 
   useEffect(() => {
     if (!id) return;
@@ -33,21 +43,54 @@ export default function MenuDetailPage() {
         if (!res.ok) throw new Error("Menu not found");
         const data = await res.json();
         setMenu(data);
-        setIsLoading(false);
       } catch (error) {
         console.error("Error loading menu:", error);
-        setIsLoading(false);
       }
     };
 
     fetchMenu();
   }, [id]);
 
-  if (isLoading) return <div className="text-center mt-10">กำลังโหลดข้อมูล...</div>;
-  if (!menu) return <div className="text-center mt-10 text-red-600">ไม่พบเมนู</div>;
+  useEffect(() => {
+    const loadIngredients = async () => {
+      const ingredientNames = Array.isArray(menu?.ingredients)
+        ? menu.ingredients
+        : [menu?.ingredients ?? ''];
 
-  const instructions = Array.isArray(menu.instructions) ? menu.instructions : [menu.instructions];
-  const ingredients = Array.isArray(menu.ingredients) ? menu.ingredients : [menu.ingredients];
+      const promises = ingredientNames.map(async (name) => {
+        const res = await fetch(`/api/ingredient/${encodeURIComponent(name)}`);
+        if (!res.ok) return null;
+        return await res.json();
+      });
+
+      const results = await Promise.all(promises);
+      setIngredientsData(results.filter(Boolean) as Ingredient[]);
+    };
+
+    if (menu) loadIngredients();
+  }, [menu]);
+
+  useEffect(() => {
+    if (methodCardsContainerRef.current) {
+      methodCardsContainerRef.current.scrollTop = methodCardsContainerRef.current.scrollHeight;
+    }
+  }, [displayedSteps]);
+
+  const handleNextStep = () => {
+    const instructions = Array.isArray(menu?.instructions)
+      ? menu.instructions
+      : [menu?.instructions ?? ''];
+    if (nextStepIndex < instructions.length) {
+      setDisplayedSteps((prev) => [...prev, instructions[nextStepIndex]]);
+      setNextStepIndex((prev) => prev + 1);
+    }
+  };
+
+  if (!menu) return <div className="text-center mt-10">กำลังโหลดเมนู...</div>;
+
+  const instructions = Array.isArray(menu.instructions)
+    ? menu.instructions
+    : [menu.instructions];
 
   return (
     <div className="relative flex flex-col items-center">
@@ -62,7 +105,7 @@ export default function MenuDetailPage() {
       </div>
 
       {/* ภาพเมนู */}
-      <div>
+      <div className="">
         <img className="h-[330px] object-cover" src={menu.image || "/default.png"} alt={menu.name} />
       </div>
 
@@ -71,23 +114,59 @@ export default function MenuDetailPage() {
         <h1 className="text-3xl font-prompt text-[#611E1E] font-[600]">{menu.name}</h1>
         <h1 className="text-[0.7rem] w-[250px] mt-[0.5rem] text-[#953333] font-prompt">{menu.description}</h1>
 
-        <h2 className="mt-6 text-xl font-bold">วัตถุดิบ</h2>
-        {ingredients.length > 0 ? (
-          <ul className="list-disc pl-5 text-gray-800">
-            {ingredients.map((ing, idx) => <li key={`ing-${idx}`}>{ing}</li>)}
-          </ul>
-        ) : <p className="text-gray-500">ไม่พบข้อมูลวัตถุดิบ</p>}
+        {menu.tags.length > 0 && (
+          <div className="bg-[#ff770041] inline-block px-[1rem] py-[0.2rem] mt-[0.8rem] rounded-2xl">
+            <h1 className="font-[600] text-[0.8rem] text-[#953333] font-prompt">{menu.tags[0]}</h1>
+          </div>
+        )}
 
-        <h2 className="mt-6 text-xl font-bold">วิธีทำ</h2>
-        {instructions.length > 0 ? (
-          <ol className="list-decimal pl-5 text-gray-800">
-            {instructions.map((step, idx) => <li key={`step-${idx}`}>{step}</li>)}
-          </ol>
-        ) : <p className="text-gray-500">ไม่พบขั้นตอนการทำอาหาร</p>}
+        {/* วัตถุดิบ */}
+        <div className="font-prompt mt-[1.4rem]">
+          <h1 className="text-[1.6rem] text-[#333333] mb-[1.5rem] font-[600]">วัตถุดิบ</h1>
+          <div className="flex flex-col items-center gap-4">
+            {ingredientsData.map((ing, i) => (
+              <div
+                key={i}
+                onClick={() => router.push(`/ingredient/${encodeURIComponent(ing.name)}`)}
+                className="bg-[#FFFAD2] flex justify-between px-[1rem] items-center border border-[#C9AF90] w-full h-[3rem] rounded-[8px] hover:scale-102 cursor-pointer"
+              >
+                <div className="flex items-center gap-2.5">
+                  <img className="h-[40px] w-[40px] object-cover rounded-full" src={ing.image || "/default.png"} alt={ing.name} />
+                  <h1>{ing.name}</h1>
+                </div>
+                <h1 className="text-[0.8rem] text-[#777]">฿{ing.price}</h1>
+              </div>
+            ))}
+          </div>
+        </div>
 
-        <div className="mt-6 flex gap-2">
-          <button className="bg-green-500 text-white px-4 py-2 rounded">เพิ่มในเมนูของฉัน</button>
-          <button className="bg-yellow-500 text-white px-4 py-2 rounded">ถาม Mr. Rice</button>
+        {/* วิธีการทำ */}
+        <div className="font-prompt mt-[3rem]">
+          <h1 className="text-[1.6rem] text-[#333333] mb-[1.5rem] font-[600]">วิธีการทำ</h1>
+          <div ref={methodCardsContainerRef} className="flex flex-col items-center gap-4 overflow-y-auto pb-4 max-h-[400px] scrollbar-thin scrollbar-thumb-rounded scrollbar-thumb-[#C9AF90]">
+            {displayedSteps.map((step, index) => (
+              <MethodCard
+                key={index}
+                num={index + 1}
+                title={`ขั้นตอนที่ ${index + 1}`}
+                detail={step}
+                imageUrl={menu.image || ""}
+              />
+            ))}
+          </div>
+
+          <div className="flex justify-center mt-4">
+            <button
+              onClick={handleNextStep}
+              disabled={nextStepIndex >= instructions.length}
+              className="flex-none bg-[#FFF5DD] cursor-pointer flex justify-center items-center border-2 border-[#C9AF90] w-[6.5rem] h-[2.5rem] rounded-[8px] hover:scale-103 disabled:opacity-50 disabled:cursor-not-allowed"
+            >
+              <div className="flex flex-col items-center text-[#333333]">
+                <h1 className="text-[0.8rem] mb-[-0.2rem]">ถัดไป</h1>
+                <h1 className="text-[0.4rem]">(กดเพื่อดูวิธีต่อไป)</h1>
+              </div>
+            </button>
+          </div>
         </div>
       </div>
     </div>
