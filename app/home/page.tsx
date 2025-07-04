@@ -78,7 +78,7 @@ export default function Home() {
   // ถ้าข้อมูลกำลังโหลดอยู่
   if (isLoadingMenus) { // เหลือแค่ isLoadingMenus
     return (
-      <div className="flex min-h-screen items-center justify-center bg-gradient-to-br from-orange-300 to-orange-100 text-xl text-gray-700">
+      <div className="flex font-prompt min-h-screen items-center justify-center bg-gradient-to-br from-orange-300 to-orange-100 text-xl text-gray-700">
         กำลังโหลดข้อมูล...
       </div>
     );
@@ -93,9 +93,8 @@ export default function Home() {
         <div className="[background:linear-gradient(0deg,rgba(255,255,255,0.54)_0%,rgba(255,255,255,1)_100%)] w-[181px] pt-[7rem] pb-[5rem] px-[2rem] mr-[11.5rem] rounded-br-3xl">
           <div className="absolute top-[2rem]">
             {/* รูปภาพของเมนูหลัก */}
-            <img className="w-[80px] bg-black  h-[80px] rounded-full object-cover"
-              src={mainDisplayedMenu?.image || "/default_menu.png"} // ใช้รูป default หากไม่มี
-              alt={mainDisplayedMenu?.name || "Main Menu"}
+            <img className="w-[60px] bg-white  h-[60px] rounded-full object-cover"
+              src="/image%2076.png"
             />
           </div>
           {/* ชื่อเมนูหลัก */}
@@ -117,6 +116,8 @@ export default function Home() {
           </div>
         </div>
         {/* รุปภาพหลักของเมนูอยู่ตรงนี้ */}
+        {/* src={mainDisplayedMenu?.image || "/default_menu.png"} // ใช้รูป default หากไม่มี
+              alt={mainDisplayedMenu?.name || "Main Menu"} */}
         <img className="absolute z-[-1] object-cover max-w-[365px] [mask-image:linear-gradient(to_bottom,black_60%,transparent)]" src="/image%2048.png" alt="Hero Background" />
       </div>
 

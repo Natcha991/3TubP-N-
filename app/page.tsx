@@ -37,7 +37,7 @@ export default function Home() {
     // คุณอาจจะเพิ่ม Loader หรือ UI อื่นๆ ในขณะที่กำลังตรวจสอบ isRegistered
     if (isRegistered === null) {
         return (
-            <div className="flex h-screen w-screen items-center justify-center bg-gradient-to-br from-orange-300 to-orange-100 text-xl text-gray-700">
+            <div className="flex h-screen w-screen items-center font-prompt justify-center bg-gradient-to-br from-orange-300 to-orange-100 text-xl text-gray-700">
                 กำลังตรวจสอบสถานะ...
             </div>
         );

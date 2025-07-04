@@ -15,24 +15,17 @@ interface MenuItem {
   tags: string[];
 }
 
-interface Ingredient {
-  name: string;
-  image: string;
-  description: string;
-  price: number;
-}
-
 export default function MenuPage() {
   const router = useRouter();
   const { id } = useParams() as { id: string };
   const methodCardsContainerRef = useRef<HTMLDivElement>(null);
 
   const [menu, setMenu] = useState<MenuItem | null>(null);
-  const [ingredientsData, setIngredientsData] = useState<Ingredient[]>([]);
   const [displayedSteps, setDisplayedSteps] = useState<string[]>([]);
   const [nextStepIndex, setNextStepIndex] = useState(0);
 
-  const goto = () => router.push("/");
+  const goto = () => router.push("/home");
+  const gotoIngredientPage = () => router.push("/ingredient");
 
   useEffect(() => {
     if (!id) return;
@@ -52,45 +45,23 @@ export default function MenuPage() {
   }, [id]);
 
   useEffect(() => {
-    const loadIngredients = async () => {
-      const ingredientNames = Array.isArray(menu?.ingredients)
-        ? menu.ingredients
-        : [menu?.ingredients ?? ''];
-
-      const promises = ingredientNames.map(async (name) => {
-        const res = await fetch(`/api/ingredient/${encodeURIComponent(name)}`);
-        if (!res.ok) return null;
-        return await res.json();
-      });
-
-      const results = await Promise.all(promises);
-      setIngredientsData(results.filter(Boolean) as Ingredient[]);
-    };
-
-    if (menu) loadIngredients();
-  }, [menu]);
-
-  useEffect(() => {
     if (methodCardsContainerRef.current) {
       methodCardsContainerRef.current.scrollTop = methodCardsContainerRef.current.scrollHeight;
     }
   }, [displayedSteps]);
 
   const handleNextStep = () => {
-    const instructions = Array.isArray(menu?.instructions)
-      ? menu.instructions
-      : [menu?.instructions ?? ''];
+    const instructions = Array.isArray(menu?.instructions) ? menu.instructions : [menu?.instructions ?? ''];
     if (nextStepIndex < instructions.length) {
-      setDisplayedSteps((prev) => [...prev, instructions[nextStepIndex]]);
-      setNextStepIndex((prev) => prev + 1);
+      setDisplayedSteps(prev => [...prev, instructions[nextStepIndex]]);
+      setNextStepIndex(prev => prev + 1);
     }
   };
 
-  if (!menu) return <div className="text-center mt-10">กำลังโหลดเมนู...</div>;
+  if (!menu) return <div className="text-center mt-10 font-prompt">กำลังโหลดเมนู...</div>;
 
-  const instructions = Array.isArray(menu.instructions)
-    ? menu.instructions
-    : [menu.instructions];
+  const ingredients = Array.isArray(menu.ingredients) ? menu.ingredients : [menu.ingredients];
+  const instructions = Array.isArray(menu.instructions) ? menu.instructions : [menu.instructions];
 
   return (
     <div className="relative flex flex-col items-center">
@@ -110,7 +81,7 @@ export default function MenuPage() {
       </div>
 
       {/* ข้อมูลเมนู */}
-      <div className="mx-[1.5rem]">
+      <div className="mx-[1.5rem] w-[400px]">
         <h1 className="text-3xl font-prompt text-[#611E1E] font-[600]">{menu.name}</h1>
         <h1 className="text-[0.7rem] w-[250px] mt-[0.5rem] text-[#953333] font-prompt">{menu.description}</h1>
 
@@ -124,17 +95,12 @@ export default function MenuPage() {
         <div className="font-prompt mt-[1.4rem]">
           <h1 className="text-[1.6rem] text-[#333333] mb-[1.5rem] font-[600]">วัตถุดิบ</h1>
           <div className="flex flex-col items-center gap-4">
-            {ingredientsData.map((ing, i) => (
-              <div
-                key={i}
-                onClick={() => router.push(`/ingredient/${encodeURIComponent(ing.name)}`)}
-                className="bg-[#FFFAD2] flex justify-between px-[1rem] items-center border border-[#C9AF90] w-full h-[3rem] rounded-[8px] hover:scale-102 cursor-pointer"
-              >
+            {ingredients.map((ing, i) => (
+              <div key={i} onClick={gotoIngredientPage} className="bg-[#FFFAD2] flex justify-between px-[1rem] items-center border border-[#C9AF90] w-full h-[2rem] rounded-[8px] hover:scale-102 cursor-pointer">
                 <div className="flex items-center gap-2.5">
-                  <img className="h-[40px] w-[40px] object-cover rounded-full" src={ing.image || "/default.png"} alt={ing.name} />
-                  <h1>{ing.name}</h1>
+                  <img className="h-[50px]" src="/image%2066.png" alt="ingredient" />
+                  <h1>{ing}</h1>
                 </div>
-                <h1 className="text-[0.8rem] text-[#777]">฿{ing.price}</h1>
               </div>
             ))}
           </div>
@@ -143,7 +109,7 @@ export default function MenuPage() {
         {/* วิธีการทำ */}
         <div className="font-prompt mt-[3rem]">
           <h1 className="text-[1.6rem] text-[#333333] mb-[1.5rem] font-[600]">วิธีการทำ</h1>
-          <div ref={methodCardsContainerRef} className="flex flex-col items-center gap-4 overflow-y-auto pb-4 max-h-[400px] scrollbar-thin scrollbar-thumb-rounded scrollbar-thumb-[#C9AF90]">
+          <div ref={methodCardsContainerRef} className="flex flex-col items-center gap-4 overflow-y-auto pb-4 max-h-full scrollbar-thin scrollbar-thumb-rounded scrollbar-thumb-[#C9AF90]">
             {displayedSteps.map((step, index) => (
               <MethodCard
                 key={index}
@@ -166,6 +132,20 @@ export default function MenuPage() {
                 <h1 className="text-[0.4rem]">(กดเพื่อดูวิธีต่อไป)</h1>
               </div>
             </button>
+          </div>
+        </div>
+      </div>
+
+      {/* เมนูใกล้เคียง */}
+      <div className="relative flex justify-center font-prompt mt-6">
+        <div className="w-full max-w-[360px] mb-[2rem]">
+          <h1 className="font-[600] text-[#333333] mt-[1.5rem] mb-[0.8rem] text-[1.25rem]">เมนูใกล้เคียง</h1>
+          <div className="flex gap-2 justify-center">
+            {/* dummy card */}
+            <div className="flex flex-col items-center bg-white border-2 border-[#C9AF90] rounded-t-full">
+              <img className="h-[90px] hover:scale-105 cursor-pointer" src="/image%2074.png" alt="similar" />
+              <h1 className="text-[0.8rem] my-[0.4rem] text-[#953333]">บิมบิมบับ</h1>
+            </div>
           </div>
         </div>
       </div>
