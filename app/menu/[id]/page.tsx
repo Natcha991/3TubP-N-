@@ -15,17 +15,15 @@ interface MenuItem {
   tags: string[];
 }
 
-export default function MenuPage() {
+export default function MenuDetailPage() {
+  const rawId = useParams()?.id;
+  const id = typeof rawId === 'string' ? rawId : '';
   const router = useRouter();
   const { id } = useParams() as { id: string };
   const methodCardsContainerRef = useRef<HTMLDivElement>(null);
 
   const [menu, setMenu] = useState<MenuItem | null>(null);
-  const [displayedSteps, setDisplayedSteps] = useState<string[]>([]);
-  const [nextStepIndex, setNextStepIndex] = useState(0);
-
-  const goto = () => router.push("/home");
-  const gotoIngredientPage = () => router.push("/ingredient");
+  const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
     if (!id) return;
@@ -44,24 +42,26 @@ export default function MenuPage() {
     fetchMenu();
   }, [id]);
 
-  useEffect(() => {
-    if (methodCardsContainerRef.current) {
-      methodCardsContainerRef.current.scrollTop = methodCardsContainerRef.current.scrollHeight;
-    }
-  }, [displayedSteps]);
+  if (isLoading) {
+    return <div className="text-center mt-10">กำลังโหลดข้อมูล...</div>;
+  }
 
-  const handleNextStep = () => {
-    const instructions = Array.isArray(menu?.instructions) ? menu.instructions : [menu?.instructions ?? ''];
-    if (nextStepIndex < instructions.length) {
-      setDisplayedSteps(prev => [...prev, instructions[nextStepIndex]]);
-      setNextStepIndex(prev => prev + 1);
-    }
-  };
+  if (!menu) {
+    return <div className="text-center mt-10 text-red-600">ไม่พบเมนู</div>;
+  }
 
-  if (!menu) return <div className="text-center mt-10">กำลังโหลดเมนู...</div>;
+  // 🛡 ป้องกัน error ถ้า instructions หรือ ingredients ไม่ใช่ array
+  const instructions = Array.isArray(menu.instructions)
+    ? menu.instructions
+    : typeof menu.instructions === 'string'
+    ? [menu.instructions]
+    : [];
 
-  const ingredients = Array.isArray(menu.ingredients) ? menu.ingredients : [menu.ingredients];
-  const instructions = Array.isArray(menu.instructions) ? menu.instructions : [menu.instructions];
+  const ingredients = Array.isArray(menu.ingredients)
+    ? menu.ingredients
+    : typeof menu.ingredients === 'string'
+    ? [menu.ingredients]
+    : [];
 
   return (
     <div className="relative flex flex-col items-center">
@@ -85,69 +85,31 @@ export default function MenuPage() {
         <h1 className="text-3xl font-prompt text-[#611E1E] font-[600]">{menu.name}</h1>
         <h1 className="text-[0.7rem] w-[250px] mt-[0.5rem] text-[#953333] font-prompt">{menu.description}</h1>
 
-        {menu.tags.length > 0 && (
-          <div className="bg-[#ff770041] inline-block px-[1rem] py-[0.2rem] mt-[0.8rem] rounded-2xl">
-            <h1 className="font-[600] text-[0.8rem] text-[#953333] font-prompt">{menu.tags[0]}</h1>
-          </div>
-        )}
+      <h2 className="mt-6 text-xl font-bold">วัตถุดิบ</h2>
+      {ingredients.length > 0 ? (
+        <ul className="list-disc pl-5 text-gray-800">
+          {ingredients.map((ing, idx) => (
+            <li key={`ing-${idx}`}>{ing}</li>
+          ))}
+        </ul>
+      ) : (
+        <p className="text-gray-500">ไม่พบข้อมูลวัตถุดิบ</p>
+      )}
 
-        {/* วัตถุดิบ */}
-        <div className="font-prompt mt-[1.4rem]">
-          <h1 className="text-[1.6rem] text-[#333333] mb-[1.5rem] font-[600]">วัตถุดิบ</h1>
-          <div className="flex flex-col items-center gap-4">
-            {ingredients.map((ing, i) => (
-              <div key={i} onClick={gotoIngredientPage} className="bg-[#FFFAD2] flex justify-between px-[1rem] items-center border border-[#C9AF90] w-full h-[2rem] rounded-[8px] hover:scale-102 cursor-pointer">
-                <div className="flex items-center gap-2.5">
-                  <img className="h-[50px]" src="/image%2066.png" alt="ingredient" />
-                  <h1>{ing}</h1>
-                </div>
-              </div>
-            ))}
-          </div>
-        </div>
+      <h2 className="mt-6 text-xl font-bold">วิธีทำ</h2>
+      {instructions.length > 0 ? (
+        <ol className="list-decimal pl-5 text-gray-800">
+          {instructions.map((step, idx) => (
+            <li key={`step-${idx}`}>{step}</li>
+          ))}
+        </ol>
+      ) : (
+        <p className="text-gray-500">ไม่พบขั้นตอนการทำอาหาร</p>
+      )}
 
-        {/* วิธีการทำ */}
-        <div className="font-prompt mt-[3rem]">
-          <h1 className="text-[1.6rem] text-[#333333] mb-[1.5rem] font-[600]">วิธีการทำ</h1>
-          <div ref={methodCardsContainerRef} className="flex flex-col items-center gap-4 overflow-y-auto pb-4 max-h-[400px] scrollbar-thin scrollbar-thumb-rounded scrollbar-thumb-[#C9AF90]">
-            {displayedSteps.map((step, index) => (
-              <MethodCard
-                key={index}
-                num={index + 1}
-                title={`ขั้นตอนที่ ${index + 1}`}
-                detail={step}
-                imageUrl={menu.image || ""}
-              />
-            ))}
-          </div>
-
-          <div className="flex justify-center mt-4">
-            <button
-              onClick={handleNextStep}
-              disabled={nextStepIndex >= instructions.length}
-              className="flex-none bg-[#FFF5DD] cursor-pointer flex justify-center items-center border-2 border-[#C9AF90] w-[6.5rem] h-[2.5rem] rounded-[8px] hover:scale-103 disabled:opacity-50 disabled:cursor-not-allowed"
-            >
-              <div className="flex flex-col items-center text-[#333333]">
-                <h1 className="text-[0.8rem] mb-[-0.2rem]">ถัดไป</h1>
-                <h1 className="text-[0.4rem]">(กดเพื่อดูวิธีต่อไป)</h1>
-              </div>
-            </button>
-          </div>
-        </div>
-      </div>
-
-      {/* เมนูใกล้เคียง */}
-      <div className="relative flex justify-center font-prompt mt-6">
-        <div className="w-full max-w-[360px] mb-[2rem]">
-          <h1 className="font-[600] text-[#333333] mt-[1.5rem] mb-[0.8rem] text-[1.25rem]">เมนูใกล้เคียง</h1>
-          <div className="flex gap-2 justify-center">
-            {/* dummy card */}
-            <div className="flex flex-col items-center bg-white border-2 border-[#C9AF90] rounded-t-full">
-              <img className="h-[90px] hover:scale-105 cursor-pointer" src="/image%2074.png" alt="similar" />
-              <h1 className="text-[0.8rem] my-[0.4rem] text-[#953333]">บิมบิมบับ</h1>
-            </div>
-          </div>
-        </div>
+      <div className="mt-6 flex gap-2">
+        <button className="bg-green-500 text-white px-4 py-2 rounded">เพิ่มในเมนูของฉัน</button>
+        <button className="bg-yellow-500 text-white px-4 py-2 rounded">ถาม Mr. Rice</button>
       </div>
     </div>
   );
