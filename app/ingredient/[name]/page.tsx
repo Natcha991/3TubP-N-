@@ -37,9 +37,8 @@ export default function IngredientPage() {
         }
     };
 
-    const gotoChatbot = () => {
-        alert("เปิดหน้า Chatbot เพื่อคุยกับ Mr. Rice!");
-        // router.push("/chatbot");
+    const gotoChatbot = () => { 
+        router.push("/chatbot");
     };
 
     // --- Data Fetching ---
@@ -83,15 +82,15 @@ export default function IngredientPage() {
 
     // --- Loading and Error States ---
     if (isLoading) {
-        return <div className="flex justify-center items-center h-screen text-center text-lg text-gray-700">กำลังโหลดข้อมูลวัตถุดิบ...</div>;
+        return <div className="flex justify-center items-center h-screen text-center text-lg font-prompt text-gray-700">กำลังโหลดข้อมูลวัตถุดิบ...</div>;
     }
 
     if (error) {
-        return <div className="flex justify-center items-center h-screen text-center text-lg text-red-500">{error}</div>;
+        return <div className="flex justify-center items-center h-screen text-center font-prompt text-lg text-red-500">{error}</div>;
     }
 
     if (!ingredient) {
-        return <div className="flex justify-center items-center h-screen text-center text-lg text-gray-700">ไม่พบข้อมูลวัตถุดิบนี้</div>;
+        return <div className="flex justify-center items-center h-screen text-center font-prompt text-lg text-gray-700">ไม่พบข้อมูลวัตถุดิบนี้</div>;
     }
 
     const ingredientImageUrl = ingredient.image

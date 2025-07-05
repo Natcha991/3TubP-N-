@@ -1,6 +1,6 @@
 'use client';
 
-import { useRouter } from "next/navigation";
+import { useRouter , useSearchParams } from "next/navigation";
 import { useState, useRef, useEffect } from "react";
 import { GoogleGenerativeAI } from "@google/generative-ai";
 
@@ -16,12 +16,14 @@ export default function IngredientPage() {
   const [chatLog, setChatLog] = useState<ChatMessage[]>([]);
   const [isLoading, setIsLoading] = useState(false);
   const chatContainerRef = useRef<HTMLDivElement>(null);
+  const searchParams = useSearchParams();
+  const userId = searchParams.get('id'); // ดึง userId จาก URL
 
   const genAI = new GoogleGenerativeAI(
     process.env.NEXT_PUBLIC_GEMINI_API_KEY as string
   );
 
-  const goto = () => router.push("/");
+  const goto = () => router.push(`/home?id=${userId}`);
 
   useEffect(() => {
     if (chatContainerRef.current) {
@@ -184,9 +186,8 @@ export default function IngredientPage() {
             {chatLog.map((msg, index) => (
               <div
                 key={index}
-                className={`flex flex-col items-center gap-1 ${
-                  msg.from === "user" ? "self-end" : "self-start"
-                }`}
+                className={`flex flex-col items-center gap-1 ${msg.from === "user" ? "self-end" : "self-start"
+                  }`}
               >
                 {msg.from === "user" && (
                   <h1 className="text-white text-[0.7rem] self-center">
@@ -194,9 +195,8 @@ export default function IngredientPage() {
                   </h1>
                 )}
                 <div
-                  className={`flex items-start gap-2 ${
-                    msg.from === "user" ? "flex-row-reverse" : ""
-                  }`}
+                  className={`flex items-start gap-2 ${msg.from === "user" ? "flex-row-reverse" : ""
+                    }`}
                 >
                   <img
                     src={
@@ -208,14 +208,13 @@ export default function IngredientPage() {
                     className="w-[40px] h-[40px] rounded-full flex-shrink-0"
                   />
                   <div
-                    className={`break-words p-2 rounded-2xl shadow ${
-                      msg.from === "user"
+                    className={`break-words p-2 rounded-2xl shadow ${msg.from === "user"
                         ? "bg-blue-500 text-white max-w-[calc(100vw-120px)] text-base"
                         : `bg-white text-gray-800 max-w-[calc(100vw-150px)] ${getFontSizeClass(
-                            msg.text,
-                            true
-                          )}`
-                    }`}
+                          msg.text,
+                          true
+                        )}`
+                      }`}
                   >
                     {msg.text}
                   </div>

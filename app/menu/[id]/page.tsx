@@ -55,7 +55,7 @@ export default function MenuPage() {
     const loadIngredients = async () => {
       const ingredientNames = Array.isArray(menu?.ingredients)
         ? menu.ingredients
-        : [menu?.ingredients ?? ''];
+        : (menu?.ingredients ? [menu.ingredients] : []); // Handle single string or undefined
 
       const promises = ingredientNames.map(async (name) => {
         const res = await fetch(`/api/ingredient/${encodeURIComponent(name)}`);
@@ -70,6 +70,20 @@ export default function MenuPage() {
     if (menu) loadIngredients();
   }, [menu]);
 
+  // NEW useEffect: Display the first instruction automatically
+  useEffect(() => {
+    if (menu && menu.instructions && displayedSteps.length === 0) {
+      const instructions = Array.isArray(menu.instructions)
+        ? menu.instructions
+        : [menu.instructions];
+
+      if (instructions.length > 0) {
+        setDisplayedSteps([instructions[0]]);
+        setNextStepIndex(1); // Set nextStepIndex to 1, as step 0 is now displayed
+      }
+    }
+  }, [menu]); // Run this effect when 'menu' data is available
+
   useEffect(() => {
     if (methodCardsContainerRef.current) {
       methodCardsContainerRef.current.scrollTop = methodCardsContainerRef.current.scrollHeight;
@@ -79,7 +93,7 @@ export default function MenuPage() {
   const handleNextStep = () => {
     const instructions = Array.isArray(menu?.instructions)
       ? menu.instructions
-      : [menu?.instructions ?? ''];
+      : (menu?.instructions ? [menu.instructions] : []); // Handle single string or undefined
     if (nextStepIndex < instructions.length) {
       setDisplayedSteps((prev) => [...prev, instructions[nextStepIndex]]);
       setNextStepIndex((prev) => prev + 1);
@@ -127,7 +141,8 @@ export default function MenuPage() {
             {ingredientsData.map((ing, i) => (
               <div
                 key={i}
-                onClick={() => router.push(`/ingredient/${encodeURIComponent(ing.name)}`)}
+                // When navigating to ingredient page, pass the current menu ID as a query param
+                onClick={() => router.push(`/ingredient/${encodeURIComponent(ing.name)}?menuId=${id}`)}
                 className="bg-[#FFFAD2] flex justify-between px-[1rem] items-center border border-[#C9AF90] w-full h-[3rem] rounded-[8px] hover:scale-102 cursor-pointer"
               >
                 <div className="flex items-center gap-2.5">
@@ -143,6 +158,7 @@ export default function MenuPage() {
         {/* วิธีการทำ */}
         <div className="font-prompt mt-[3rem]">
           <h1 className="text-[1.6rem] text-[#333333] mb-[1.5rem] font-[600]">วิธีการทำ</h1>
+          {/* ส่วนนี้ให้โชว์วิธีการทำวิธีแรกเลยโดยไม่ต้องกด ถัดไป */}
           <div ref={methodCardsContainerRef} className="flex flex-col items-center gap-4 overflow-y-auto pb-4 max-h-full scrollbar-thin scrollbar-thumb-rounded scrollbar-thumb-[#C9AF90]">
             {displayedSteps.map((step, index) => (
               <MethodCard
