@@ -55,7 +55,7 @@ export default function MenuPage() {
     const loadIngredients = async () => {
       const ingredientNames = Array.isArray(menu?.ingredients)
         ? menu.ingredients
-        : (menu?.ingredients ? [menu.ingredients] : []); // Handle single string or undefined
+        : (menu?.ingredients ? [menu.ingredients] : []);
 
       const promises = ingredientNames.map(async (name) => {
         const res = await fetch(`/api/ingredient/${encodeURIComponent(name)}`);
@@ -70,7 +70,6 @@ export default function MenuPage() {
     if (menu) loadIngredients();
   }, [menu]);
 
-  // NEW useEffect: Display the first instruction automatically
   useEffect(() => {
     if (menu && menu.instructions && displayedSteps.length === 0) {
       const instructions = Array.isArray(menu.instructions)
@@ -79,10 +78,10 @@ export default function MenuPage() {
 
       if (instructions.length > 0) {
         setDisplayedSteps([instructions[0]]);
-        setNextStepIndex(1); // Set nextStepIndex to 1, as step 0 is now displayed
+        setNextStepIndex(1);
       }
     }
-  }, [menu]); // Run this effect when 'menu' data is available
+  }, [menu]);
 
   useEffect(() => {
     if (methodCardsContainerRef.current) {
@@ -93,7 +92,7 @@ export default function MenuPage() {
   const handleNextStep = () => {
     const instructions = Array.isArray(menu?.instructions)
       ? menu.instructions
-      : (menu?.instructions ? [menu.instructions] : []); // Handle single string or undefined
+      : (menu?.instructions ? [menu.instructions] : []);
     if (nextStepIndex < instructions.length) {
       setDisplayedSteps((prev) => [...prev, instructions[nextStepIndex]]);
       setNextStepIndex((prev) => prev + 1);
@@ -108,7 +107,6 @@ export default function MenuPage() {
 
   return (
     <div className="relative flex flex-col items-center">
-      {/* HEADER */}
       <div className="absolute z-1 flex justify-between m-[2rem] items-center sm:w-[95%] w-[85%]">
         <div onClick={goto} className="bg-white h-[50px] flex justify-center cursor-pointer transform hover:scale-103 items-center w-[50px] rounded-full shadow-2xl">
           <img className="h-[15px]" src="/Group%2084.png" alt="back" />
@@ -118,12 +116,19 @@ export default function MenuPage() {
         </div>
       </div>
 
-      {/* ภาพเมนู */}
-      <div className="">
-        <img className="h-[330px] object-cover" src={menu.image || "/default.png"} alt={menu.name} />
+      <div>
+        <img
+          className="h-[330px] object-cover"
+          src={menu.image ? `/menus/${encodeURIComponent(menu.image)}` : "/default.png"}
+          alt={menu.name}
+          onError={(e) => {
+            const target = e.target as HTMLImageElement;
+            target.onerror = null;
+            target.src = "/default.png";
+          }}
+        />
       </div>
 
-      {/* ข้อมูลเมนู */}
       <div className="mx-[1.5rem] w-[400px]">
         <h1 className="text-3xl font-prompt text-[#611E1E] font-[600]">{menu.name}</h1>
         <h1 className="text-[0.7rem] w-[250px] mt-[0.5rem] text-[#953333] font-prompt">{menu.description}</h1>
@@ -134,19 +139,26 @@ export default function MenuPage() {
           </div>
         )}
 
-        {/* วัตถุดิบ */}
         <div className="font-prompt mt-[1.4rem]">
           <h1 className="text-[1.6rem] text-[#333333] mb-[1.5rem] font-[600]">วัตถุดิบ</h1>
           <div className="flex flex-col items-center gap-4">
             {ingredientsData.map((ing, i) => (
               <div
                 key={i}
-                // When navigating to ingredient page, pass the current menu ID as a query param
                 onClick={() => router.push(`/ingredient/${encodeURIComponent(ing.name)}?menuId=${id}`)}
                 className="bg-[#FFFAD2] flex justify-between px-[1rem] items-center border border-[#C9AF90] w-full h-[3rem] rounded-[8px] hover:scale-102 cursor-pointer"
               >
                 <div className="flex items-center gap-2.5">
-                  <img className="h-[40px] w-[40px] object-cover rounded-full" src={ing.image || "/default.png"} alt={ing.name} />
+                  <img
+                    className="h-[40px] w-[40px] object-cover rounded-full"
+                    src={ing.image ? `/ingredients/${encodeURIComponent(ing.image)}` : "/default.png"}
+                    alt={ing.name}
+                    onError={(e) => {
+                      const target = e.target as HTMLImageElement;
+                      target.onerror = null;
+                      target.src = "/default.png";
+                    }}
+                  />
                   <h1>{ing.name}</h1>
                 </div>
                 <h1 className="text-[0.8rem] text-[#777]">฿{ing.price}</h1>
@@ -155,10 +167,8 @@ export default function MenuPage() {
           </div>
         </div>
 
-        {/* วิธีการทำ */}
         <div className="font-prompt mt-[3rem]">
           <h1 className="text-[1.6rem] text-[#333333] mb-[1.5rem] font-[600]">วิธีการทำ</h1>
-          {/* ส่วนนี้ให้โชว์วิธีการทำวิธีแรกเลยโดยไม่ต้องกด ถัดไป */}
           <div ref={methodCardsContainerRef} className="flex flex-col items-center gap-4 overflow-y-auto pb-4 max-h-full scrollbar-thin scrollbar-thumb-rounded scrollbar-thumb-[#C9AF90]">
             {displayedSteps.map((step, index) => (
               <MethodCard
@@ -166,7 +176,7 @@ export default function MenuPage() {
                 num={index + 1}
                 title={`ขั้นตอนที่ ${index + 1}`}
                 detail={step}
-                imageUrl={menu.image || ""}
+                imageUrl={menu.image ? `/menus/${encodeURIComponent(menu.image)}` : ""}
               />
             ))}
           </div>
