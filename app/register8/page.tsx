@@ -99,7 +99,7 @@ export default function Register8() { // เปลี่ยนชื่อ Compo
   }, []); // Empty dependency array means this runs once on mount
 
   return (
-    <div className="relative h-screen w-screen cursor-pointer flex flex-col items-center bg-gradient-to-br from-orange-300 to-orange-100">
+    <div className="relative h-screen w-screen cursor-pointer font-prompt flex flex-col items-center bg-gradient-to-br from-orange-300 to-orange-100">
       <div className="absolute left-0">
         <img src="/group%2099.png" alt="Decoration"></img>
       </div>

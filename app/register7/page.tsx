@@ -112,7 +112,7 @@ export default function Register7() { // เปลี่ยนชื่อ Compo
   }, []); // Run once on mount
 
   return (
-    <div className="relative h-screen w-screen cursor-pointer flex flex-col items-center bg-gradient-to-br from-orange-300 to-orange-100">
+    <div className="relative h-screen w-screen cursor-pointer font-prompt flex flex-col items-center bg-gradient-to-br from-orange-300 to-orange-100">
       <div className="absolute left-0">
         <img src="/group%2099.png" alt="Decoration"></img>
       </div>
@@ -128,7 +128,7 @@ export default function Register7() { // เปลี่ยนชื่อ Compo
 
       <div className="flex flex-col z-100 items-center mt-[4rem]">
         <div className="w-full">
-          <h1 className='text-center text-[#333333] mt-2 font-prompt font-[600] text-3xl'>เลือกข้อจำกัดด้านสุขภาพของคุณ</h1>
+          <h1 className='text-center text-[#333333] mt-2 font-prompt font-[600] text-3xl'>เลือกข้อจำกัดด้าน<br></br>สุขภาพของคุณ</h1>
         </div>
         <div className="flex-1 flex items-start justify-center pt-11">
           <div className="w-full max-w-sm">
