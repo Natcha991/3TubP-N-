@@ -12,7 +12,7 @@ export default function LoginPage() {
   const [error, setError] = useState<string | null>(null);
   const router = useRouter();
 
-  const goRegister = () => { 
+  const goRegister = () => {
     router.push('/register1')
   }
 
@@ -112,7 +112,7 @@ export default function LoginPage() {
           </button>
         </form>
         <div className="">
-            <h1 onClick={goRegister} className='text-md text-brown mt-2 font-prompt cursor-pointer'>ยังไม่มีรหัส?</h1>
+          <h1 onClick={goRegister} className='text-md text-red-600 mt-2 underline font-prompt cursor-pointer'>ยังไม่มีรหัส?</h1>
         </div>
         {/* ✅ เพิ่มการแสดงผลข้อผิดพลาดตรงนี้ */}
         {error && (
