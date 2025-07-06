@@ -111,7 +111,8 @@ export default function Register6() {
         </div>
         <div className="flex-1 flex items-start justify-center pt-11">
           <div className="w-full max-w-sm">
-            {/* Scrollable Chips */}
+            {/* Scrollable Chips */} 
+            {/* ตรงส่วนนี้แก้ยังไงให้ icon scroll มันหายไปจากหน้า */}
             <div
               ref={scrollContainerRef}
               className="overflow-x-auto scrollbar-hide"

@@ -74,8 +74,7 @@ export default function Register8() { // เปลี่ยนชื่อ Compo
         body: JSON.stringify({ lifestyle: selectedLifestyles.join(',') }), // เปลี่ยน key เป็น 'lifestyle' ตาม Backend ที่ให้มา
       });
 
-      if (res.ok) {
-        alert('บันทึกข้อมูลเรียบร้อยแล้ว');
+      if (res.ok) { 
         router.push(`/home?id=${userId}`); // ✅ แก้ไขให้ถูกต้อง
       } else {
         alert('❌ เกิดข้อผิดพลาดในการบันทึกไลฟ์สไตล์');

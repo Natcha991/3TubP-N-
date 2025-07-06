@@ -15,6 +15,17 @@
   scrollbar-width: none;     /* Firefox */
 }
 
+/* สำหรับ WebKit browsers (Chrome, Safari, Edge) */
+.scrollbar-hide::-webkit-scrollbar {
+    display: none;
+}
+
+/* สำหรับ Firefox */
+.scrollbar-hide {
+    -ms-overflow-style: none;  /* IE and Edge */
+    scrollbar-width: none;  /* Firefox */
+}
+
 html, body {
     margin: 0;
     padding: 0;
