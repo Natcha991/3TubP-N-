@@ -99,6 +99,16 @@ export default function MenuPage() {
     }
   };
 
+  const getStepImage = (step: string): string => {
+    const keywords = ["เตรียมวัตถุดิบ", "ต้ม", "ผัด", "นึ่ง", "ย่าง", "ปรุงรส", "เสิร์ฟ", "อบ"];
+    for (const key of keywords) {
+      if (step.includes(key)) {
+        return `/methods/${encodeURIComponent(key)}.png`;
+      }
+    }
+    return "/methods/default.png";
+  };
+
   if (!menu) return <div className="text-center mt-10 font-prompt">กำลังโหลดเมนู...</div>;
 
   const instructions = Array.isArray(menu.instructions)
@@ -176,7 +186,7 @@ export default function MenuPage() {
                 num={index + 1}
                 title={`ขั้นตอนที่ ${index + 1}`}
                 detail={step}
-                imageUrl={menu.image ? `/menus/${encodeURIComponent(menu.image)}` : ""}
+                imageUrl={getStepImage(step)}
               />
             ))}
           </div>
