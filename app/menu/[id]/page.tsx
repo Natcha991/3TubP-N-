@@ -37,7 +37,7 @@ export default function MenuPage() {
     const [isLoadingSimilarMenus, setIsLoadingSimilarMenus] = useState<boolean>(false);
     const [similarMenusError, setSimilarMenusError] = useState<string | null>(null);
 
-    const goto = () => router.push("/home");
+    const goto = () => router.push(`/home?id=${id}`);
 
     useEffect(() => {
         if (!id) return;
@@ -265,7 +265,7 @@ export default function MenuPage() {
                                     >
                                         {/* รูปเมนูที่มี Tag เดียวกับ menu ปัจจุบัน */}
                                         <Image
-                                            className="h-[90px] w-auto object-cover rounded-t-full"
+                                            className="h-[130px] w-auto object-cover rounded-t-full"
                                             src={similarMenu.image ? `/menus/${encodeURIComponent(similarMenu.image)}` : "/default.png"}
                                             alt={similarMenu.name}
                                             width={90} // กำหนด width/height
