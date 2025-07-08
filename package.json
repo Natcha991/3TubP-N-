@@ -2,22 +2,23 @@
   "name": "y",
   "version": "0.1.0",
   "private": true,
-  "type": "module",                          
+  "type": "module",
   "scripts": {
     "dev": "next dev --turbopack",
     "build": "next build",
     "start": "next start",
     "lint": "next lint",
-    "update-images": "ts-node script/updateMenuImages.mts"   
+    "update-images": "ts-node script/updateMenuImages.mts"
   },
   "dependencies": {
     "@google/generative-ai": "^0.24.1",
+    "@react-google-maps/api": "^2.20.7",
     "date-fns": "^4.1.0",
     "dotenv": "^16.6.1",
     "lucide-react": "^0.525.0",
     "mongodb": "^6.17.0",
     "mongoose": "^8.16.1",
-    "next": "15.3.2",
+    "next": "^15.3.5",
     "react": "^19.0.0",
     "react-datepicker": "^8.4.0",
     "react-dom": "^19.0.0"
