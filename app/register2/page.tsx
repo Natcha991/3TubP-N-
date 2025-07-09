@@ -37,7 +37,7 @@ export default function Register2() {
       {/* ส่วนข้อความด้านบน */}
       <div className="flex flex-col items-center mt-[8rem]">
         <div className="w-full">
-          <h1 className='w-[330px] text-center text-[#333333] mt-2 font-prompt font-[500] text-2xl'>ผมชื่อ Mr.Rice นะ แล้วคุณละ?</h1>
+          <h1 className='w-[330px] text-center text-[#333333] mt-2 font-prompt font-[500] text-2xl '>ผมชื่อ Mr.Rice นะ แล้วคุณละ?</h1>
         </div>
         <div className='font-prompt flex items-center mt-[2rem] z-107'>
           <input
@@ -49,7 +49,7 @@ export default function Register2() {
       {/* ----------------------------------------------------- */}
       {/* ส่วนรูปภาพที่ต้องการให้โดนจอกิน (จัดกลางแนวตั้ง, ชิดขวา, กินขอบ) */}
       {/* ----------------------------------------------------- */}
-      <div className="flex justify-center z-10 mt-[4rem] overflow-hidden">
+      <div className="flex justify-center z-10 mt-[4rem] overflow-hidden animate-sizeUpdown">
         <img
           src="/image%2086.png"
           alt='Decor'

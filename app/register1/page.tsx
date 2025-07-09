@@ -29,14 +29,14 @@ export default function Home() {
             {/* ส่วนข้อความด้านบน */}
             <div className="flex flex-col items-center mt-[8rem]">
                 <div className="w-full"> 
-                    <h1 className='w-[300px] text-center text-[#333333] mt-2 font-prompt font-[500] text-3xl'>เดี๋ยวก่อน!! ก่อนจะไปดูเมนู ผมขอถามอะไรคุณก่อนสิ</h1>
+                    <h1 className='w-[300px] text-center text-[#333333] mt-2 font-prompt font-[500] text-3xl animate-dopdop'>เดี๋ยวก่อน!! ก่อนจะไปดูเมนู ผมขอถามอะไรคุณก่อนสิ</h1>
                 </div>
             </div>
 
             {/* ----------------------------------------------------- */}
             {/* ส่วนรูปภาพที่ต้องการให้โดนจอกิน (จัดกลางแนวตั้ง, ชิดขวา, กินขอบ) */}
             {/* ----------------------------------------------------- */}
-            <div className="flex justify-center z-10 mt-[2rem] overflow-hidden"> 
+            <div className="flex justify-center z-10 mt-[2rem] overflow-hidden animate-sizeUpdown"> 
                 <img
                     src="/image%2085.png"
                     alt='Decor'

@@ -125,7 +125,7 @@ export default function LoginPage() {
       {/* ----------------------------------------------------- */}
       {/* ส่วนรูปภาพที่ต้องการให้โดนจอกิน (จัดกลางแนวตั้ง, ชิดขวา, กินขอบ) */}
       {/* ----------------------------------------------------- */}
-      <div className="z-10 mt-[4rem] flex justify-center overflow-hidden">
+      <div className="z-10 mt-[4rem] flex justify-center overflow-hidden animate-sizeUpdown">
         <img
           src="/image%2086.png"
           alt='Decor'

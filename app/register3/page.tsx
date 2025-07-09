@@ -80,7 +80,7 @@ export default function Register3() {
             {/* ----------------------------------------------------- */}
             {/* ส่วนรูปภาพที่ต้องการให้โดนจอกิน (จัดกลางแนวตั้ง, ชิดขวา, กินขอบ) */}
             {/* ----------------------------------------------------- */}
-            <div className="flex justify-center z-10 mt-[4rem] overflow-hidden">
+            <div className="flex justify-center z-10 mt-[4rem] overflow-hidden animate-sizeUpdown">
                 <img
                     src="/image%2087.png"
                     alt='Decor'

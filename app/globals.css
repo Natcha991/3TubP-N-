@@ -122,3 +122,40 @@ body {
 .animate-wiggle {
   animation: wiggle 1s infinite ease-in-out;
 }
+
+.animate-sizeUpdown {
+	animation: SizeUp 2s infinite ease-in-out;
+}
+
+
+@keyframes SizeUp { 
+	0% {
+		transform: scale(100%);
+	}
+
+	50% {
+		transform: scale(103%);
+	}
+
+	100% {
+		transform: scale(100%);
+	}
+}
+
+@keyframes dopdop { 
+	0% {
+		transform: translateY(0);
+	}
+
+	50% {
+		transform: translateY(-0.5rem);
+	}
+
+	100% {
+		transform: translateY(0);
+	}
+}
+
+.animate-dopdop {
+	animation: dopdop 4s ease-in-out infinite;
+}

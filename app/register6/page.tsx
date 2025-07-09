@@ -154,13 +154,13 @@ export default function Register6() {
                 className='bg-orange-400 text-white py-2 px-4 rounded-full w-40 flex justify-center items-center gap-2' // ปรับปุ่มให้เป็นสไตล์ที่ใช้บ่อย
               >
                 ถัดไป
-                <img src="/image%2082.png" alt="Next" className="h-4 w-4 transform rotate-90" /> {/* เพิ่มไอคอน */}
+                <img src="/image%2082.png" alt="Next" className="h-4 w-4 transform rotate-0" /> {/* เพิ่มไอคอน */}
               </button>
             </div>
 
           </div>
 
-          <div className="absolute right-0 top-[32rem] z-102 -translate-y-55 transform translate-x-35 md:translate-x-12">
+          <div className="absolute right-0 top-[32rem] z-102 -translate-y-55 transform translate-x-35 md:translate-x-12 animate-sizeUpdown">
             <img
               src="/image%20102.png"
               alt='Decor'

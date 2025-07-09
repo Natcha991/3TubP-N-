@@ -61,7 +61,7 @@ export default function Home() {
             {/* ส่วนข้อความด้านบน */}
             <div className="block mt-[8rem]">
                 <div className="w-[300px]">
-                    <h1 className='text-[#FF4545] font-prompt font-[600] text-7xl'>10 บาท</h1>
+                    <h1 className='text-[#FF4545] font-prompt font-[600] text-7xl animate-dopdop'>10 บาท</h1>
                     <h1 className='w-[200px] text-[#333333] mt-2 font-prompt font-[500] text-2xl'>เปลี่ยนชีวิต คุณได้ด้วยการกิน</h1>
                 </div>
             </div>
@@ -69,7 +69,7 @@ export default function Home() {
             {/* ----------------------------------------------------- */}
             {/* ส่วนรูปภาพที่ต้องการให้โดนจอกิน (จัดกลางแนวตั้ง, ชิดขวา, กินขอบ) */}
             {/* ----------------------------------------------------- */}
-            <div className="absolute right-0 top-1/2 -translate-y-55 transform translate-x-23 md:translate-x-12">
+            <div className="absolute right-0 top-1/2 -translate-y-55 transform translate-x-23 md:translate-x-12 ">
                 {/* Mr.Rice bubble */}
                 <div className="bg-[#f1c783a4] absolute top-[17rem] left-[-1rem] border-white border-2 inline-flex p-[1rem] px-[1.7rem] font-Unbounded text-[#333333] rounded-4xl z-10">
                     Mr.Rice
@@ -78,7 +78,7 @@ export default function Home() {
                     src="/image%2081.png"
                     alt='Decor'
                     // กำหนดความกว้างและความสูงคงที่
-                    className="w-[350px] h-[540px]"
+                    className="w-[350px] h-[540px] animate-sizeUpdown"
                 />
             </div>
             {/* ----------------------------------------------------- */}
