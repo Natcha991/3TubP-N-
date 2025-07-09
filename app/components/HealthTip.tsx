@@ -1,12 +1,12 @@
 'use client';
 import { useRouter } from 'next/navigation';
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import React from 'react';
-
 
 interface Tip {
   id: string;
   content: React.ReactNode;
+  headline: string; // เพิ่มเพื่อแสดงตรงพาดหัว
 }
 
 export default function HealthTip({ userId }: { userId: string }) {
@@ -20,6 +20,7 @@ export default function HealthTip({ userId }: { userId: string }) {
           <span className="text-blue-600 font-bold">น้ำ</span> อย่างไรให้ไม่เสียสุขภาพ
         </>
       ),
+      headline: 'ดื่มน้ำแค่ไหนถึงจะพอดี?',
     },
     {
       id: 'sleep',
@@ -28,6 +29,7 @@ export default function HealthTip({ userId }: { userId: string }) {
           <span className="text-purple-600 font-bold">นอน</span> แล้วทำอย่างไรนอนให้ดีจริงเหรอ?
         </>
       ),
+      headline: 'นอนยังไงให้ตื่นมาสดชื่น?',
     },
     {
       id: 'chew',
@@ -36,11 +38,17 @@ export default function HealthTip({ userId }: { userId: string }) {
           <span className="text-orange-600 font-bold">เคี้ยว</span> ให้พอดี เพื่อช่วยย่อย?
         </>
       ),
+      headline: 'เคี้ยว ขา ๆ ช่วยให้ผอมได้ไหม?',
     },
   ];
 
   const [tipIndex, setTipIndex] = useState(0);
   const tip = tips[tipIndex];
+
+  useEffect(() => {
+    const randomIndex = Math.floor(Math.random() * tips.length);
+    setTipIndex(randomIndex);
+  }, []);
 
   const gotoChat = () => {
     router.push(`/chatbot?id=${userId}&topic=${tip.id}`);
@@ -53,7 +61,7 @@ export default function HealthTip({ userId }: { userId: string }) {
           <img className="w-[60px] bg-white h-[60px] rounded-full object-cover" src="/image%2076.png" />
         </div>
         <h1 className="text-[#333333] font-prompt mt-12 text-[1rem] font-bold font-unbounded leading-tight">
-          เคี้ยว ขา ๆ ช่วยให้ผอมได้ไหม?
+          {tip.headline}
         </h1>
         <div className="py-[1rem] flex flex-col items-center">
           <img src="/heart.png" className="w-[2rem] mb-1" />
