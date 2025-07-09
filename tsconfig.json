@@ -1,16 +1,21 @@
 {
   "compilerOptions": {
     "target": "ES2017",
-    "lib": ["dom", "dom.iterable", "esnext"],
+    "lib": [
+      "dom",
+      "dom.iterable",
+      "esnext"
+    ],
     "allowJs": true,
     "skipLibCheck": true,
     "strict": true,
     "noEmit": true,
     "esModuleInterop": true,
-    "module": "CommonJS",             // ✅ เปลี่ยนจาก "esnext" → "CommonJS"
-    "moduleResolution": "node",       // ✅ เปลี่ยนจาก "bundler" → "node"
+    "module": "CommonJS",
+    "moduleResolution": "node",
     "resolveJsonModule": true,
     "isolatedModules": true,
+    // ✅ เปลี่ยน jsx เป็น react-jsx เพื่อรองรับ JSX namespace อัตโนมัติ
     "jsx": "preserve",
     "incremental": true,
     "plugins": [
@@ -19,9 +24,19 @@
       }
     ],
     "paths": {
-      "@/*": ["./*"]
+      "@/*": [
+        "./*"
+      ]
     }
   },
-  "include": ["next-env.d.ts", "**/*.ts", "**/*.tsx", ".next/types/**/*.ts", "script/updateMenuImages.cjs"],
-  "exclude": ["node_modules"]
+  "include": [
+    "next-env.d.ts",
+    "**/*.ts",
+    "**/*.tsx",
+    ".next/types/**/*.ts",
+    "script/updateMenuImages.cjs"
+  ],
+  "exclude": [
+    "node_modules"
+  ]
 }

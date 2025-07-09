@@ -1,7 +1,8 @@
 'use client';
 
-import { useRouter } from 'next/navigation';
-import React, { useEffect, useState } from 'react';
+import { useRouter, useSearchParams } from 'next/navigation';
+import { useEffect, useState } from 'react';
+import HealthTip from '@/app/components/HealthTip';
 
 interface MenuItem {
   _id: string;
@@ -14,6 +15,9 @@ interface MenuItem {
 
 export default function Home() {
   const router = useRouter();
+  const searchParams = useSearchParams();
+  const userId = searchParams.get('id') || ''; // ✅ ดึงค่าด้วย .get()
+
   const [menus, setMenus] = useState<MenuItem[]>([]);
   const [isLoadingMenus, setIsLoadingMenus] = useState(true);
 
@@ -65,37 +69,7 @@ export default function Home() {
 
   return (
     <div>
-      <div className="relative flex justify-center font-prompt"> 
-        <div className="[background:linear-gradient(0deg,rgba(255,255,255,0.54)_0%,rgba(255,255,255,1)_100%)] w-[181px] pt-[7rem] pb-[5rem] px-[2rem] mr-[11.5rem] rounded-br-3xl">
-          <div className="absolute top-[2rem]">
-            <img className="w-[60px] bg-white h-[60px] rounded-full object-cover" src="/image%2076.png" />
-          </div>
-          <h1 className="text-[#333333] font-prompt mt-12 text-2xl font-bold font-unbounded">
-            {mainDisplayedMenu?.name || 'ไม่พบเมนู'}
-          </h1>
-          <div className="py-[1rem] flex flex-col items-baseline">
-            <h1 className="text-[#333333] font-Unbounded text-5xl font-bold">
-              {mainDisplayedMenu?.calories || 0}
-            </h1>
-            <h1 className="text-[#333333] font-Unbounded text-[0.7rem] ml-[0.2rem]">KCAL</h1>
-          </div>
-          <div className="mt-2">
-            <p className="text-[#333333] font-prompt text-[0.9rem] leading-tight">
-              {mainDisplayedMenu?.description || 'ไม่พบรายละเอียดเมนู'}
-            </p>
-          </div>
-        </div>
-        <img
-          className="absolute z-[-1] object-cover max-w-[365px] [mask-image:linear-gradient(to_bottom,black_60%,transparent)]"
-          src={mainDisplayedMenu?.image ? getImageUrl(mainDisplayedMenu.image) : "/default.png"}
-          alt={mainDisplayedMenu?.name || "Main Menu"}
-          onError={(e) => {
-            const target = e.target as HTMLImageElement;
-            target.onerror = null;
-            target.src = "/default.png";
-          }}
-        />
-      </div>
+      <HealthTip userId={userId} />
 
       <div className="flex flex-col items-center">
         <h1 className="font-[600] mt-[1.5rem] text-[#333333] font-prompt mb-[1rem] mr-[9rem] text-[1.6rem]">เมนูแนะนำ</h1>
