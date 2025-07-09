@@ -31,7 +31,6 @@ export default function IngredientPage() {
     libraries: ['places'],
   });
 
-  // ✅ ดึงตำแหน่งผู้ใช้
   useEffect(() => {
     if (navigator.geolocation) {
       navigator.geolocation.getCurrentPosition(
@@ -51,7 +50,6 @@ export default function IngredientPage() {
     }
   }, []);
 
-  // ✅ ดึงข้อมูลวัตถุดิบ
   useEffect(() => {
     if (!name) return;
     const fetchData = async () => {
@@ -70,7 +68,6 @@ export default function IngredientPage() {
     fetchData();
   }, [name]);
 
-  // ✅ ค้นหาตลาดใกล้ผู้ใช้
   useEffect(() => {
     if (!userLocation || !isLoaded) return;
 
@@ -116,30 +113,39 @@ export default function IngredientPage() {
       <p className="mt-2 text-sm text-gray-700">{ingredient.description}</p>
       <p className="mt-1 text-orange-700">ประมาณ {ingredient.price} บาท</p>
 
-      <h2 className="text-xl font-semibold mt-6 mb-3">แหล่งจำหน่ายใกล้คุณ</h2>
+      <h2 className="text-xl font-semibold mt-6 mb-2">แหล่งจำหน่ายใกล้คุณ</h2>
       {loadError ? (
-        <p className="text-red-500">โหลดข้อมูลแหล่งจำหน่ายไม่สำเร็จ: {loadError.message}</p>
+        <p className="text-red-500">โหลดแหล่งจำหน่ายไม่สำเร็จ: {loadError.message}</p>
       ) : (
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+        <div className="overflow-x-auto scroll-smooth flex space-x-4 pb-4">
           {places.map((place) => {
-            const photoUrl = place.photos?.[0]
-              ? place.photos[0].getUrl({ maxWidth: 400, maxHeight: 300 })
-              : '/default.png';
+            const photoRef =
+              place.photos?.[0]?.getUrl?.({ maxWidth: 400 }) || '/default.png';
 
             return (
               <div
                 key={place.place_id}
-                className="bg-white rounded-lg shadow-md p-4 cursor-pointer hover:shadow-lg transition"
+                className="min-w-[240px] max-w-[240px] bg-white shadow-md rounded-md overflow-hidden flex-shrink-0 cursor-pointer hover:shadow-lg transition"
                 onClick={() =>
-                  window.open(
-                    `https://www.google.com/maps/search/?api=1&query=${place.name}&query_place_id=${place.place_id}`,
-                    '_blank'
-                  )
+                  window.open(`https://www.google.com/maps/place/?q=place_id:${place.place_id}`, '_blank')
                 }
               >
-                <img src={photoUrl} alt={place.name} className="w-full h-40 object-cover rounded-md mb-2" />
-                <div className="text-red-600 font-bold text-lg mb-1">📍 {place.name}</div>
-                <p className="text-sm text-gray-700">{place.vicinity}</p>
+                <img
+                  src={photoRef}
+                  alt={place.name}
+                  className="w-full h-40 object-cover"
+                  onError={(e) => {
+                    const target = e.target as HTMLImageElement;
+                    target.onerror = null;
+                    target.src = '/default.png';
+                  }}
+                />
+                <div className="p-3">
+                  <h3 className="text-red-700 font-bold text-md flex items-center gap-1">
+                    📍 {place.name}
+                  </h3>
+                  <p className="text-sm text-gray-600">{place.vicinity}</p>
+                </div>
               </div>
             );
           })}
