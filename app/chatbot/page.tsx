@@ -20,28 +20,24 @@ export default function IngredientPage() {
   const searchParams = useSearchParams();
 
   const topic = searchParams.get("topic");
+  const userId = searchParams.get("id") || "anonymous";
+
   const topicMessages: Record<string, string> = {
     water: "การดื่มน้ำในแต่ละวันสำคัญแค่ไหน และควรดื่มเท่าไหร่?",
     sleep: "อยากนอนหลับลึกและตื่นสดชื่นขึ้น ควรปรับอะไรบ้าง?",
     chew: "การเคี้ยวช้ากับการย่อยอาหารเกี่ยวกันไหมครับ?",
   };
 
-  const isAutoSent = useRef(false); // ป้องกันการส่งซ้ำ
-
-  
+  const isAutoSent = useRef(false);
 
   useEffect(() => {
-    
-
     const autoMessage = topic && topicMessages[topic];
-
     if (autoMessage && !isAutoSent.current) {
       isAutoSent.current = true;
       handleSendAuto(autoMessage);
     }
   }, [topic]);
 
-  const userId = searchParams.get('id');
   const allowedMenu = menuData;
   const allowedMenuNames = menuData.map((m) => m.name);
 
@@ -102,7 +98,7 @@ export default function IngredientPage() {
       await fetch("/api/saveChat", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ sessionId: "user123", chatLog: [userChat, aiChat] }),
+        body: JSON.stringify({ sessionId: userId, chatLog: [userChat, aiChat] }),
       });
     } catch (error) {
       setChatLog((prev) => [...prev, {
@@ -141,10 +137,12 @@ export default function IngredientPage() {
         timestamp: getFormattedTime(),
       };
       setChatLog((prev) => [...prev, aiChat]);
+      console.log("🔎 userId", userId);
+      console.log("✅ aiText", aiText);
       await fetch("/api/saveChat", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ sessionId: "user123", chatLog: [userChat, aiChat] }),
+        body: JSON.stringify({ sessionId: userId, chatLog: [userChat, aiChat] }),
       });
     } catch (error) {
       setChatLog((prev) => [...prev, {
