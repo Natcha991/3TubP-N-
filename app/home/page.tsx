@@ -22,17 +22,21 @@ export default function Home() {
   const [isLoadingMenus, setIsLoadingMenus] = useState(true);
   const [isRefreshing, setIsRefreshing] = useState(false);
   const [hasMoreMenus, setHasMoreMenus] = useState(true);
-  const [currentPage, setCurrentPage] = useState(0); // เก็บหน้าปัจจุบัน
-  const [allShownMenuIds, setAllShownMenuIds] = useState<string[]>([]); // เก็บ ID เมนูที่แสดงแล้ว
+  const [currentPage, setCurrentPage] = useState(0);
+  const [allShownMenuIds, setAllShownMenuIds] = useState<string[]>([]);
+  const [searchTerm, setSearchTerm] = useState('');
+
+  
+const [isSearching, setIsSearching] = useState(false);
+
 
   useEffect(() => {
-    fetchMenus(); // โหลดรอบแรก
+    fetchMenus();
   }, []);
 
   const fetchMenus = async (refresh = false) => {
     const pageToFetch = refresh ? currentPage + 1 : 0;
-    
-    // สร้าง query parameters
+
     const params = new URLSearchParams({
       userId: userId,
       page: pageToFetch.toString(),
@@ -40,15 +44,14 @@ export default function Home() {
       sortBy: 'relevance'
     });
 
-    // เพิ่ม excludeIds ถ้ามี
     if (refresh && allShownMenuIds.length > 0) {
       params.append('excludeIds', allShownMenuIds.join(','));
     }
 
-    const endpoint = refresh 
+    const endpoint = refresh
       ? `/api/recommend-ai?${params.toString()}&refresh=true`
       : `/api/recommend-ai?${params.toString()}`;
-    
+
     const label = refresh ? 'Refresh menus' : 'Fetch recommended menus';
 
     console.time(label);
@@ -59,7 +62,7 @@ export default function Home() {
           'Content-Type': 'application/json',
         }
       });
-      
+
       const text = await res.text();
 
       if (!res.ok) throw new Error(text || res.statusText);
@@ -70,21 +73,11 @@ export default function Home() {
         ? data.recommendedMenus
         : [];
 
-      // Debug: ดูข้อมูลที่ได้จาก API
-      console.log('API Response:', { 
-        menusCount: newMenus.length, 
-        hasMore: data?.hasMore, 
-        totalAvailable: data?.totalAvailable,
-        isLastPage: data?.isLastPage 
-      });
-
-      // เก็บข้อมูลว่ามีเมนูเพิ่มเติมหรือไม่
       const hasMore = data?.hasMore !== undefined ? data.hasMore : newMenus.length >= 4;
       const totalAvailable = data?.totalAvailable || 0;
 
       if (refresh) {
-        // กรองเมนูใหม่ที่ไม่ซ้ำ (เผื่อกรณี API ส่งซ้ำ)
-        const filteredNewMenus = newMenus.filter(newMenu => 
+        const filteredNewMenus = newMenus.filter(newMenu =>
           newMenu && newMenu._id && newMenu.name &&
           !allShownMenuIds.includes(newMenu._id)
         );
@@ -94,38 +87,26 @@ export default function Home() {
           setAllShownMenuIds(prev => [...prev, ...filteredNewMenus.map(m => m._id)]);
           setCurrentPage(pageToFetch);
         }
-        
-        // ตรวจสอบว่ามีเมนูเพิ่มเติมหรือไม่
-        // จาก API response หรือจากจำนวนเมนูที่ได้
+
         setHasMoreMenus(hasMore && filteredNewMenus.length > 0);
-        
-        // หาก API บอกว่าหมดข้อมูลแล้ว
+
         if (data?.isLastPage || !hasMore || filteredNewMenus.length === 0) {
           setHasMoreMenus(false);
         }
       } else {
-        // โหลดครั้งแรก
         const validMenus = newMenus.filter((m) => m && m._id && m.name);
         setMenus(validMenus);
         setAllShownMenuIds(validMenus.map(m => m._id));
         setCurrentPage(0);
-        
-        // ตั้งค่าเริ่มต้น - ถ้า API ไม่ส่ง hasMore มาให้ถือว่ายังมีเมนูเพิ่มเติม
-        const shouldShowMore = data?.hasMore !== undefined 
-          ? data.hasMore 
-          : validMenus.length >= 4; // ถ้าได้เมนูมา 4 รายการ ถือว่ายังมีเพิ่มเติม
-        
+
+        const shouldShowMore = data?.hasMore !== undefined
+          ? data.hasMore
+          : validMenus.length >= 4;
+
         setHasMoreMenus(shouldShowMore);
-        
-        console.log('Initial load:', { 
-          menusCount: validMenus.length, 
-          shouldShowMore,
-          totalAvailable 
-        });
       }
     } catch (error) {
       console.error('Error fetching menus:', error);
-      // หากเกิดข้อผิดพลาด ให้ซ่อนปุ่ม
       if (refresh) {
         setHasMoreMenus(false);
       }
@@ -183,6 +164,23 @@ export default function Home() {
     </div>
   );
 
+  const handleSearch = async () => {
+  if (!searchTerm.trim()) return;
+
+  setIsSearching(true);
+  try {
+    const res = await fetch(`/api/search-menu?query=${encodeURIComponent(searchTerm)}&userId=${userId}`);
+    const data = await res.json();
+    const foundMenus: MenuItem[] = Array.isArray(data?.menus) ? data.menus : [];
+    setMenus(foundMenus);
+    setHasMoreMenus(false); // ปิดปุ่มแนะนำเมนูเพิ่มเมื่อค้นหา
+  } catch (err) {
+    console.error('Search error:', err);
+  } finally {
+    setIsSearching(false);
+  }
+};
+
   if (isLoadingMenus) {
     return (
       <div className="flex font-prompt min-h-screen items-center justify-center bg-gradient-to-br from-orange-300 to-orange-100 text-xl text-gray-700">
@@ -200,12 +198,27 @@ export default function Home() {
           เมนูแนะนำ
         </h1>
 
-        {/* 🟧 Grid 2 คอลัมน์ */}
+        <div className="flex gap-2 mb-4">
+            <input
+              type="text"
+              placeholder="ค้นหาเมนู เช่น ไก่ เห็ด ต้มยำ"
+              value={searchTerm}
+              onChange={(e) => setSearchTerm(e.target.value)}
+              className="px-4 py-2 rounded-lg border w-[250px]"
+            />
+            <button
+              onClick={handleSearch}
+              className="bg-green-500 text-white px-4 py-2 rounded-lg hover:bg-green-600 disabled:opacity-50"
+              disabled={isSearching}
+            >
+              🔍 ค้นหา
+            </button>
+          </div>
+
         <div className="grid grid-cols-2 gap-4">
           {menus.map(renderMenuCard)}
         </div>
 
-        {/* 🟧 ปุ่มโหลดเมนูเพิ่มเติม */}
         {hasMoreMenus && (
           <div className="my-6">
             <button
@@ -225,17 +238,6 @@ export default function Home() {
           </div>
         )}
 
-        {/* 🟧 Debug info - ลบออกได้เมื่อแก้ไขเสร็จ */}
-        {process.env.NODE_ENV === 'development' && (
-          <div className="text-xs text-gray-400 mt-4 p-2 bg-gray-100 rounded">
-            <div>Menus: {menus.length}</div>
-            <div>HasMore: {hasMoreMenus ? 'Yes' : 'No'}</div>
-            <div>Current Page: {currentPage}</div>
-            <div>Shown IDs: {allShownMenuIds.length}</div>
-          </div>
-        )}
-
-        {/* 🟧 แสดงจำนวนเมนูที่แสดงแล้ว (ถ้าต้องการ) */}
         {menus.length > 0 && (
           <div className="text-sm text-gray-500 mt-2">
             แสดงแล้ว {menus.length} เมนู
