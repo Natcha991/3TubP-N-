@@ -25,3 +25,17 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ message: 'Server error' }, { status: 500 });
   }
 }
+
+export async function GET(req: NextRequest) {
+  const userId = req.nextUrl.searchParams.get('userId');
+  if (!userId) return NextResponse.json({ message: 'Missing userId' }, { status: 400 });
+
+  try {
+    await connectToDatabase();
+    const chats = await Chat.find({ sessionId: userId }).sort({ createdAt: 1 }); // เรียงตามเวลา
+    return NextResponse.json(chats, { status: 200 });
+  } catch (error) {
+    console.error("❌ Error fetching chat history:", error);
+    return NextResponse.json({ message: 'Server error' }, { status: 500 });
+  }
+}

@@ -1,16 +1,16 @@
 // models/Chat.ts
-import mongoose from "mongoose";
+import mongoose from 'mongoose';
 
 const ChatSchema = new mongoose.Schema({
-  sessionId: String,
+  sessionId: { type: String, required: true },
   chatLog: [
     {
       from: String,
       text: String,
       timestamp: String,
-    }
+    },
   ],
-  createdAt: { type: Date, default: Date.now }
+  createdAt: { type: Date, default: Date.now },
 });
 
-export default mongoose.models.Chat || mongoose.model("Chat", ChatSchema);
+export default mongoose.models.Chat || mongoose.model('Chat', ChatSchema);

@@ -38,6 +38,21 @@ export default function IngredientPage() {
     }
   }, [topic]);
 
+  useEffect(() => {
+    const fetchHistory = async () => {
+      try {
+        const res = await fetch(`/api/saveChat?userId=${userId}`);
+        if (!res.ok) throw new Error("Failed to fetch chat history");
+        const data = await res.json();
+        const combinedChatLog = data.flatMap((item: any) => item.chatLog);
+        setChatLog(combinedChatLog);
+      } catch (error) {
+        console.error("❌ Error fetching chat history:", error);
+      }
+    };
+    fetchHistory();
+  }, []);
+
   const allowedMenu = menuData;
   const allowedMenuNames = menuData.map((m) => m.name);
 
@@ -137,8 +152,6 @@ export default function IngredientPage() {
         timestamp: getFormattedTime(),
       };
       setChatLog((prev) => [...prev, aiChat]);
-      console.log("🔎 userId", userId);
-      console.log("✅ aiText", aiText);
       await fetch("/api/saveChat", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
