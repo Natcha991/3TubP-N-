@@ -211,7 +211,7 @@ export default function IngredientPage() {
             </div>
             <Image 
               onClick={gotoChatbot} 
-              className="mt-[3rem] animate-pulse cursor-pointer transform hover:scale-105 duration-300" 
+              className="mt-[3rem] animate-pulse animate-sizeUpdown cursor-pointer transform hover:scale-105 duration-300" 
               src="/image%2069.png" 
               alt="Chatbot icon" 
               width={60} 
