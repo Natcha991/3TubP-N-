@@ -1,6 +1,6 @@
-import { NextResponse } from 'next/server';
 import { GoogleGenerativeAI } from '@google/generative-ai';
 import { connectToDatabase } from '@/lib/mongodb';
+import { NextRequest, NextResponse } from 'next/server';
 
 const genAI = new GoogleGenerativeAI(process.env.NEXT_PUBLIC_GEMINI_API_KEY || '');
 
@@ -19,8 +19,10 @@ interface AIMenu {
   reason?: string;
 }
 
-export async function GET() {
+export async function GET(request: NextRequest) {
   try {
+    const refresh = request.nextUrl.searchParams.get('refresh') === 'true';
+
     const mongoose = await connectToDatabase();
     const db = mongoose.connection.db;
 
@@ -31,6 +33,17 @@ export async function GET() {
       return NextResponse.json({ error: 'ไม่พบข้อมูลผู้ใช้หรือเมนู' }, { status: 400 });
     }
 
+    const userId = user._id.toString();
+
+    // ✅ STEP 1: ใช้แคชถ้ายังไม่กด refresh
+    if (!refresh) {
+      const existing = await db.collection('recommendations').findOne({ userId });
+      if (existing && Array.isArray(existing.recommendedMenus)) {
+        return NextResponse.json({ recommendedMenus: existing.recommendedMenus });
+      }
+    }
+
+    // ✅ STEP 2: สร้าง prompt เพื่อส่งให้ Gemini
     const prompt = `
 แนะนำเมนูอาหารจากข้าวกล้องที่เหมาะกับผู้ใช้รายนี้:
 - เป้าหมาย: ${Array.isArray(user.goals) ? user.goals.join(', ') : user.goals || '-'}
@@ -60,7 +73,6 @@ ${menus.map((m: MenuItem, i: number) => `${i + 1}. ${m.name} (${m.calories} KCAL
     const jsonStr = responseText.slice(jsonStart, jsonEnd + 1);
     const parsedMenus: AIMenu[] = JSON.parse(jsonStr);
 
-    // ทำ map หา _id จริงจาก database ให้ Home ใช้ push(`/menu/${_id}`) ได้
     const menuMap = Object.fromEntries(
       menus.map((m: MenuItem) => [m.name.trim(), m])
     );
@@ -74,7 +86,14 @@ ${menus.map((m: MenuItem, i: number) => `${i + 1}. ${m.name} (${m.calories} KCAL
         image: matched?.image || '/default.png',
         reason: aiMenu.reason || '',
       };
-    }).filter((m) => m._id !== 'undefined'); // ตัดเมนูที่ไม่มี _id ออก
+    }).filter((m) => m._id !== 'undefined');
+
+    // ✅ STEP 3: บันทึกผลลัพธ์ใหม่ลง MongoDB
+    await db.collection('recommendations').insertOne({
+      userId,
+      recommendedMenus,
+      createdAt: new Date(),
+    });
 
     return NextResponse.json({ recommendedMenus });
   } catch (error) {
