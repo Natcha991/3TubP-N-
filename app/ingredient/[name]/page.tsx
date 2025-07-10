@@ -21,6 +21,7 @@ export default function IngredientPage() {
   const name = Array.isArray(rawName) ? rawName[0] : rawName;
 
   const [ingredient, setIngredient] = useState<Ingredient | null>(null);
+  const [randomIngredients, setRandomIngredients] = useState<Ingredient[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [userLocation, setUserLocation] = useState<{ lat: number; lng: number } | null>(null);
@@ -90,6 +91,23 @@ export default function IngredientPage() {
     fetchData();
   }, [name]);
 
+  // Fetch random ingredients for "วัตถุดิบอื่นๆ" section
+  useEffect(() => {
+    const fetchRandomIngredients = async () => {
+      try {
+        const res = await fetch('/api/ingredient/random?limit=3');
+        if (res.ok) {
+          const data = await res.json();
+          setRandomIngredients(data);
+        }
+      } catch (error) {
+        console.error('Error fetching random ingredients:', error);
+      }
+    };
+
+    fetchRandomIngredients();
+  }, []);
+
   // Search for nearby places using Google Places API
   useEffect(() => {
     if (!userLocation || !isLoaded) return;
@@ -121,6 +139,12 @@ export default function IngredientPage() {
 
   const gotoChatbot = () => {
     router.push("/chatbot");
+  };
+
+  const gotoIngredient = (ingredientName: string) => {
+    const currentMenuId = searchParams.get('menuId');
+    const queryParams = currentMenuId ? `?menuId=${currentMenuId}` : '';
+    router.push(`/ingredient/${encodeURIComponent(ingredientName)}${queryParams}`);
   };
 
   // Loading state
@@ -285,22 +309,57 @@ export default function IngredientPage() {
           )}
         </div>
 
-        {/* Similar Ingredients - Hardcoded for now */}
+        {/* Random Ingredients Section */}
         <div className="relative w-full max-w-[360px] mt-[3rem] mb-[5rem]">
-          <h1 className="font-[600] text-[#333333] mb-[0.8rem] text-[1.25rem]">วัตถุดิบใกล้เคียง</h1>
+          <h1 className="font-[600] text-[#333333] mb-[0.8rem] text-[1.25rem]">วัตถุดิบอื่นๆ</h1>
           <div className="flex gap-2 justify-center">
-            <div className="flex flex-col items-center bg-white border-2 border-[#C9AF90] rounded-t-full shadow-sm">
-              <Image className="h-[90px] w-auto transform transition duration-300 hover:scale-105 cursor-pointer" src="/image%2073.png" alt="similar ingredient 1" width={90} height={90} />
-              <h1 className="text-[0.8rem] my-[0.4rem] text-[#953333]">ข้าวหอมมะลิ</h1>
-            </div>
-            <div className="flex flex-col items-center bg-white border-2 border-[#C9AF90] rounded-t-full shadow-sm">
-              <Image className="h-[90px] w-auto transform transition duration-300 hover:scale-105 cursor-pointer" src="/image%2073.png" alt="similar ingredient 2" width={90} height={90} />
-              <h1 className="text-[0.8rem] my-[0.4rem] text-[#953333]">ข้าวหอมมะลิ</h1>
-            </div>
-            <div className="flex flex-col items-center bg-white border-2 border-[#C9AF90] rounded-t-full shadow-sm">
-              <Image className="h-[90px] w-auto transform transition duration-300 hover:scale-105 cursor-pointer" src="/image%2073.png" alt="similar ingredient 3" width={90} height={90} />
-              <h1 className="text-[0.8rem] my-[0.4rem] text-[#953333]">ข้าวหอมมะลิ</h1>
-            </div>
+            {randomIngredients.length > 0 ? (
+              randomIngredients.map((randomIngredient) => {
+                const randomIngredientImageUrl = randomIngredient.image
+                  ? `/ingredients/${randomIngredient.image}`
+                  : '/default-ingredient.png';
+                
+                return (
+                  <div 
+                    key={randomIngredient._id}
+                    className="flex flex-col items-center bg-white border-2 border-[#C9AF90] rounded-t-full shadow-sm cursor-pointer"
+                    onClick={() => gotoIngredient(randomIngredient.name)}
+                  >
+                    <Image 
+                      className="h-[90px] w-auto transform transition duration-300 hover:scale-105" 
+                      src={randomIngredientImageUrl} 
+                      alt={randomIngredient.name} 
+                      width={90} 
+                      height={90}
+                      onError={(e) => {
+                        const target = e.target as HTMLImageElement;
+                        target.onerror = null;
+                        target.src = '/default-ingredient.png';
+                      }}
+                    />
+                    <h1 className="text-[0.8rem] my-[0.4rem] text-[#953333] text-center px-2">
+                      {randomIngredient.name}
+                    </h1>
+                  </div>
+                );
+              })
+            ) : (
+              // Fallback display while loading random ingredients
+              <>
+                <div className="flex flex-col items-center bg-white border-2 border-[#C9AF90] rounded-t-full shadow-sm">
+                  <Image className="h-[90px] w-auto transform transition duration-300 hover:scale-105" src="/image%2073.png" alt="loading ingredient" width={90} height={90} />
+                  <h1 className="text-[0.8rem] my-[0.4rem] text-[#953333]">กำลังโหลด...</h1>
+                </div>
+                <div className="flex flex-col items-center bg-white border-2 border-[#C9AF90] rounded-t-full shadow-sm">
+                  <Image className="h-[90px] w-auto transform transition duration-300 hover:scale-105" src="/image%2073.png" alt="loading ingredient" width={90} height={90} />
+                  <h1 className="text-[0.8rem] my-[0.4rem] text-[#953333]">กำลังโหลด...</h1>
+                </div>
+                <div className="flex flex-col items-center bg-white border-2 border-[#C9AF90] rounded-t-full shadow-sm">
+                  <Image className="h-[90px] w-auto transform transition duration-300 hover:scale-105" src="/image%2073.png" alt="loading ingredient" width={90} height={90} />
+                  <h1 className="text-[0.8rem] my-[0.4rem] text-[#953333]">กำลังโหลด...</h1>
+                </div>
+              </>
+            )}
           </div>
         </div>
       </div>
