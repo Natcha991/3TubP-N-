@@ -10,7 +10,7 @@ interface Ingredient {
   name: string;
   description: string;
   image: string;
-  price: number;
+  price: string;
 }
 
 export default function IngredientPage() {
