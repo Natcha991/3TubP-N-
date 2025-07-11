@@ -13,7 +13,7 @@ interface MenuItem {
     description: string;
     ingredients: string[] | string;
     instructions: string[] | string;
-    tags: string[];
+    tags: string[] | string;
 }
 
 interface Ingredient {
@@ -186,11 +186,21 @@ export default function MenuPage() {
                 <h1 className="text-3xl font-prompt text-[#611E1E] font-[600]">{menu.name}</h1>
                 <h1 className="text-[0.7rem] w-[250px] mt-[0.5rem] text-[#953333] font-prompt">{menu.description}</h1>
 
-                {menu.tags.length > 0 && (
+                {Array.isArray(menu.tags) && menu.tags.length > 0 && (
+                    <div className="flex flex-wrap gap-2 mt-[0.8rem]">
+                        {menu.tags.map((tag, index) => (
+                            <div key={index} className="bg-[#ff770041] inline-block px-[1rem] py-[0.2rem] rounded-2xl">
+                                <h1 className="font-[600] text-[0.8rem] text-[#953333] font-prompt">{tag}</h1>
+                            </div>
+                        ))}
+                    </div>
+                )}
+                
+                {/* {menu.tags.length > 0 && (
                     <div className="bg-[#ff770041] inline-block px-[1rem] py-[0.2rem] mt-[0.8rem] rounded-2xl">
                         <h1 className="font-[600] text-[0.8rem] text-[#953333] font-prompt">{menu.tags[0]}</h1>
                     </div>
-                )}
+                )} */}
 
                 <div className="font-prompt mt-[1.4rem]">
                     <h1 className="text-[1.6rem] text-[#333333] mb-[1.5rem] font-[600]">วัตถุดิบ</h1>
