@@ -107,7 +107,7 @@ export default function Register6() {
 
       <div className="flex flex-col z-100 items-center mt-[4rem]">
         <div className="w-full">
-          <h1 className='text-center text-[#333333] mt-2 font-prompt font-[600] text-3xl'>เลือกเป้าหมายด้านสุขภาพ</h1>
+          <h1 className='text-center text-[#333333] mt-3 font-prompt font-[600] text-3xl'>เลือกเป้าหมายด้านสุขภาพ</h1>
         </div>
         <div className="flex-1 flex items-start justify-center pt-11">
           <div className="w-full max-w-sm">
@@ -123,10 +123,10 @@ export default function Register6() {
                     key={index}
                     onClick={() => handleGoalToggle(goal, index)}
                     className={`
-                      relative flex items-center justify-center px-4 py-3 rounded-2xl min-w-max transition-all duration-200 shadow-sm whitespace-nowrap
+                      relative flex z-120 items-center mt-3 justify-center px-6 py-8 rounded-2xl min-w-max transition-all duration-200 shadow-sm whitespace-nowrap
                       ${selectedGoals.includes(goal)
                         ? 'bg-white border-2 border-orange-400 shadow-md scale-105'
-                        : 'bg-white/80 border-2 border-gray-200 hover:border-gray-300 hover:scale-102'
+                        : 'bg-white/80 hover:border-gray-300 hover:scale-102'
                       }
                     `}
                   >
