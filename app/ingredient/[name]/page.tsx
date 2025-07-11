@@ -229,7 +229,7 @@ export default function IngredientPage() {
 
         {/* Price and Chatbot Bubble */}
         <div className="w-[300px] relative">
-          <h1 className="m-[0.5rem] text-[#611E1E] text-lg">ประมาณ {ingredient.price} บาท</h1>
+          <h1 className="m-[0.5rem] text-[#611E1E] text-lg">ประมาณ {ingredient.price}</h1>
           <div className="absolute top-[-3.3rem] left-[15rem] -translate-x-1/2 md:left-[15rem] md:translate-x-0">
             <div className="w-[150px] h-[40px] z-[-1] absolute top-[1.5rem] shadow-grey shadow-xl left-[-7rem] p-[0.5rem] flex items-center bg-white rounded-md">
               <h1 className="text-[0.7rem]">เป็นวัตถุดิบที่มีคุณค่ามาก!</h1>
