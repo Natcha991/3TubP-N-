@@ -37,8 +37,9 @@ export default function Home() {
     // คุณอาจจะเพิ่ม Loader หรือ UI อื่นๆ ในขณะที่กำลังตรวจสอบ isRegistered
     if (isRegistered === null) {
         return (
-            <div className="flex h-screen w-screen items-center font-prompt justify-center bg-gradient-to-br from-orange-300 to-orange-100 text-xl text-gray-700">
-                กำลังตรวจสอบสถานะ...
+            <div className="flex flex-col font-prompt min-h-screen items-center justify-center bg-gradient-to-br from-orange-300 to-orange-100 text-xl text-gray-700">
+                <img className='animate-sizeUpdown2 mb-[1.5rem]' src="/image%2069.png"></img>
+                กำลังเข้าสู่เว็ป
             </div>
         );
     }
