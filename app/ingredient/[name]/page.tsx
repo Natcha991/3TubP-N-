@@ -251,7 +251,7 @@ export default function IngredientPage() {
 
         {/* Nearby Stores - Using Google Places API data */}
         <div className="relative w-full max-w-[360px] mt-[3rem]">
-          <h1 className="font-[600] text-[#333333] mb-[0.8rem] text-[1.25rem]">แหล่งจำหน่ายใกล้คุณ</h1>
+          <h1 className="font-[600] text-[#333333] mb-[1rem] text-[1.6rem]">แหล่งจำหน่ายใกล้คุณ</h1>
           {loadError ? (
             <p className="text-red-500">โหลดแหล่งจำหน่ายไม่สำเร็จ: {loadError.message}</p>
           ) : (
@@ -311,7 +311,7 @@ export default function IngredientPage() {
 
         {/* Random Ingredients Section */}
         <div className="relative w-full max-w-[360px] mt-[3rem] mb-[5rem]">
-          <h1 className="font-[600] text-[#333333] mb-[0.8rem] text-[1.25rem]">วัตถุดิบอื่นๆ</h1>
+          <h1 className="font-[600] text-[#333333] mb-[2rem] text-[1.6rem]">วัตถุดิบอื่นๆ</h1>
           <div className="flex gap-2 justify-center">
             {randomIngredients.length > 0 ? (
               randomIngredients.map((randomIngredient) => {
@@ -322,7 +322,7 @@ export default function IngredientPage() {
                 return (
                   <div 
                     key={randomIngredient._id}
-                    className="flex flex-col items-center bg-white border-2 border-[#C9AF90] rounded-t-full shadow-sm cursor-pointer"
+                    className="flex flex-col items-center w-[130px] bg-white border-2 border-[#C9AF90] rounded-t-full shadow-sm cursor-pointer"
                     onClick={() => gotoIngredient(randomIngredient.name)}
                   >
                     <Image 

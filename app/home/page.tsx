@@ -1,7 +1,7 @@
 'use client';
 
 import { useRouter, useSearchParams } from 'next/navigation';
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useCallback } from 'react';
 import HealthTip from '@/app/components/HealthTip';
 
 interface MenuItem {
@@ -25,10 +25,8 @@ export default function Home() {
   const [currentPage, setCurrentPage] = useState(0);
   const [allShownMenuIds, setAllShownMenuIds] = useState<string[]>([]);
   const [searchTerm, setSearchTerm] = useState('');
-
-  
-const [isSearching, setIsSearching] = useState(false);
-
+  const [isSearching, setIsSearching] = useState(false);
+  const [specialMenu, setSpecialMenu] = useState<MenuItem | null>(null);
 
   useEffect(() => {
     fetchMenus();
@@ -74,7 +72,6 @@ const [isSearching, setIsSearching] = useState(false);
         : [];
 
       const hasMore = data?.hasMore !== undefined ? data.hasMore : newMenus.length >= 4;
-      const totalAvailable = data?.totalAvailable || 0;
 
       if (refresh) {
         const filteredNewMenus = newMenus.filter(newMenu =>
@@ -95,8 +92,16 @@ const [isSearching, setIsSearching] = useState(false);
         }
       } else {
         const validMenus = newMenus.filter((m) => m && m._id && m.name);
-        setMenus(validMenus);
-        setAllShownMenuIds(validMenus.map(m => m._id));
+
+        // แยกเมนูแรก 4 รายการสำหรับแสดงในกริด
+        const displayMenus = validMenus.slice(0, 4);
+
+        // ใช้เมนูรายการที่ 5 เป็นเมนูเสริม หรือเมนูรายการแรกถ้าไม่มีเมนูที่ 5
+        const supplementMenu = validMenus.length > 4 ? validMenus[4] : validMenus[0];
+
+        setMenus(displayMenus);
+        setSpecialMenu(supplementMenu);
+        setAllShownMenuIds(displayMenus.map(m => m._id));
         setCurrentPage(0);
 
         const shouldShowMore = data?.hasMore !== undefined
@@ -117,29 +122,30 @@ const [isSearching, setIsSearching] = useState(false);
     }
   };
 
-  const handleRefreshMenus = () => {
+  const handleRefreshMenus = useCallback(() => {
     if (!hasMoreMenus || isRefreshing) return;
     setIsRefreshing(true);
     fetchMenus(true);
-  };
+  }, [hasMoreMenus, isRefreshing, currentPage, allShownMenuIds]);
 
-  const goto = (id: string) => {
+  const goto = useCallback((id: string) => {
     if (!id || id === 'undefined') return;
     router.push(`/menu/${id}`);
-  };
+  }, [router]);
 
-  const getImageUrl = (image: string) =>
-    image && image !== 'undefined' ? `/menus/${encodeURIComponent(image)}` : '/default.png';
+  const getImageUrl = useCallback((image: string) =>
+    image && image !== 'undefined' ? `/menus/${encodeURIComponent(image)}` : '/default.png',
+    []);
 
-  const renderMenuCard = (item: MenuItem) => (
+  const renderMenuCard = useCallback((item: MenuItem) => (
     <div
       key={item._id}
       onClick={() => goto(item._id)}
-      className="bg-white w-[155px] py-[1rem] rounded-2xl transform transition duration-300 hover:scale-103 cursor-pointer"
+      className="bg-white w-[155px] py-[1rem] rounded-2xl transform transition duration-300 hover:scale-103 cursor-pointer shadow-md hover:shadow-lg"
     >
       <div className="flex flex-col items-center">
         <img
-          className="h-[8rem] w-[8rem] object-cover"
+          className="h-[8rem] w-[8rem] object-cover rounded-lg"
           src={getImageUrl(item.image)}
           alt={item.name || 'เมนู'}
           onError={(e) => {
@@ -162,24 +168,42 @@ const [isSearching, setIsSearching] = useState(false);
         </div>
       </div>
     </div>
-  );
+  ), [goto, getImageUrl]);
 
   const handleSearch = async () => {
-  if (!searchTerm.trim()) return;
+    if (!searchTerm.trim()) return;
 
-  setIsSearching(true);
-  try {
-    const res = await fetch(`/api/search-menu?query=${encodeURIComponent(searchTerm)}&userId=${userId}`);
-    const data = await res.json();
-    const foundMenus: MenuItem[] = Array.isArray(data?.menus) ? data.menus : [];
-    setMenus(foundMenus);
-    setHasMoreMenus(false); // ปิดปุ่มแนะนำเมนูเพิ่มเมื่อค้นหา
-  } catch (err) {
-    console.error('Search error:', err);
-  } finally {
-    setIsSearching(false);
-  }
-};
+    setIsSearching(true);
+    try {
+      const res = await fetch(`/api/search-menu?query=${encodeURIComponent(searchTerm)}&userId=${userId}`);
+      const data = await res.json();
+      const foundMenus: MenuItem[] = Array.isArray(data?.menus) ? data.menus : [];
+
+      // แยกเมนูสำหรับแสดงในกริดและเมนูเสริม
+      const displayMenus = foundMenus.slice(0, 4);
+      const supplementMenu = foundMenus.length > 4 ? foundMenus[4] : foundMenus[0];
+
+      setMenus(displayMenus);
+      setSpecialMenu(supplementMenu);
+      setHasMoreMenus(false); // ปิดปุ่มแนะนำเมนูเพิ่มเมื่อค้นหา
+    } catch (err) {
+      console.error('Search error:', err);
+    } finally {
+      setIsSearching(false);
+    }
+  };
+
+  const handleKeyPress = (e: React.KeyboardEvent) => {
+    if (e.key === 'Enter') {
+      handleSearch();
+    }
+  };
+
+  const clearSearch = () => {
+    setSearchTerm('');
+    setIsLoadingMenus(true);
+    fetchMenus();
+  };
 
   if (isLoadingMenus) {
     return (
@@ -199,25 +223,74 @@ const [isSearching, setIsSearching] = useState(false);
         </h1>
 
         <div className="flex gap-2 mb-[4rem]">
-            <input
-              type="text"
-              placeholder="ค้นหาเมนู"
-              value={searchTerm}
-              onChange={(e) => setSearchTerm(e.target.value)}
-              className="px-4 py-2 rounded-lg border w-[200px]"
-            />
+          <input
+            type="text"
+            placeholder="ค้นหาเมนู"
+            value={searchTerm}
+            onChange={(e) => setSearchTerm(e.target.value)}
+            onKeyPress={handleKeyPress}
+            className="px-4 py-2 rounded-lg border w-[200px] focus:outline-none focus:ring-2 focus:ring-green-500"
+          />
+          <button
+            onClick={handleSearch}
+            className="bg-green-500 text-white items-center flex px-4 py-2 rounded-lg hover:bg-green-600 disabled:opacity-50 transition-colors"
+            disabled={isSearching}
+          >
+            <img className='w-[1rem] h-[1rem] mr-[0.3rem]' src="/search2.png" alt="search" />
+            {isSearching ? 'กำลังค้นหา...' : 'ค้นหา'}
+          </button>
+          {searchTerm && (
             <button
-              onClick={handleSearch}
-              className="bg-green-500 text-white items-center flex px-4 py-2 rounded-lg hover:bg-green-600 disabled:opacity-50"
-              disabled={isSearching}
+              onClick={clearSearch}
+              className="bg-gray-500 text-white px-4 py-2 rounded-lg hover:bg-gray-600 transition-colors"
             >
-             <img className='w-[1rem] h-[1rem] mr-[0.3rem]' src="/search2.png"></img>ค้นหา
+              ล้าง
             </button>
+          )}
+        </div>
+
+        {/* ส่วนแสดงเมนู 4 รายการ */}
+        <div className="flex flex-col items-center gap-4 mb-[4rem]">
+          {/* แถวแรก: 2 เมนูแรก */}
+          <div className="grid grid-cols-2 gap-4">
+            {menus.slice(0, 2).map(renderMenuCard)}
           </div>
 
-        <div className="grid grid-cols-2 gap-4 mb-[4rem]">
-          {menus.map(renderMenuCard)}
-        </div>  
+          {/* แถวกลาง: เมนูเสริม */}
+          {specialMenu && (
+            <div
+              className="flex items-center h-[140px] w-[340px] bg-white rounded-bl-4xl rounded-tr-4xl rounded-br-md rounded-tl-md cursor-pointer shadow-lg hover:shadow-xl transition-shadow"
+              onClick={() => goto(specialMenu._id)}
+            >
+              <img
+                src={getImageUrl(specialMenu.image)}
+                alt={specialMenu.name || 'เมนูเสริม'}
+                className="h-[150px] w-[150px] object-cover rounded-lg ml-2"
+                onError={(e) => {
+                  const target = e.target as HTMLImageElement;
+                  target.onerror = null;
+                  target.src = '/default.png';
+                }}
+              />
+              <div className="ml-[1rem] flex">
+                <div className="w-[0.1rem] h-[4rem] mt-[0.8rem] mr-[0.8rem] ml-[-0.8rem] bg-[#333333]"></div>
+                <div className="">
+                  <h1 className='font-prompt font-bold text-[1.1rem] mb-1 w-[150px] text-gray-800'>
+                    {specialMenu.name || 'เมนูพิเศษ'}
+                  </h1>
+                  <h1 className='font-Unbounded font-bold text-gray-600'>
+                    {specialMenu.calories} Kcal
+                  </h1>
+                </div>
+              </div>
+            </div>
+          )}
+
+          {/* แถวท้าย: 2 เมนูสุดท้าย */}
+          <div className="grid grid-cols-2 gap-4">
+            {menus.slice(2, 4).map(renderMenuCard)}
+          </div>
+        </div>
       </div>
     </div>
   );

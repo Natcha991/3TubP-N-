@@ -248,7 +248,7 @@ export default function MenuPage() {
 
                     {/* ส่วน "เมนูใกล้เคียง" ที่ดึงข้อมูลจาก API */}
                     <div className="relative w-full max-w-[450px] mt-[3rem] mb-[5rem]">
-                        <h1 className="font-[600] text-[#333333] mb-[0.8rem] text-[1.25rem]">เมนูใกล้เคียง</h1>
+                        <h1 className="font-[600] text-[#333333] mb-[2rem] text-[1.6rem]">เมนูใกล้เคียง</h1>
                         <div className="flex gap-2 justify-center">
                             {isLoadingSimilarMenus ? (
                                 <p className="text-gray-600">กำลังโหลดเมนูใกล้เคียง...</p>
@@ -261,7 +261,7 @@ export default function MenuPage() {
                                     <div
                                         key={similarMenu._id}
                                         onClick={() => router.push(`/menu/${similarMenu._id}`)}
-                                        className="flex flex-col items-center bg-white border-2 border-[#C9AF90] rounded-t-full shadow-sm cursor-pointer transform transition duration-300 hover:scale-105"
+                                        className="flex flex-col items-center w-[130px] bg-white border-2 border-[#C9AF90] rounded-t-full shadow-sm cursor-pointer transform transition duration-300 hover:scale-105"
                                     >
                                         {/* รูปเมนูที่มี Tag เดียวกับ menu ปัจจุบัน */}
                                         <Image
