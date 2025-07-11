@@ -190,59 +190,34 @@ const [isSearching, setIsSearching] = useState(false);
   }
 
   return (
-    <div>
+    <div className='font-prompt'>
       <HealthTip userId={userId} />
 
       <div className="flex flex-col items-center">
-        <h1 className="font-[600] mt-[1.5rem] text-[#333333] font-prompt mb-[1rem] mr-[9rem] text-[1.6rem]">
+        <h1 className="font-[600] mt-[1.5rem] text-[#333333] font-prompt mb-[2rem] mr-[9rem] text-[1.6rem]">
           เมนูแนะนำ
         </h1>
 
-        <div className="flex gap-2 mb-4">
+        <div className="flex gap-2 mb-[4rem]">
             <input
               type="text"
-              placeholder="ค้นหาเมนู เช่น ไก่ เห็ด ต้มยำ"
+              placeholder="ค้นหาเมนู"
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
-              className="px-4 py-2 rounded-lg border w-[250px]"
+              className="px-4 py-2 rounded-lg border w-[200px]"
             />
             <button
               onClick={handleSearch}
-              className="bg-green-500 text-white px-4 py-2 rounded-lg hover:bg-green-600 disabled:opacity-50"
+              className="bg-green-500 text-white items-center flex px-4 py-2 rounded-lg hover:bg-green-600 disabled:opacity-50"
               disabled={isSearching}
             >
-              🔍 ค้นหา
+             <img className='w-[1rem] h-[1rem] mr-[0.3rem]' src="/search2.png"></img>ค้นหา
             </button>
           </div>
 
-        <div className="grid grid-cols-2 gap-4">
+        <div className="grid grid-cols-2 gap-4 mb-[4rem]">
           {menus.map(renderMenuCard)}
-        </div>
-
-        {hasMoreMenus && (
-          <div className="my-6">
-            <button
-              onClick={handleRefreshMenus}
-              disabled={isRefreshing}
-              className="bg-orange-500 hover:bg-orange-600 disabled:opacity-50 text-white px-6 py-2 rounded-xl font-prompt text-sm flex items-center gap-2"
-            >
-              {isRefreshing ? (
-                <>
-                  <span className="animate-spin inline-block">🌀</span>
-                  กำลังแนะนำเมนูใหม่...
-                </>
-              ) : (
-                'แนะนำเมนูเพิ่มเติม'
-              )}
-            </button>
-          </div>
-        )}
-
-        {menus.length > 0 && (
-          <div className="text-sm text-gray-500 mt-2">
-            แสดงแล้ว {menus.length} เมนู
-          </div>
-        )}
+        </div>  
       </div>
     </div>
   );
