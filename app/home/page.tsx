@@ -207,7 +207,8 @@ export default function Home() {
 
   if (isLoadingMenus) {
     return (
-      <div className="flex font-prompt min-h-screen items-center justify-center bg-gradient-to-br from-orange-300 to-orange-100 text-xl text-gray-700">
+      <div className="flex flex-col font-prompt min-h-screen items-center justify-center bg-gradient-to-br from-orange-300 to-orange-100 text-xl text-gray-700">
+        <img className='animate-sizeUpdown2 mb-[1.5rem]' src="/image%2069.png"></img>
         กำลังโหลดข้อมูล...
       </div>
     );

@@ -253,7 +253,7 @@ ${allowedMenu.map((name, i) => `${i + 1}. ${name}`).join('\n')}
               </div>
             ))}
             {isLoading && (
-              <div className="flex items-start gap-2 flex-row-reverse">
+              <div className="flex items-start gap-2">
                 <img src="/image%2075.png" alt="AI avatar" className="w-[40px] h-[40px] rounded-full" />
                 <div className="max-w-[calc(100vw-120px)] break-words p-2 bg-gray-200 rounded-2xl shadow text-base">
                   AI กำลังคิดคำตอบ...

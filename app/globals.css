@@ -127,6 +127,10 @@ body {
 	animation: SizeUp 2s infinite ease-in-out;
 }
 
+.animate-sizeUpdown2 {
+	animation: SizeUpUp 1s infinite ease-in-out;
+}
+
 
 @keyframes SizeUp { 
 	0% {
@@ -135,6 +139,20 @@ body {
 
 	50% {
 		transform: scale(102%);
+	}
+
+	100% {
+		transform: scale(100%);
+	}
+}
+
+@keyframes SizeUpUp { 
+	0% {
+		transform: scale(100%);
+	}
+
+	50% {
+		transform: scale(107%);
 	}
 
 	100% {
