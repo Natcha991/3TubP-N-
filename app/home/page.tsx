@@ -238,15 +238,7 @@ export default function Home() {
           >
             <img className='w-[1rem] h-[1rem] mr-[0.3rem]' src="/search2.png" alt="search" />
             {isSearching ? 'กำลังค้นหา...' : 'ค้นหา'}
-          </button>
-          {searchTerm && (
-            <button
-              onClick={clearSearch}
-              className="bg-gray-500 text-white px-4 py-2 rounded-lg hover:bg-gray-600 transition-colors"
-            >
-              ล้าง
-            </button>
-          )}
+          </button> 
         </div>
 
         {/* ส่วนแสดงเมนู 4 รายการ */}
