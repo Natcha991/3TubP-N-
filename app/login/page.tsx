@@ -80,7 +80,7 @@ export default function LoginPage() {
       </div>
 
       {/* ส่วนข้อความด้านบน */}
-      <div className="mt-[8rem] flex flex-col items-center">
+      <div className="mt-[5rem] flex flex-col items-center z-200">
         <div className="w-full">
           <h1 className='w-[330px] text-center font-prompt text-3xl font-[500] text-[#333333] mt-2'>
             กรอกชื่อเพื่อเข้าสู่ระบบ
@@ -112,7 +112,7 @@ export default function LoginPage() {
           </button>
         </form>
         <div className="">
-          <h1 onClick={goRegister} className='text-md text-red-600 mt-2 underline font-prompt cursor-pointer'>ยังไม่มีรหัส?</h1>
+          <h1 onClick={goRegister} className='text-md text-red-600 mt-2 underline z-200 font-prompt cursor-pointer'>ยังไม่มีรหัส?</h1>
         </div>
         {/* ✅ เพิ่มการแสดงผลข้อผิดพลาดตรงนี้ */}
         {error && (
@@ -125,7 +125,7 @@ export default function LoginPage() {
       {/* ----------------------------------------------------- */}
       {/* ส่วนรูปภาพที่ต้องการให้โดนจอกิน (จัดกลางแนวตั้ง, ชิดขวา, กินขอบ) */}
       {/* ----------------------------------------------------- */}
-      <div className="z-10 mt-[4rem] flex justify-center overflow-hidden animate-sizeUpdown">
+      <div className="z-10 top-[300px] absolute flex justify-center overflow-hidden animate-sizeUpdown">
         <img
           src="/image%2086.png"
           alt='Decor'

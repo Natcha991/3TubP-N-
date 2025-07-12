@@ -35,9 +35,9 @@ export default function Register2() {
       </div>
 
       {/* ส่วนข้อความด้านบน */}
-      <div className="flex flex-col items-center mt-[8rem]">
+      <div className="flex flex-col items-center mt-[5rem]">
         <div className="w-full">
-          <h1 className='w-[330px] text-center text-[#333333] mt-2 font-prompt font-[500] text-2xl '>ผมชื่อ Mr.Rice นะ แล้วคุณละ?</h1>
+          <h1 className='w-[330px] text-center text-[#333333] mt-2 font-prompt font-[500] text-3xl '>ผมชื่อ Mr.Rice นะ<br></br>แล้วคุณละ?</h1>
         </div>
         <div className='font-prompt flex items-center mt-[2rem] z-107'>
           <input

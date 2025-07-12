@@ -51,12 +51,12 @@ export default function Register5() {
             </div>
 
             {/* ส่วนข้อความด้านบน */}
-            <div className="flex flex-col items-center mt-[8rem]">
+            <div className="flex flex-col items-center mt-[5rem]">
                 <div className="w-full">
                     <h1 className='w-[300px] text-center text-[#333333] mt-2 font-prompt font-[500] text-3xl'>ทีนี้ ผมอยากรู้น้ำหนัก ส่วนสูงของคุณหน่อย</h1>
                 </div>
                 {/* แก้แค่ส่วนนี้ */}
-                <form className="font-prompt flex flex-col items-center justify-center mt-[2rem] z-100" onSubmit={handleSubmit} >
+                <form className="font-prompt flex flex-col items-center justify-center mt-[3rem] z-100" onSubmit={handleSubmit} >
                     <div className="flex gap-2">
                         <input type="number"
                             placeholder="น้ำหนัก (kg)"
@@ -71,17 +71,19 @@ export default function Register5() {
                             required
                             className=' rounded-3xl w-[130px] border-[#333333] border-2 p-[0.5rem]  bg-white'></input>
                     </div>
-                    <div className="flex mt-[1rem] bg-[#333333] py-[0.5rem] px-[1rem] rounded-2xl">
-                        <button type='submit' className='text-white'>ถัดไป</button>
-                        <button type='submit' className='bg-grey-400 w-[35px] transition hover:scale-105 duration-300 cursor-pointer flex items-center justify-center rounded-4xl border-[#ffffff] border-2 ml-[0.5rem] h-[35px]'><img src="/image%2082.png"></img></button>
-                    </div>
+                    <button
+                        type='submit' // เรียก handleSubmit เมื่อคลิก
+                        className='bg-orange-400 mt-5 z-200 text-white py-2 px-4 rounded-full w-40 flex justify-center items-center gap-2' // ปรับปุ่มให้เป็นสไตล์ที่ใช้บ่อย
+                    >
+                        ถัดไป {/* เพิ่มไอคอน */}
+                    </button>
                 </form>
             </div>
 
             {/* ----------------------------------------------------- */}
             {/* ส่วนรูปภาพที่ต้องการให้โดนจอกิน (จัดกลางแนวตั้ง, ชิดขวา, กินขอบ) */}
             {/* ----------------------------------------------------- */}
-            <div className="flex justify-center z-10 mt-[0.2rem] overflow-hidden animate-sizeUpdown">
+            <div className="flex justify-center z-10 overflow-hidden mt-[1rem] animate-sizeUpdown">
                 <img
                     src="/image%20100.png"
                     alt='Decor'
@@ -97,5 +99,5 @@ export default function Register5() {
                 </div>
             </div>
         </div>
-    ); 
+    );
 }

@@ -51,7 +51,7 @@ export default function Register3() {
             </div>
 
             {/* ส่วนข้อความด้านบนและ Form สำหรับ input */}
-            <div className="flex flex-col items-center mt-[8rem]">
+            <div className="flex flex-col items-center mt-[5rem]">
                 <div className="w-full">
                     <h1 className='w-[300px] text-center text-[#333333] mt-2 font-prompt font-[500] text-3xl'>แล้ววันเกิดของคุณล่ะ
                         คือวันไหน?</h1>

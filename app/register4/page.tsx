@@ -48,9 +48,9 @@ export default function Register4() {
       </div>
 
       {/* ส่วนข้อความด้านบน */}
-      <div className="flex flex-col items-center mt-[8rem]">
+      <div className="flex flex-col items-center mt-[5rem]">
         <div className="w-full">
-          <h1 className='w-[330px] text-center text-[#333333] mt-2 font-prompt font-[500] text-2xl'>ผมเป็นผู้ชายนะ แล้วคุณล่ะ?</h1>
+          <h1 className='w-[330px] text-center text-[#333333] mt-2 font-prompt font-[500] text-3xl'>ผมเป็นผู้ชายนะ<br></br>แล้วคุณล่ะ?</h1>
         </div>
 
         {/* ส่วนตัวเลือก ชาย หรือ หญิง */}
