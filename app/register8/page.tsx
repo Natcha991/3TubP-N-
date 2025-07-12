@@ -157,7 +157,7 @@ export default function Register8() { // เปลี่ยนชื่อ Compo
               {/* ปุ่ม "เสร็จสิ้น" สำหรับส่งข้อมูล */}
               <button
                 onClick={handleSubmit} // เรียก handleSubmit เมื่อคลิก
-                className='bg-orange-400 text-white py-2 px-4 rounded-full w-40 flex justify-center items-center gap-2' // ปรับปุ่มให้เป็นสไตล์ที่ใช้บ่อย
+                className='bg-orange-400 z-200 text-white py-2 px-4 rounded-full w-40 flex justify-center items-center gap-2' // ปรับปุ่มให้เป็นสไตล์ที่ใช้บ่อย
               >
                 เสร็จสิ้น
                 <img src="/image%2082.png" alt="Next" className="h-4 w-4 transform rotate-0" /> {/* เพิ่มไอคอน */}
