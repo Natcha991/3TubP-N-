@@ -285,6 +285,31 @@ export default function IngredientPage() {
           <div className="h-full p-[1rem] rounded-2xl border-[#FFAC64] bg-[#FFFAD2] border-2 mt-8">
             <p className="text-[#953333] text-[0.8rem]">{ingredient.description}</p>
           </div>
+
+          {/* ร้านค้าร่วมรายการ */}
+          {(ingredient as any).shopLinks && (
+            <div className="w-full max-w-[360px] mt-[2rem]">
+              <h1 className="font-[600] text-[#333333] mb-[1rem] text-[1.6rem]">ร้านค้าร่วมรายการ</h1>
+              <div className="flex flex-wrap gap-2">
+                {Object.entries((ingredient as any).shopLinks).map(([shop, url]) => (
+                  <a
+                    key={shop}
+                    href={url as string}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className={`px-4 py-2 rounded-lg text-white text-sm font-medium ${
+                      shop === 'makro' ? 'bg-red-600' :
+                      shop === 'lotus' ? 'bg-green-600' :
+                      shop === 'bigc' ? 'bg-yellow-500 text-black' :
+                      'bg-gray-500'
+                    }`}
+                  >
+                    {shop.charAt(0).toUpperCase() + shop.slice(1)}
+                  </a>
+                ))}
+              </div>
+            </div>
+          )}
         </div>
 
         {/* Nearby Stores - Using Google Places API data */}
