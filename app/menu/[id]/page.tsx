@@ -137,7 +137,7 @@ export default function MenuPage() {
     };
 
     const getStepImage = (step: string): string => {
-        const keywords = ["เตรียมวัตถุดิบ", "ต้ม", "ผัด", "นึ่ง", "ย่าง", "ปรุงรส", "เสิร์ฟ", "อบ"];
+        const keywords = ["เตรียมวัตถุดิบ", "ต้ม", "ผัด", "นึ่ง", "ย่าง", "ปรุงรส", "เสิร์ฟ", "อบ","ใส่"];
         for (const key of keywords) {
             if (step.includes(key)) {
                 return `/methods/${encodeURIComponent(key)}.png`;
@@ -226,7 +226,7 @@ export default function MenuPage() {
                                     />
                                     <h1>{ing.name}</h1>
                                 </div>
-                                <h1 className="text-[0.8rem] text-[#777]">฿{ing.price}</h1>
+                                <h1 className="text-[0.8rem] text-[#777]">฿ {ing.price}</h1>
                             </div>
                         ))}
                     </div>
