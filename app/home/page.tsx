@@ -219,10 +219,11 @@ export default function Home() {
       <HealthTip userId={userId} />
 
       <div className="flex flex-col items-center">
-        <h1 className="font-[600] mt-[1.5rem] text-[#333333] font-prompt mb-[2rem] mr-[9rem] text-[1.6rem]">
+        <h1 className="font-[600] mt-[2rem] text-[#333333] font-prompt mb-[2rem] mr-[9rem] text-[2rem]">
           เมนูแนะนำ
         </h1>
 
+        {/* ส่วนค้นหา ให้เปลี่ยนเป็น Tag ต่างๆกดไปแล้วจะขึ้นเมนู Tag เป็นพวก เนื้อสัตว์ อะไรพวกนี้ */}
         <div className="flex gap-2 mb-[4rem]">
           <input
             type="text"
@@ -230,11 +231,11 @@ export default function Home() {
             value={searchTerm}
             onChange={(e) => setSearchTerm(e.target.value)}
             onKeyPress={handleKeyPress}
-            className="px-4 py-2 rounded-lg border w-[200px] focus:outline-none focus:ring-2 focus:ring-green-500"
+            className="px-4 py-2 rounded-lg border w-[200px] focus:outline-none focus:ring-2 focus:ring-[#333333]"
           />
           <button
             onClick={handleSearch}
-            className="bg-green-500 text-white items-center flex px-4 py-2 rounded-lg hover:bg-green-600 disabled:opacity-50 transition-colors"
+            className="bg-orange-400 text-white items-center flex px-4 py-2 rounded-lg hover:bg-green-600 disabled:opacity-50 transition-colors"
             disabled={isSearching}
           >
             <img className='w-[1rem] h-[1rem] mr-[0.3rem]' src="/search2.png" alt="search" />
@@ -280,7 +281,7 @@ export default function Home() {
           )}
 
           {/* แถวท้าย: 2 เมนูสุดท้าย */}
-          <div className="grid grid-cols-2 gap-4">
+          <div className="grid grid-cols-2 mb-[2rem] gap-4">
             {menus.slice(2, 4).map(renderMenuCard)}
           </div>
         </div>
