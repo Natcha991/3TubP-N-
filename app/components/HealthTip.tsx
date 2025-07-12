@@ -41,7 +41,7 @@ export default function HealthTip({ userId }: { userId: string }) {
           <span className="text-orange-600 font-bold">เคี้ยว</span> ให้พอดี เพื่อช่วยย่อย?
         </>
       ),
-      headline: 'เคี้ยว ขา ๆ ช่วยให้ผอมได้ไหม?',
+      headline: 'เคี้ยว ช้า ๆ ช่วยให้ผอมได้ไหม?',
       imageHead: '/scum.jpg',
     },
   ];

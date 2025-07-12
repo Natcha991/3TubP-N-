@@ -1,4 +1,4 @@
-// src/app/api/saveChat/route.ts
+// /app/api/saveChat/route.ts
 import { NextRequest, NextResponse } from 'next/server';
 import { connectToDatabase } from '@/lib/mongodb'; // แก้ path ตามโปรเจกต์คุณ
 import Chat from '@/models/Chat'; // แก้ path ตามจริง
