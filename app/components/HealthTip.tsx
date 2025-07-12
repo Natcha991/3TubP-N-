@@ -22,7 +22,7 @@ export default function HealthTip({ userId }: { userId: string }) {
         </>
       ),
       headline: 'ดื่มน้ำแค่ไหนถึงจะพอดี?',
-      imageHead: '/drink.jpg',
+      imageHead: '/drinking-water.jpg',
     },
     {
       id: 'sleep',

@@ -87,6 +87,10 @@ export default function Register8() { // เปลี่ยนชื่อ Compo
 
   // Auto scroll to first selected item on mount (ถ้ามีไลฟ์สไตล์ที่เลือกไว้แต่แรก)
   useEffect(() => {
+    if (selectedLifestyles.length == 0) {
+      setSelectedLifestyles(['กินง่าย อยู่ง่าย'])
+    }
+
     if (selectedLifestyles.length > 0) {
       const firstSelectedIndex = lifestyles.findIndex((lifestyle) =>
         selectedLifestyles.includes(lifestyle)
@@ -123,7 +127,7 @@ export default function Register8() { // เปลี่ยนชื่อ Compo
               ref={scrollContainerRef}
               className="overflow-x-auto scrollbar-hide"
             >
-              <div className="flex space-x-3 px-4 pb-4" style={{ width: 'max-content' }}>
+              <div className="flex space-x-6 px-4 pb-4" style={{ width: 'max-content' }}>
                 {lifestyles.map((lifestyle, index) => (
                   <button
                     key={index}
@@ -131,8 +135,8 @@ export default function Register8() { // เปลี่ยนชื่อ Compo
                     className={`
                       relative flex items-center z-120 justify-center mt-3 px-6 py-8 rounded-2xl min-w-max transition-all duration-200 shadow-sm whitespace-nowrap
                       ${selectedLifestyles.includes(lifestyle)
-                        ? 'bg-white border-2 border-orange-400 shadow-md scale-105'
-                        : 'bg-white/80 border-2 border-gray-200 hover:border-gray-300 hover:scale-102'
+                        ? 'bg-white border-2 border-orange-400 shadow-md scale-115'
+                        : 'bg-white/80 border-2 border-gray-200 hover:border-gray-300 hover:scale-90'
                       }
                     `}
                   >
@@ -159,8 +163,7 @@ export default function Register8() { // เปลี่ยนชื่อ Compo
                 onClick={handleSubmit} // เรียก handleSubmit เมื่อคลิก
                 className='bg-orange-400 z-200 text-white py-2 px-4 rounded-full w-40 flex justify-center items-center gap-2' // ปรับปุ่มให้เป็นสไตล์ที่ใช้บ่อย
               >
-                เสร็จสิ้น
-                <img src="/image%2082.png" alt="Next" className="h-4 w-4 transform rotate-0" /> {/* เพิ่มไอคอน */}
+                เสร็จสิ้น  {/* เพิ่มไอคอน */}
               </button>
             </div>
 

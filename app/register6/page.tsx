@@ -80,6 +80,11 @@ export default function Register6() {
 
   // Auto scroll to first selected item on mount
   useEffect(() => {
+
+    if (selectedGoals.length === 0) {
+      setSelectedGoals(['เพิ่มกล้ามเนื้อ']);
+    }
+
     if (selectedGoals.length > 0) {
       const firstSelectedIndex = goals.findIndex((goal) =>
         selectedGoals.includes(goal)
@@ -111,13 +116,12 @@ export default function Register6() {
         </div>
         <div className="flex-1 flex items-start justify-center pt-11">
           <div className="w-full max-w-sm">
-            {/* Scrollable Chips */} 
-            {/* ตรงส่วนนี้แก้ยังไงให้ icon scroll มันหายไปจากหน้า */}
+            {/* Scrollable Chips */}
             <div
               ref={scrollContainerRef}
               className="overflow-x-auto scrollbar-hide"
             >
-              <div className="flex space-x-3 px-4 pb-4" style={{ width: 'max-content' }}>
+              <div className="flex space-x-6 px-4 pb-4" style={{ width: 'max-content' }}>
                 {goals.map((goal, index) => (
                   <button
                     key={index}
@@ -125,8 +129,8 @@ export default function Register6() {
                     className={`
                       relative flex z-120 items-center mt-3 justify-center px-6 py-8 rounded-2xl min-w-max transition-all duration-200 shadow-sm whitespace-nowrap
                       ${selectedGoals.includes(goal)
-                        ? 'bg-white border-2 border-orange-400 shadow-md scale-105'
-                        : 'bg-white/80 hover:border-gray-300 hover:scale-102'
+                        ? 'bg-white border-2 border-orange-400 shadow-md scale-115'
+                        : 'bg-white/80 hover:border-gray-300 scale-90'
                       }
                     `}
                   >
@@ -153,8 +157,7 @@ export default function Register6() {
                 onClick={handleSubmit} // เรียก handleSubmit เมื่อคลิก
                 className='bg-orange-400 z-200 text-white py-2 px-4 rounded-full w-40 flex justify-center items-center gap-2' // ปรับปุ่มให้เป็นสไตล์ที่ใช้บ่อย
               >
-                ถัดไป
-                <img src="/image%2082.png" alt="Next" className="h-4 w-4 transform rotate-0" /> {/* เพิ่มไอคอน */}
+                ถัดไป  {/* เพิ่มไอคอน */}
               </button>
             </div>
 
