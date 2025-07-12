@@ -27,6 +27,39 @@ export default function Home() {
   const [searchTerm, setSearchTerm] = useState('');
   const [isSearching, setIsSearching] = useState(false);
   const [specialMenu, setSpecialMenu] = useState<MenuItem | null>(null);
+  const [showBubble, setShowBubble] = useState(false); // ควบคุมการแสดงผลของ bubble
+  const [initialBubbleDisplayed, setInitialBubbleDisplayed] = useState(false); // เพิ่ม state สำหรับตรวจสอบว่าแสดงครั้งแรกไปหรือยัง 
+
+  useEffect(() => { 
+    let hideTimer: NodeJS.Timeout;
+    let intervalTimer: NodeJS.Timeout;
+
+    const displayBubble = () => {
+      setShowBubble(true);
+      // ซ่อน bubble หลังจาก 5 วินาที
+      hideTimer = setTimeout(() => {
+        setShowBubble(false);
+      }, 5000); // 5 วินาที
+    };
+
+    // แสดง bubble ครั้งแรกทันทีเมื่อคอมโพเนนต์โหลด (หรือหลังจาก fetch data เสร็จ)
+    // หรือคุณอาจจะอยากให้มันเริ่มหลังจาก isLoading เป็น false
+    if (!initialBubbleDisplayed) {
+      displayBubble();
+      setInitialBubbleDisplayed(true);
+    }
+
+    // ตั้งค่า interval เพื่อเล่นอนิเมชั่นทุกๆ 30 วินาที (รวมเวลาแสดง 5 วิ + คูลดาวน์ 25 วิ)
+    intervalTimer = setInterval(() => {
+      displayBubble();
+    }, 30000); // 30 วินาที
+
+    // Cleanup function: Clear timers when the component unmounts
+    return () => { 
+      clearTimeout(hideTimer);
+      clearInterval(intervalTimer);
+    };
+  }, [initialBubbleDisplayed])
 
   useEffect(() => {
     fetchMenus();
@@ -122,6 +155,8 @@ export default function Home() {
     }
   };
 
+
+
   const handleRefreshMenus = useCallback(() => {
     if (!hasMoreMenus || isRefreshing) return;
     setIsRefreshing(true);
@@ -199,6 +234,11 @@ export default function Home() {
     }
   };
 
+  const gotoChatbot = () => {
+    router.push("/chatbot");
+  };
+
+
   const clearSearch = () => {
     setSearchTerm('');
     setIsLoadingMenus(true);
@@ -223,7 +263,7 @@ export default function Home() {
           เมนูแนะนำ
         </h1>
 
-        {/* ส่วนค้นหา ให้เปลี่ยนเป็น Tag ต่างๆกดไปแล้วจะขึ้นเมนู Tag เป็นพวก เนื้อสัตว์ อะไรพวกนี้ */}
+
         <div className="flex gap-2 mb-[4rem]">
           <input
             type="text"
@@ -241,6 +281,22 @@ export default function Home() {
             <img className='w-[1rem] h-[1rem] mr-[0.3rem]' src="/search2.png" alt="search" />
             {isSearching ? 'กำลังค้นหา...' : 'ค้นหา'}
           </button>
+        </div>
+
+        <div className="absolute top-[33.3rem] left-[20rem] -translate-x-1/2 md:left-[15rem] md:translate-x-0">
+          {showBubble && ( // Conditional rendering based on showBubble state
+              <div className="w-[150px] h-[50px] z-[-1] absolute top-[1.5rem] shadow-grey shadow-xl left-[-7rem] p-[0.5rem] flex items-center bg-white rounded-md animate-showUp">
+                <h1 className="text-[0.7rem]">ผม Mr.Rice อยากรู้อะไรสอบถามผมได้ครับ!</h1>
+              </div>
+            )}
+          <img
+            onClick={gotoChatbot}
+            className="mt-[3rem] animate-pulse animate-sizeUpdown cursor-pointer transform hover:scale-105 duration-300"
+            src="/image%2069.png"
+            alt="Chatbot icon"
+            width={60}
+            height={60}
+          />
         </div>
 
         {/* ส่วนแสดงเมนู 4 รายการ */}
