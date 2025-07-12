@@ -240,7 +240,7 @@ export default function Home() {
           >
             <img className='w-[1rem] h-[1rem] mr-[0.3rem]' src="/search2.png" alt="search" />
             {isSearching ? 'กำลังค้นหา...' : 'ค้นหา'}
-          </button> 
+          </button>
         </div>
 
         {/* ส่วนแสดงเมนู 4 รายการ */}
@@ -272,9 +272,12 @@ export default function Home() {
                   <h1 className='font-prompt font-bold text-[1.1rem] mb-1 w-[150px] text-gray-800'>
                     {specialMenu.name || 'เมนูพิเศษ'}
                   </h1>
-                  <h1 className='font-Unbounded font-bold text-gray-600'>
-                    {specialMenu.calories} Kcal
-                  </h1>
+                  <div className="flex items-baseline">
+                    <h1 className='font-Unbounded text-[1rem] font-bold text-gray-600 '>
+                      {specialMenu.calories}
+                    </h1>
+                    <h1 className='text-[0.7rem] ml-2 font-Unbounded text-gray-600'>KCAL</h1>
+                  </div>
                 </div>
               </div>
             </div>
