@@ -28,6 +28,38 @@ export default function IngredientPage() {
   const [error, setError] = useState<string | null>(null);
   const [userLocation, setUserLocation] = useState<{ lat: number; lng: number } | null>(null);
   const [places, setPlaces] = useState<any[]>([]);
+  const [showBubble, setShowBubble] = useState(false); 
+
+  useEffect(() => {
+    let hideTimer: NodeJS.Timeout;
+    let intervalTimer: NodeJS.Timeout;
+
+    const displayBubble = () => {
+      setShowBubble(true); // แสดง bubble
+      hideTimer = setTimeout(() => {
+        setShowBubble(false); // ซ่อน bubble หลังจาก 5 วินาที
+      }, 5000); // ระยะเวลาแสดง bubble
+    };
+
+    // ตั้งค่าให้แสดง bubble ครั้งแรกหลังจาก component mount (หรือหลังจากโหลดข้อมูลเสร็จ)
+    // คุณสามารถเลือกได้ว่าจะให้แสดงทันที หรือรอจน isLoadingMenus เป็น false
+    // ในตัวอย่างนี้ ผมจะให้มันแสดงครั้งแรกทันทีที่ useEffect นี้รัน
+
+    // เรียก displayBubble ครั้งแรกทันที
+    displayBubble();
+
+    // ตั้งค่า setInterval ให้เรียก displayBubble ทุกๆ 30 วินาที
+    // (5 วินาทีที่แสดง + 25 วินาทีที่ซ่อน)
+    intervalTimer = setInterval(() => {
+      displayBubble();
+    }, 30000); // 30 วินาที คือรวมเวลาที่แสดงและเวลาที่หายไป
+
+    // Cleanup function: เคลียร์ timers เมื่อ component unmounts
+    return () => {
+      clearTimeout(hideTimer);
+      clearInterval(intervalTimer);
+    };
+  }, []); //
 
   const { isLoaded, loadError } = useLoadScript({
     googleMapsApiKey: process.env.NEXT_PUBLIC_GOOGLE_MAPS_API_KEY || '',
@@ -143,7 +175,7 @@ export default function IngredientPage() {
     // ใช้ currentUserId ที่ดึงมาจาก useSearchParams
     router.push(`/chatbot${currentUserId ? `?id=${currentUserId}` : ''}`);
   };
-  
+
   const gotoIngredient = (ingredientName: string) => {
     const currentMenuId = searchParams.get('menuId');
     const queryParams = currentMenuId ? `?menuId=${currentMenuId}` : '';
@@ -234,9 +266,11 @@ export default function IngredientPage() {
         <div className="w-[300px] relative">
           <h1 className="m-[0.5rem] text-[#611E1E] text-lg">ประมาณ {ingredient.price}</h1>
           <div className="absolute top-[-3.3rem] left-[15rem] -translate-x-1/2 md:left-[15rem] md:translate-x-0">
-            <div className="w-[150px] h-[40px] z-[-1] absolute top-[1.5rem] shadow-grey shadow-xl left-[-7rem] p-[0.5rem] flex items-center bg-white rounded-md">
+          {showBubble && (
+            <div className="w-[150px] animate-showUp h-[40px] z-[-1] absolute top-[1.5rem] shadow-grey shadow-xl left-[-7rem] p-[0.5rem] flex items-center bg-white rounded-md">
               <h1 className="text-[0.7rem]">เป็นวัตถุดิบที่มีคุณค่ามาก!</h1>
             </div>
+          )}
             <Image
               onClick={gotoChatbot}
               className="mt-[3rem] animate-pulse animate-sizeUpdown cursor-pointer transform hover:scale-105 duration-300"

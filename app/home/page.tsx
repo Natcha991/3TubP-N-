@@ -29,8 +29,7 @@ export default function Home() {
   const [searchTerm, setSearchTerm] = useState('');
   const [isSearching, setIsSearching] = useState(false);
   const [specialMenu, setSpecialMenu] = useState<MenuItem | null>(null);
-  const [showBubble, setShowBubble] = useState(false);
-  const [initialBubbleDisplayed, setInitialBubbleDisplayed] = useState(false);
+  const [showBubble, setShowBubble] = useState(false); 
 
   useEffect(() => {
     let hideTimer: NodeJS.Timeout;
