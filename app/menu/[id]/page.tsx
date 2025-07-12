@@ -1,8 +1,9 @@
 'use client';
 
-import { useRouter, useParams } from 'next/navigation';
+// **ตรวจสอบว่า next/navigation มี useSearchParams ถูก import แล้ว**
+import { useRouter, useParams, useSearchParams } from 'next/navigation';
 import { useEffect, useState, useRef } from 'react';
-import Image from 'next/image'; // แนะนำให้ใช้ next/image เพื่อประสิทธิภาพ
+import Image from 'next/image';
 import MethodCard from "@/app/components/MethodCard";
 
 interface MenuItem {
@@ -25,26 +26,36 @@ interface Ingredient {
 
 export default function MenuPage() {
     const router = useRouter();
-    const { id } = useParams() as { id: string };
+    const { id: menuId } = useParams() as { id: string }; // ดึง menuId จาก dynamic route
+    const searchParams = useSearchParams(); // Hook สำหรับดึง query parameters
+    const userId = searchParams.get('userId'); // <<< ดึง userId จาก URL ของ MenuPage
+
     const methodCardsContainerRef = useRef<HTMLDivElement>(null);
 
     const [menu, setMenu] = useState<MenuItem | null>(null);
     const [ingredientsData, setIngredientsData] = useState<Ingredient[]>([]);
     const [displayedSteps, setDisplayedSteps] = useState<string[]>([]);
     const [nextStepIndex, setNextStepIndex] = useState(0);
-    // --- State ใหม่สำหรับเมนูใกล้เคียง ---
     const [similarMenus, setSimilarMenus] = useState<MenuItem[]>([]);
     const [isLoadingSimilarMenus, setIsLoadingSimilarMenus] = useState<boolean>(false);
     const [similarMenusError, setSimilarMenusError] = useState<string | null>(null);
 
-    const goto = () => router.push(`/home?id=${id}`);
+    // แก้ไข goto ให้ส่ง userId กลับไปด้วย เมื่อกลับไป home page
+    // จะใช้ ?id=userId ถ้า userId มีค่า ไม่เช่นนั้นก็แค่ /home
+    const goto = () => {
+        if (userId) {
+            router.push(`/home?id=${userId}`);
+        } else {
+            router.push(`/home`); // กรณีไม่มี userId (อาจจะต้องการให้กลับไปหน้า login แทน)
+        }
+    };
 
     useEffect(() => {
-        if (!id) return;
+        if (!menuId) return;
 
         const fetchMenu = async () => {
             try {
-                const res = await fetch(`/api/menu/${id}`);
+                const res = await fetch(`/api/menu/${menuId}`);
                 if (!res.ok) throw new Error("Menu not found");
                 const data = await res.json();
                 setMenu(data);
@@ -54,7 +65,7 @@ export default function MenuPage() {
         };
 
         fetchMenu();
-    }, [id]);
+    }, [menuId]);
 
     useEffect(() => {
         const loadIngredients = async () => {
@@ -75,17 +86,14 @@ export default function MenuPage() {
         if (menu) loadIngredients();
     }, [menu]);
 
-    // --- Effect สำหรับดึงเมนูใกล้เคียง (Similar Menus) ---
     useEffect(() => {
         if (menu && menu.tags && menu.tags.length > 0) {
             const fetchSimilarMenus = async () => {
                 setIsLoadingSimilarMenus(true);
                 setSimilarMenusError(null);
                 try {
-                    // ใช้ tag แรกของเมนูปัจจุบันในการค้นหา
                     const tagToSearch = menu.tags[0];
-                    // เรียก API Route ที่สร้างไว้
-                    const res = await fetch(`/api/menu?tag=${encodeURIComponent(tagToSearch)}&excludeId=${menu._id}`); // ลบ 's' ออก
+                    const res = await fetch(`/api/menu?tag=${encodeURIComponent(tagToSearch)}&excludeId=${menu._id}`);
                     if (!res.ok) {
                         const errorText = await res.text();
                         throw new Error(`Failed to fetch similar menus: ${errorText}`);
@@ -101,11 +109,10 @@ export default function MenuPage() {
             };
             fetchSimilarMenus();
         } else if (menu && menu.tags && menu.tags.length === 0) {
-            // ถ้าเมนูไม่มี tag ก็ไม่ต้องโหลดเมนูใกล้เคียง
             setSimilarMenus([]);
             setIsLoadingSimilarMenus(false);
         }
-    }, [menu]); // ขึ้นอยู่กับ menu object เพื่อดึง tag
+    }, [menu]);
 
     useEffect(() => {
         if (menu && menu.instructions && displayedSteps.length === 0) {
@@ -149,7 +156,7 @@ export default function MenuPage() {
     if (!menu) return <div className="flex flex-col font-prompt min-h-screen items-center justify-center bg-gradient-to-br from-orange-300 to-orange-100 text-xl text-gray-700">
         <img className='animate-sizeUpdown2 mb-[1.5rem]' src="/image%2069.png"></img>
         กำลังโหลดข้อมูล...
-      </div>
+    </div>
 
     const instructions = Array.isArray(menu.instructions)
         ? menu.instructions
@@ -158,6 +165,7 @@ export default function MenuPage() {
     return (
         <div className="relative flex flex-col items-center">
             <div className="absolute z-1 flex justify-between m-[2rem] items-center sm:w-[95%] w-[85%]">
+                {/* แก้ไข onClick ของปุ่มย้อนกลับ เพื่อส่ง userId กลับไปด้วย */}
                 <div onClick={goto} className="bg-white h-[50px] flex justify-center cursor-pointer transform hover:scale-103 items-center w-[50px] rounded-full shadow-2xl">
                     <Image className="h-[15px]" src="/Group%2084.png" alt="back" width={15} height={15} />
                 </div>
@@ -171,14 +179,14 @@ export default function MenuPage() {
                     className="h-[330px] object-cover mb-[2rem] [mask-image:linear-gradient(to_bottom,black_60%,transparent)]"
                     src={menu.image ? `/menus/${encodeURIComponent(menu.image)}` : "/default.png"}
                     alt={menu.name}
-                    width={500} // กำหนด width และ height เพื่อปรับปรุง LCP
+                    width={500}
                     height={330}
                     onError={(e) => {
                         const target = e.target as HTMLImageElement;
                         target.onerror = null;
                         target.src = "/default.png";
                     }}
-                    priority // เพิ่ม priority ถ้าเป็นรูปภาพสำคัญในหน้าแรก
+                    priority
                 />
             </div>
 
@@ -196,19 +204,17 @@ export default function MenuPage() {
                     </div>
                 )}
                 
-                {/* {menu.tags.length > 0 && (
-                    <div className="bg-[#ff770041] inline-block px-[1rem] py-[0.2rem] mt-[0.8rem] rounded-2xl">
-                        <h1 className="font-[600] text-[0.8rem] text-[#953333] font-prompt">{menu.tags[0]}</h1>
-                    </div>
-                )} */}
-
                 <div className="font-prompt mt-[1.4rem]">
                     <h1 className="text-[1.6rem] text-[#333333] mb-[1.5rem] font-[600]">วัตถุดิบ</h1>
                     <div className="flex flex-col items-center gap-4">
                         {ingredientsData.map((ing, i) => (
                             <div
                                 key={i}
-                                onClick={() => router.push(`/ingredient/${encodeURIComponent(ing.name)}?menuId=${id}`)}
+                                // **จุดสำคัญที่แก้ไข: เพิ่ม userId เข้าไปใน URL เมื่อคลิกวัตถุดิบ**
+                                onClick={() => router.push(
+                                    // ใช้ template literal เพื่อรวม string และ optional userId
+                                    `/ingredient/${encodeURIComponent(ing.name)}?menuId=${menuId}${userId ? `&userId=${userId}` : ''}`
+                                )}
                                 className="bg-[#FFFAD2] flex justify-between px-[1rem] items-center border border-[#C9AF90] w-full h-[3rem] rounded-[8px] hover:scale-102 cursor-pointer"
                             >
                                 <div className="flex items-center gap-2.5">
@@ -216,7 +222,7 @@ export default function MenuPage() {
                                         className="h-[40px] w-[40px] object-cover rounded-full"
                                         src={ing.image ? `/ingredients/${encodeURIComponent(ing.image)}` : "/default.png"}
                                         alt={ing.name}
-                                        width={40} // กำหนด width/height
+                                        width={40}
                                         height={40}
                                         onError={(e) => {
                                             const target = e.target as HTMLImageElement;
@@ -234,7 +240,7 @@ export default function MenuPage() {
 
                 <div className="font-prompt mt-[3rem]">
                     <h1 className="text-[1.6rem] text-[#333333] mb-[1.5rem] font-[600]">วิธีการทำ</h1>
-                    <div ref={methodCardsContainerRef} className="flex flex-col items-center gap-4 overflow-y-auto pb-4 max-h-full scrollbar-thin scrollbar-thumb-rounded scrollbar-thumb-[#C9AF90]">
+                    <div ref={methodCardsContainerRef} className="flex flex-col items-center gap-4 overflow-y-auto pb-4 max-h-full scrollbar-thin scrollbar-thumb-rounded scrollbar-thumb-rounded-md scrollbar-thumb-[#C9AF90]">
                         {displayedSteps.map((step, index) => (
                             <MethodCard
                                 key={index}
@@ -273,15 +279,17 @@ export default function MenuPage() {
                                 similarMenus.map((similarMenu) => (
                                     <div
                                         key={similarMenu._id}
-                                        onClick={() => router.push(`/menu/${similarMenu._id}`)}
+                                        // **แก้ไข: ส่ง userId ไปยังหน้ารายละเอียดเมนูที่คล้ายกันด้วย**
+                                        onClick={() => router.push(
+                                            `/menu/${similarMenu._id}${userId ? `?userId=${userId}` : ''}`
+                                        )}
                                         className="flex flex-col items-center w-[130px] bg-white border-2 border-[#C9AF90] rounded-t-full shadow-sm cursor-pointer transform transition duration-300 hover:scale-105"
                                     >
-                                        {/* รูปเมนูที่มี Tag เดียวกับ menu ปัจจุบัน */}
                                         <Image
                                             className="h-[130px] w-auto object-cover rounded-t-full"
                                             src={similarMenu.image ? `/menus/${encodeURIComponent(similarMenu.image)}` : "/default.png"}
                                             alt={similarMenu.name}
-                                            width={90} // กำหนด width/height
+                                            width={90}
                                             height={90}
                                             onError={(e) => {
                                                 const target = e.target as HTMLImageElement;
@@ -289,7 +297,6 @@ export default function MenuPage() {
                                                 target.src = "/default.png";
                                             }}
                                         />
-                                        {/* ชื่อเมนู ที่มี Tag เดียวกัน */}
                                         <h1 className="text-[0.8rem] my-[0.4rem] text-[#953333] text-center px-1">
                                             {similarMenu.name}
                                         </h1>

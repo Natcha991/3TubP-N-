@@ -18,7 +18,9 @@ export default function IngredientPage() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const previousMenuId = searchParams.get('menuId');
-  const name = Array.isArray(rawName) ? rawName[0] : rawName;
+  const name = Array.isArray(rawName) ? rawName[0] : rawName
+
+  const currentUserId = searchParams.get('userId');
 
   const [ingredient, setIngredient] = useState<Ingredient | null>(null);
   const [randomIngredients, setRandomIngredients] = useState<Ingredient[]>([]);
@@ -66,7 +68,7 @@ export default function IngredientPage() {
       console.log(`Fetching ingredient: /api/ingredient/${encodeURIComponent(name)}`);
       try {
         const res = await fetch(`/api/ingredient/${encodeURIComponent(name)}`);
-        
+
         if (!res.ok) {
           const errorText = await res.text();
           console.error(`API Error: ${res.status} - ${errorText}`);
@@ -138,9 +140,10 @@ export default function IngredientPage() {
   };
 
   const gotoChatbot = () => {
-    router.push("/chatbot");
+    // ใช้ currentUserId ที่ดึงมาจาก useSearchParams
+    router.push(`/chatbot${currentUserId ? `?id=${currentUserId}` : ''}`);
   };
-
+  
   const gotoIngredient = (ingredientName: string) => {
     const currentMenuId = searchParams.get('menuId');
     const queryParams = currentMenuId ? `?menuId=${currentMenuId}` : '';
@@ -149,7 +152,7 @@ export default function IngredientPage() {
 
   // Loading state
   if (isLoading) {
-    return ( 
+    return (
       <div className="flex flex-col font-prompt min-h-screen items-center justify-center bg-gradient-to-br from-orange-300 to-orange-100 text-xl text-gray-700">
         <img className='animate-sizeUpdown2 mb-[1.5rem]' src="/image%2069.png"></img>
         กำลังโหลดข้อมูล...
@@ -184,19 +187,19 @@ export default function IngredientPage() {
       {/* Background elements */}
       <div className="absolute h-[400px] w-full z-[-2] [mask-image:linear-gradient(to_bottom,black_60%,transparent)] bg-white"></div>
       <div className="absolute top-20 z-[-1]">
-        <Image 
-          className="h-[400px] w-auto object-cover" 
-          src="/image%2070.png" 
-          alt="background pattern" 
-          width={800} 
-          height={400} 
+        <Image
+          className="h-[400px] w-auto object-cover"
+          src="/image%2070.png"
+          alt="background pattern"
+          width={800}
+          height={400}
         />
       </div>
 
       {/* Header with Back Button */}
       <div className="absolute z-10 top-0 left-0 right-0 flex justify-between p-4 items-center w-full max-w-2xl mx-auto">
-        <div 
-          onClick={() => gotoHome(previousMenuId)} 
+        <div
+          onClick={() => gotoHome(previousMenuId)}
           className="bg-white h-[50px] flex justify-center cursor-pointer transform transition duration-300 hover:scale-103 items-center w-[50px] rounded-full shadow-grey shadow-xl"
         >
           <Image className="h-[15px] w-auto" src="/Group%2084.png" alt="back" width={15} height={15} />
@@ -234,13 +237,13 @@ export default function IngredientPage() {
             <div className="w-[150px] h-[40px] z-[-1] absolute top-[1.5rem] shadow-grey shadow-xl left-[-7rem] p-[0.5rem] flex items-center bg-white rounded-md">
               <h1 className="text-[0.7rem]">เป็นวัตถุดิบที่มีคุณค่ามาก!</h1>
             </div>
-            <Image 
-              onClick={gotoChatbot} 
-              className="mt-[3rem] animate-pulse animate-sizeUpdown cursor-pointer transform hover:scale-105 duration-300" 
-              src="/image%2069.png" 
-              alt="Chatbot icon" 
-              width={60} 
-              height={60} 
+            <Image
+              onClick={gotoChatbot}
+              className="mt-[3rem] animate-pulse animate-sizeUpdown cursor-pointer transform hover:scale-105 duration-300"
+              src="/image%2069.png"
+              alt="Chatbot icon"
+              width={60}
+              height={60}
             />
           </div>
 
@@ -260,7 +263,7 @@ export default function IngredientPage() {
               {places.length > 0 ? (
                 places.map((place) => {
                   const photoRef = place.photos?.[0]?.getUrl?.({ maxWidth: 400 }) || '/image%2071.png';
-                  
+
                   return (
                     <div
                       key={place.place_id}
@@ -319,18 +322,18 @@ export default function IngredientPage() {
                 const randomIngredientImageUrl = randomIngredient.image
                   ? `/ingredients/${randomIngredient.image}`
                   : '/default-ingredient.png';
-                
+
                 return (
-                  <div 
+                  <div
                     key={randomIngredient._id}
                     className="flex flex-col items-center w-[130px] bg-white border-2 border-[#C9AF90] rounded-t-full shadow-sm cursor-pointer"
                     onClick={() => gotoIngredient(randomIngredient.name)}
                   >
-                    <Image 
-                      className="h-[90px] w-auto transform transition duration-300 hover:scale-105" 
-                      src={randomIngredientImageUrl} 
-                      alt={randomIngredient.name} 
-                      width={90} 
+                    <Image
+                      className="h-[90px] w-auto transform transition duration-300 hover:scale-105"
+                      src={randomIngredientImageUrl}
+                      alt={randomIngredient.name}
+                      width={90}
                       height={90}
                       onError={(e) => {
                         const target = e.target as HTMLImageElement;
