@@ -185,9 +185,23 @@ export default function IngredientPage() {
   // Loading state
   if (isLoading) {
     return (
-      <div className="flex flex-col font-prompt min-h-screen items-center justify-center bg-gradient-to-br from-orange-300 to-orange-100 text-xl text-gray-700">
-        <img className='animate-sizeUpdown2 mb-[1.5rem]' src="/image%2069.png"></img>
-        กำลังโหลดข้อมูล...
+      <div className="">
+        <div className="absolute left-0">
+          <img src="/group%2099.png" alt="Decoration"></img>
+        </div>
+        <div className="absolute right-0 rotate-[180deg] top-[30rem]">
+          <img src="/group%2099.png" alt="Decoration"></img>
+        </div>
+        <div className="absolute top-[44rem] left-[1.5rem] animate-shakeright">
+          <img className='' src="/image%2084.png" alt="Decoration"></img>
+        </div>
+        <div className="absolute top-[3rem] left-[19rem] rotate-[35deg] animate-shakeright2">
+          <img src="/image%2084.png" className='w-[140px]' alt="Decoration"></img>
+        </div>
+        <div className="flex flex-col font-prompt min-h-screen items-center justify-center bg-gradient-to-br from-orange-300 to-orange-100 text-xl text-gray-700">
+          <img className='animate-sizeUpdown2 mb-[1.5rem]' src="/image%2069.png"></img>
+          กำลังโหลดข้อมูล...
+        </div>
       </div>
     );
   }
@@ -243,6 +257,7 @@ export default function IngredientPage() {
         {/* Ingredient Name */}
         <div className="font-prompt font-[600] text-center mt-[1rem] mb-[1rem]">
           <h1 className="text-4xl text-[#333333]">{ingredient.name}</h1>
+          <h1 className='text-[#953333] mt-1 text-[1rem]'>จากเกษตรกรไทย</h1>
         </div>
 
         {/* Ingredient Image */}

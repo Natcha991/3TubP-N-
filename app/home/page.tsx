@@ -29,7 +29,7 @@ export default function Home() {
   const [searchTerm, setSearchTerm] = useState('');
   const [isSearching, setIsSearching] = useState(false);
   const [specialMenu, setSpecialMenu] = useState<MenuItem | null>(null);
-  const [showBubble, setShowBubble] = useState(false); 
+  const [showBubble, setShowBubble] = useState(false);
 
   useEffect(() => {
     let hideTimer: NodeJS.Timeout;
@@ -250,9 +250,23 @@ export default function Home() {
 
   if (isLoadingMenus) {
     return (
-      <div className="flex flex-col font-prompt min-h-screen items-center justify-center bg-gradient-to-br from-orange-300 to-orange-100 text-xl text-gray-700">
-        <img className='animate-sizeUpdown2 mb-[1.5rem]' src="/image%2069.png"></img>
-        กำลังโหลดข้อมูล...
+      <div className="">
+        <div className="absolute left-0">
+          <img src="/group%2099.png" alt="Decoration"></img>
+        </div>
+        <div className="absolute right-0 rotate-[180deg] top-[30rem]">
+          <img src="/group%2099.png" alt="Decoration"></img>
+        </div>
+        <div className="absolute top-[44rem] left-[1.5rem] animate-shakeright">
+          <img className='' src="/image%2084.png" alt="Decoration"></img>
+        </div>
+        <div className="absolute top-[3rem] left-[19rem] rotate-[35deg] animate-shakeright2">
+          <img src="/image%2084.png" className='w-[140px]' alt="Decoration"></img>
+        </div>
+        <div className="flex flex-col font-prompt min-h-screen items-center justify-center bg-gradient-to-br from-orange-300 to-orange-100 text-xl text-gray-700">
+          <img className='animate-sizeUpdown2 mb-[1.5rem]' src="/image%2069.png"></img>
+          กำลังโหลดข้อมูล...
+        </div>
       </div>
     );
   }
@@ -321,7 +335,7 @@ export default function Home() {
                   const target = e.target as HTMLImageElement;
                   target.onerror = null;
                   target.src = '/default.png';
-                }} 
+                }}
               />
               <div className="ml-[1rem] flex">
                 <div className="w-[0.1rem] h-[4rem] mt-[0.8rem] mr-[0.8rem] ml-[-0.8rem] bg-[#333333]"></div>
