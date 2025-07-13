@@ -108,7 +108,7 @@ export default function IngredientPage() {
     if (isNightTime()) {
       console.log("ตอนนี้เป็นช่วงเวลาทุ่มถึงตีห้า");
       // ทำสิ่งที่คุณต้องการสำหรับเวลากลางคืน
-      setBgColor("bg-gradient-to-b from-blue-900 to-black");
+      setBgColor("bg-gradient-to-b from-purple-800 to-amber-200");
       setGrassColor("bg-[#55673E]") // ตัวอย่างการเปลี่ยนสีพื้นหลัง
     } else {
       console.log("ตอนนี้เป็นช่วงเวลาเช้าถึงเย็น");
