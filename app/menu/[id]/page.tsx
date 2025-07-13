@@ -43,11 +43,7 @@ export default function MenuPage() {
     // แก้ไข goto ให้ส่ง userId กลับไปด้วย เมื่อกลับไป home page
     // จะใช้ ?id=userId ถ้า userId มีค่า ไม่เช่นนั้นก็แค่ /home
     const goto = () => {
-        if (userId) {
-            router.push(`/home?id=${userId}`);
-        } else {
-            router.push(`/home`); // กรณีไม่มี userId (อาจจะต้องการให้กลับไปหน้า login แทน)
-        }
+        router.push(`/home?id=${userId}`);
     };
 
     useEffect(() => {
@@ -144,7 +140,7 @@ export default function MenuPage() {
     };
 
     const getStepImage = (step: string): string => {
-        const keywords = ["เตรียมวัตถุดิบ", "ต้ม", "ผัด", "นึ่ง", "ย่าง", "ปรุงรส", "เสิร์ฟ", "อบ","ใส่","แช่"];
+        const keywords = ["เตรียมวัตถุดิบ", "ต้ม", "ผัด", "นึ่ง", "ย่าง", "ปรุงรส", "เสิร์ฟ", "อบ", "ใส่", "แช่"];
         for (const key of keywords) {
             if (step.includes(key)) {
                 return `/methods/${encodeURIComponent(key)}.png`;
@@ -203,7 +199,7 @@ export default function MenuPage() {
                         ))}
                     </div>
                 )}
-                
+
                 <div className="font-prompt mt-[3rem]">
                     <h1 className="text-[1.6rem] text-[#333333] mb-[1.5rem] font-[600]">วัตถุดิบ</h1>
                     <div className="flex flex-col items-center gap-4 animate-OpenScene2">

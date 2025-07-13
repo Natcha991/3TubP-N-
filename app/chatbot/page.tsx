@@ -20,6 +20,8 @@ export default function IngredientPage() {
   const [message, setMessage] = useState("");
   const [chatLog, setChatLog] = useState<ChatMessage[]>([]);
   const [isLoading, setIsLoading] = useState(false);
+  const [BgColor, setBgColor] = useState("")
+  const [GrassColor, setGrassColor] = useState("")
 
   const topic = searchParams.get("topic");
   const userId = searchParams.get("id") || "anonymous";
@@ -76,8 +78,46 @@ export default function IngredientPage() {
       hour12: false,
       timeZone: "Asia/Bangkok",
     };
+
+    const currentHourString = new Intl.DateTimeFormat("th-TH", options).format(now);
+    const currentHour = parseInt(currentHourString, 10);
+
     return new Intl.DateTimeFormat("th-TH", options).format(now);
   };
+
+  const isNightTime = (): boolean => {
+    const now = new Date();
+    // กำหนด TimeZone ให้เป็น Asia/Bangkok เพื่อให้แน่ใจว่าได้เวลาท้องถิ่นที่ถูกต้อง
+    const options: Intl.DateTimeFormatOptions = {
+      hour: "2-digit",
+      hour12: false,
+      timeZone: "Asia/Bangkok",
+    };
+    const currentHourString = new Intl.DateTimeFormat("th-TH", options).format(now);
+    const currentHour = parseInt(currentHourString, 10); // แปลง string เป็น number
+
+    // เวลาทุ่มถึงตีห้า: 19:00 (7 PM) ถึง 05:59 (5:59 AM)
+    if (currentHour >= 19 || currentHour < 6) {
+      return true; // กลางคืน
+    } else {
+      return false; // กลางวัน
+    }
+  };
+
+  useEffect(() => {
+    if (isNightTime()) {
+      console.log("ตอนนี้เป็นช่วงเวลาทุ่มถึงตีห้า");
+      // ทำสิ่งที่คุณต้องการสำหรับเวลากลางคืน
+      setBgColor("bg-gradient-to-b from-blue-900 to-black");
+      setGrassColor("bg-[#55673E]") // ตัวอย่างการเปลี่ยนสีพื้นหลัง
+    } else {
+      console.log("ตอนนี้เป็นช่วงเวลาเช้าถึงเย็น");
+      // ทำสิ่งที่คุณต้องการสำหรับเวลากลางวัน
+      setBgColor("bg-gradient-to-b from-blue-400 to-orange-100");
+      setGrassColor("bg-[#AFD39A]") // สีพื้นหลังปกติ
+    }
+  }, []); 
+
 
   const getFontSizeClass = (text: string, isAI: boolean) => {
     if (!isAI) return "text-base";
@@ -221,8 +261,8 @@ ${allowedMenu.map((name, i) => `${i + 1}. ${name}`).join('\n')}
   return (
     <div className="relative font-prompt min-h-screen flex flex-col">
       {/* Background gradients */}
-      <div className="absolute h-[450px] w-full z-[-2] bg-gradient-to-b from-purple-900 to-orange-200"></div>
-      <div className="absolute h-[500px] top-[28rem] w-full z-[-2] bg-[#55673E]"></div>
+      <div className={`absolute h-[450px] w-full z-[-2] ${BgColor}`}></div>
+      <div className={`absolute h-[500px] top-[28rem] w-full z-[-2] ${GrassColor}`}></div>
 
       {/* Header */}
       <div className="relative z-20 flex justify-between m-[2rem] items-center w-[calc(100%-4rem)]">
@@ -235,8 +275,8 @@ ${allowedMenu.map((name, i) => `${i + 1}. ${name}`).join('\n')}
 
       {/* Chat container */}
       <div className="sm:flex flex-col items-center">
-        <div className="absolute top-[11rem] left-[-3.5rem] xl:left-[10rem] z-0">
-          <img className="w-[220px]" src="/image%2076.png" alt="Decorative icon" />
+        <div className="absolute top-[15rem] left-[-3.5rem] xl:left-[10rem] z-0">
+          <img className="w-[220px] animate-sizeUpdown" src="/image%2076.png" alt="Decorative icon" />
         </div>
         <div className="h-[650px] xl:h-[500px] xl:w-[700px] overflow-y-auto pt-[4rem] relative z-10">
           <div ref={chatContainerRef} className="flex flex-col gap-[1rem] px-[1.5rem] ml-[4rem] pb-[2rem]">
@@ -266,7 +306,7 @@ ${allowedMenu.map((name, i) => `${i + 1}. ${name}`).join('\n')}
       </div>
 
       {/* Input field */}
-      <div className="bg-white w-[90%] max-w-[500px] mx-auto mb-[2rem] rounded-full h-[45px] px-4 flex items-center shadow-md absolute bottom-0 left-1/2 -translate-x-1/2 z-20">
+      <div className="bg-white w-[90%] max-w-[500px] mx-auto mb-[4rem] rounded-full h-[45px] px-4 flex items-center shadow-md absolute bottom-0 left-1/2 -translate-x-1/2 z-20">
         <input
           className="flex-1 outline-none px-2"
           type="text"
