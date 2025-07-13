@@ -103,7 +103,7 @@ export default function Register6() {
       <div className="absolute right-0 rotate-[180deg] top-[30rem]">
         <img src="/group%2099.png" alt="Decoration"></img>
       </div>
-      <div className="absolute top-[20rem] left-[1.5rem] animate-shakeright">
+      <div className="absolute top-[35rem] left-[1.5rem] animate-shakeright">
         <img className='' src="/image%2084.png" alt="Decoration"></img>
       </div>
       <div className="absolute top-[35rem] left-[19rem] rotate-[35deg] animate-shakeright2">
@@ -127,7 +127,7 @@ export default function Register6() {
                     key={index}
                     onClick={() => handleGoalToggle(goal, index)}
                     className={`
-                      relative flex z-120 items-center mt-3 justify-center px-6 py-8 rounded-2xl min-w-max transition-all duration-200 shadow-sm whitespace-nowrap
+                      relative flex z-120 animate-sizeUpdown items-center mt-3 justify-center px-6 py-8 rounded-2xl min-w-max transition-all duration-200 shadow-sm whitespace-nowrap
                       ${selectedGoals.includes(goal)
                         ? 'bg-white border-2 border-orange-400 shadow-md scale-115'
                         : 'bg-white/80 hover:border-gray-300 scale-90'
@@ -163,22 +163,30 @@ export default function Register6() {
 
           </div>
 
-          <div className="absolute right-0 top-[32rem] z-102 -translate-y-55 transform translate-x-35 md:translate-x-12 animate-sizeUpdown">
+          <div className="absolute right-0 top-[35rem] z-102 -translate-y-55 transform translate-x-35 md:translate-x-12">
+            <div className="absolute animate-showUp z-105 left-[-1rem] top-[1rem] w-[140px] h-[100px]">
+              <div className="bg-[#f1c783a4] absolute top-[1.5rem] left-[-3.5rem] border-white border-2 inline-flex py-[0.5rem] px-[1rem] font-Unbounded text-[#333333] rounded-4xl z-10">
+                Mr.Rice
+              </div>
+              <div className="bg-white text-[1rem] shadow-xl  absolute text-center top-[3rem] left-[-5rem] px-[1rem] pt-[1.8rem] pb-[1rem] rounded-2xl rounded-br-none">
+                <h1>ผมจะได้ช่วยแนะนำคุณได้ถูกทางยังไงละ</h1>
+              </div>
+            </div>
             <img
               src="/image%20102.png"
               alt='Decor'
-              className="w-[430px] h-[540px]"
+              className="w-[430px] h-[540px] animate-sizeUpdown"
             />
           </div>
 
-          {/* ส่วนล่างสุด (เมนู/ต่อไป) */}
-          <div className="absolute bottom-0 left-0 right-0 flex justify-center font-prompt">
-            <div className="bg-white w-[500px] px-[4rem] py-[4.5rem] rounded-t-4xl shadow-lg flex justify-between">
-              {/* สามารถเพิ่มเนื้อหาสำหรับส่วนล่างสุดได้ที่นี่ */}
+            {/* ส่วนล่างสุด (เมนู/ต่อไป) */}
+            <div className="absolute bottom-0 left-0 right-0 flex justify-center font-prompt">
+              <div className="bg-white w-[500px] px-[4rem] py-[4.5rem] rounded-t-4xl shadow-lg flex justify-between">
+                {/* สามารถเพิ่มเนื้อหาสำหรับส่วนล่างสุดได้ที่นี่ */}
+              </div>
             </div>
           </div>
         </div>
       </div>
-    </div>
-  );
+    );
 }

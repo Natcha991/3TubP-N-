@@ -204,9 +204,9 @@ export default function MenuPage() {
                     </div>
                 )}
                 
-                <div className="font-prompt mt-[1.4rem]">
+                <div className="font-prompt mt-[3rem]">
                     <h1 className="text-[1.6rem] text-[#333333] mb-[1.5rem] font-[600]">วัตถุดิบ</h1>
-                    <div className="flex flex-col items-center gap-4">
+                    <div className="flex flex-col items-center gap-4 animate-OpenScene2">
                         {ingredientsData.map((ing, i) => (
                             <div
                                 key={i}
@@ -286,7 +286,7 @@ export default function MenuPage() {
                                         className="flex flex-col items-center w-[130px] bg-white border-2 border-[#C9AF90] rounded-t-full shadow-sm cursor-pointer transform transition duration-300 hover:scale-105"
                                     >
                                         <Image
-                                            className="h-[130px] w-auto object-cover rounded-t-full"
+                                            className="h-[130px] animate-sizeUpdown w-auto object-cover rounded-t-full"
                                             src={similarMenu.image ? `/menus/${encodeURIComponent(similarMenu.image)}` : "/default.png"}
                                             alt={similarMenu.name}
                                             width={90}

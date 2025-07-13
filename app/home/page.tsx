@@ -183,7 +183,7 @@ export default function Home() {
     >
       <div className="flex flex-col items-center">
         <img
-          className="h-[8rem] w-[8rem] object-cover rounded-lg"
+          className="h-[8rem] w-[8rem] object-cover animate-Open rounded-lg"
           src={getImageUrl(item.image)}
           alt={item.name || 'เมนู'}
           onError={(e) => {
@@ -316,12 +316,12 @@ export default function Home() {
               <img
                 src={getImageUrl(specialMenu.image)}
                 alt={specialMenu.name || 'เมนูเสริม'}
-                className="h-[150px] w-[150px] object-cover rounded-lg ml-2"
+                className="h-[150px] w-[150px] object-cover animate-Open rounded-lg ml-2"
                 onError={(e) => {
                   const target = e.target as HTMLImageElement;
                   target.onerror = null;
                   target.src = '/default.png';
-                }}
+                }} 
               />
               <div className="ml-[1rem] flex">
                 <div className="w-[0.1rem] h-[4rem] mt-[0.8rem] mr-[0.8rem] ml-[-0.8rem] bg-[#333333]"></div>

@@ -11,7 +11,7 @@ interface MethodCardProps {
 
 const MethodCard: React.FC<MethodCardProps> = ({ num, title, detail, imageUrl }) => {
   return (
-    <div className="bg-[#FFF5DD] flex justify-between items-center border-2 border-[#C9AF90] sm:w-[400px] w-[400px] max-w-sm h-[7rem] rounded-[8px] overflow-hidden">
+    <div className="bg-[#FFF5DD] animate-OpenScene flex justify-between items-center border-2 border-[#C9AF90] sm:w-[400px] w-[400px] max-w-sm h-[7rem] rounded-[8px] overflow-hidden">
       <img className="h-full w-[120px] object-cover rounded-l-[8px]" src={imageUrl} alt={title || "Step Image"} />
       <div className="flex flex-col items-center justify-center gap-1 flex-grow p-2">
         <div className="flex gap-1.5 font-[600] text-[#333333]"> 
