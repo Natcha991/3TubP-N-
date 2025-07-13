@@ -1,5 +1,5 @@
 import type { Metadata } from "next";
-import { Geist, Geist_Mono, Unbounded } from "next/font/google";
+import { Geist, Geist_Mono, Unbounded, Prompt } from "next/font/google";
 
 import "./globals.css";
 
@@ -13,6 +13,13 @@ const unbounded = Unbounded({
   weight: ['400', '700'], // เลือกน้ำหนักที่ใช้
   display: 'swap',
   variable: '--font-Unbounded', // ใช้ร่วมกับ Tailwind CSS
+}) 
+
+const prompt = Prompt({
+  subsets: ['thai', 'latin'], // หรือ ['thai', 'latin'] ถ้าฟอนต์รองรับไทย
+  weight: ['200','400','600'], // เลือกน้ำหนักที่ใช้
+  display: 'swap',
+  variable: '--font-prompt', // ใช้ร่วมกับ Tailwind CSS
 })
 
 const geistMono = Geist_Mono({
@@ -33,7 +40,7 @@ export default function RootLayout({
   return (
     <html lang="en">
       <body
-        className={`${geistSans.variable} ${geistMono.variable} ${unbounded.variable} antialiased`}
+        className={`${geistSans.variable} ${geistMono.variable} ${unbounded.variable} ${prompt.variable} antialiased`}
       >
         {children}
       </body>
