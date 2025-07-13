@@ -28,7 +28,7 @@ export default function IngredientPage() {
   const [error, setError] = useState<string | null>(null);
   const [userLocation, setUserLocation] = useState<{ lat: number; lng: number } | null>(null);
   const [places, setPlaces] = useState<any[]>([]);
-  const [showBubble, setShowBubble] = useState(false); 
+  const [showBubble, setShowBubble] = useState(false);
 
   useEffect(() => {
     let hideTimer: NodeJS.Timeout;
@@ -246,7 +246,7 @@ export default function IngredientPage() {
         </div>
 
         {/* Ingredient Image */}
-        <div className="my-4">
+        <div className="my-4 animate-sizeUpdown">
           <Image
             src={ingredientImageUrl}
             alt={ingredient.name}
@@ -263,14 +263,14 @@ export default function IngredientPage() {
         </div>
 
         {/* Price and Chatbot Bubble */}
-        <div className="w-[300px] relative">
+        <div className="max-w-[360px] relative">
           <h1 className="m-[0.5rem] text-[#611E1E] text-lg">ประมาณ {ingredient.price}</h1>
-          <div className="absolute top-[-3.3rem] left-[15rem] -translate-x-1/2 md:left-[15rem] md:translate-x-0">
-          {showBubble && (
-            <div className="w-[150px] animate-showUp h-[40px] z-[-1] absolute top-[1.5rem] shadow-grey shadow-xl left-[-7rem] p-[0.5rem] flex items-center bg-white rounded-md">
-              <h1 className="text-[0.7rem]">เป็นวัตถุดิบที่มีคุณค่ามาก!</h1>
-            </div>
-          )}
+          <div className="absolute top-[-3.3rem] left-[18rem] -translate-x-1/2 md:left-[15rem] md:translate-x-0">
+            {showBubble && (
+              <div className="w-[150px] animate-showUp h-[40px] z-[-1] absolute top-[1.5rem] shadow-grey shadow-xl left-[-7rem] p-[0.5rem] flex items-center bg-white rounded-md">
+                <h1 className="text-[0.7rem]">เป็นวัตถุดิบที่มีคุณค่ามาก!</h1>
+              </div>
+            )}
             <Image
               onClick={gotoChatbot}
               className="mt-[3rem] animate-pulse animate-sizeUpdown cursor-pointer transform hover:scale-105 duration-300"
@@ -288,8 +288,11 @@ export default function IngredientPage() {
 
           {/* ร้านค้าร่วมรายการ */}
           {(ingredient as any).shopLinks && (
-            <div className="w-full max-w-[360px] mt-[2rem]">
-              <h1 className="font-[600] text-[#333333] mb-[1rem] text-[1.6rem]">ร้านค้าร่วมรายการ</h1>
+            <div className="relative w-full justify-center items-center flex mt-[1.5rem]">
+              <div className="flex gap-2 items-center">
+                <img src="/cart.png" className='w-[20px] h-[20px]'></img>
+                <h1 className="text-[#611E1E] text-lg mr-[1.5rem] text-[1rem]">สั่งซื้อวัตถุดิบ</h1>
+              </div>
               <div className="flex flex-wrap gap-2">
                 {Object.entries((ingredient as any).shopLinks).map(([shop, url]) => (
                   <a
@@ -297,12 +300,11 @@ export default function IngredientPage() {
                     href={url as string}
                     target="_blank"
                     rel="noopener noreferrer"
-                    className={`px-4 py-2 rounded-lg text-white text-sm font-medium ${
-                      shop === 'makro' ? 'bg-red-600' :
-                      shop === 'lotus' ? 'bg-green-600' :
-                      shop === 'bigc' ? 'bg-yellow-500 text-black' :
-                      'bg-gray-500'
-                    }`}
+                    className={`px-3 py-1 rounded-lg text-white text-sm font-medium ${shop === 'makro' ? 'bg-red-600' :
+                        shop === 'lotus' ? 'bg-green-600' :
+                          shop === 'bigc' ? 'bg-yellow-500 text-black' :
+                            'bg-gray-500'
+                      }`}
                   >
                     {shop.charAt(0).toUpperCase() + shop.slice(1)}
                   </a>
@@ -389,7 +391,7 @@ export default function IngredientPage() {
                     onClick={() => gotoIngredient(randomIngredient.name)}
                   >
                     <Image
-                      className="h-[90px] w-auto transform transition duration-300 hover:scale-105"
+                      className="h-[90px] animate-sizeUpdown w-auto transform transition duration-300 hover:scale-105"
                       src={randomIngredientImageUrl}
                       alt={randomIngredient.name}
                       width={90}
