@@ -3,7 +3,7 @@ import mongoose, { Schema } from 'mongoose';
 
 
 const UserSchema = new Schema({
-  name: String,
+  name: { type: String, required: true, unique: true }, // ✅ ป้องกันชื่อซ้ำใน database
   birthday: Date,
   gender: String,
   weight: Number,

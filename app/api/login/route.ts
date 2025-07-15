@@ -1,4 +1,4 @@
-// app/api/login/route.ts
+// app/api/register/route.ts
 
 import { connectToDatabase } from '@/lib/mongodb';
 import User from '@/models/User';
@@ -7,33 +7,37 @@ import { NextResponse } from 'next/server';
 export async function POST(req: Request) {
   await connectToDatabase();
 
-  const { username } = await req.json(); // Frontend ยังส่งเป็น 'username' มา
+  const { name, birthday, gender, weight, height, goal, condition, lifestyle } = await req.json();
 
-  if (!username || typeof username !== 'string' || username.trim() === '') {
-    return NextResponse.json({ message: 'ชื่อผู้ใช้ไม่ถูกต้องหรือไม่ระบุ' }, { status: 400 });
+  if (!name || typeof name !== 'string' || name.trim() === '') {
+    return NextResponse.json({ message: 'กรุณาระบุชื่อผู้ใช้' }, { status: 400 });
   }
 
   try {
-    // 🔴 แก้ไขตรงนี้: ค้นหาด้วย field 'name' แทน 'username'
-    const user = await User.findOne({ name: username.trim() }); // <<< แก้ไขตรงนี้เป็น `name`
+    const existingUser = await User.findOne({ name: name.trim() });
 
-    if (!user) {
-      console.log(`Login attempt failed: User '${username}' not found.`);
-      return NextResponse.json({ message: 'ไม่พบชื่อผู้ใช้นี้ กรุณาตรวจสอบอีกครั้ง' }, { status: 404 });
+    if (existingUser) {
+      return NextResponse.json({ message: 'ชื่อผู้ใช้มีคนใช้แล้ว กรุณาเลือกชื่อใหม่' }, { status: 409 });
     }
 
-    console.log(`User '${username}' logged in successfully with ID: ${user._id}`);
-    return NextResponse.json({ userId: user._id.toString() }, { status: 200 });
-  } catch (error: unknown) { // ใช้ unknown และ type guard
-    console.error('POST /api/login error:', error);
+    const newUser = await User.create({
+      name: name.trim(),
+      birthday,
+      gender,
+      weight,
+      height,
+      goal,
+      condition,
+      lifestyle,
+    });
 
-    let errorMessage = 'Unknown server error';
-    if (error instanceof Error) {
-      errorMessage = error.message;
-    } else if (typeof error === 'object' && error !== null && 'message' in error && typeof (error as any).message === 'string') {
-      errorMessage = (error as any).message;
-    }
+    return NextResponse.json({ message: 'สมัครสมาชิกสำเร็จ', userId: newUser._id.toString() }, { status: 201 });
+  } catch (error: unknown) {
+    console.error('POST /api/register error:', error);
 
-    return NextResponse.json({ message: 'เกิดข้อผิดพลาดภายในเซิร์ฟเวอร์', error: errorMessage }, { status: 500 });
+    let errorMessage = 'เกิดข้อผิดพลาดภายในเซิร์ฟเวอร์';
+    if (error instanceof Error) errorMessage = error.message;
+
+    return NextResponse.json({ message: errorMessage }, { status: 500 });
   }
 }
