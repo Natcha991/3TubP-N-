@@ -1,4 +1,4 @@
-// app/api/user/route.ts
+// app/api/user/route.ts(register)
 
 import { connectToDatabase } from '@/lib/mongodb';
 import User from '@/models/User';

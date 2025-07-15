@@ -34,7 +34,7 @@ export default function LoginPage() {
         headers: {
           'Content-Type': 'application/json',
         },
-        body: JSON.stringify({ username: username.trim() }), // ส่ง username ที่ตัดช่องว่างออก
+        body: JSON.stringify({ name: username.trim() }), // ส่ง name ที่ตัดช่องว่างออก
       });
 
       if (res.ok) {
