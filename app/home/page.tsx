@@ -2,7 +2,6 @@
 
 import { useRouter, useSearchParams } from 'next/navigation';
 import { useEffect, useState, useCallback } from 'react';
-import Image from 'next/image';
 import HealthTip from '@/app/components/HealthTip';
 
 interface MenuItem {
