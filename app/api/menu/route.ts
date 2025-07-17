@@ -22,9 +22,23 @@ export async function GET(request: Request) {
       // ถ้า _id เป็น String ธรรมดา ให้ใช้ query._id = { $ne: excludeId };
       try {
         query._id = { $ne: new ObjectId(excludeId) };
-
+<<<<<<< Updated upstream
+<<<<<<< Updated upstream
+<<<<<<< Updated upstream
       } catch (e) {
         console.warn(`Invalid ObjectId for excludeId: ${excludeId}. Continuing without exclusion.`);
+=======
+      } catch (error: unknown) {
+        console.warn(`Invalid ObjectId: ${excludeId}, skipping exclusion.`, error);
+>>>>>>> Stashed changes
+=======
+      } catch (error: unknown) {
+        console.warn(`Invalid ObjectId: ${excludeId}, skipping exclusion.`, error);
+>>>>>>> Stashed changes
+=======
+      } catch (error: unknown) {
+        console.warn(`Invalid ObjectId: ${excludeId}, skipping exclusion.`, error);
+>>>>>>> Stashed changes
       }
     }
 
@@ -37,8 +51,23 @@ export async function GET(request: Request) {
     const menus = await Menu.find(query).limit(limit).exec(); // ใช้ .exec() เพื่อให้ Query ทำงาน
 
     return NextResponse.json(menus);
+<<<<<<< Updated upstream
+<<<<<<< Updated upstream
+<<<<<<< Updated upstream
   } catch (error) {
     console.error('GET /api/menus error:', error);
+=======
+  } catch (error: unknown) {
+    console.error('GET /api/menu error:', error instanceof Error ? error.message : error);
+>>>>>>> Stashed changes
+=======
+  } catch (error: unknown) {
+    console.error('GET /api/menu error:', error instanceof Error ? error.message : error);
+>>>>>>> Stashed changes
+=======
+  } catch (error: unknown) {
+    console.error('GET /api/menu error:', error instanceof Error ? error.message : error);
+>>>>>>> Stashed changes
     return NextResponse.json({ message: 'เกิดข้อผิดพลาดขณะดึงเมนู' }, { status: 500 });
   }
 }
@@ -54,12 +83,19 @@ export async function POST(req: Request) {
       return NextResponse.json({ message: 'ข้อมูลไม่ถูกต้องหรือว่างเปล่า' }, { status: 400 });
     }
 
-
+<<<<<<< Updated upstream
     const inserted = await Menu.insertMany(menus);
     return NextResponse.json(inserted, { status: 201 });
 
   } catch (error) {
     console.error('POST /api/menus error:', error);
     return NextResponse.json({ message: 'เกิดข้อผิดพลาดขณะอัปโหลดเมนูจำนวนมาก' }, { status: 500 });
+=======
+    const insertedMenus = await Menu.insertMany(menus);
+    return NextResponse.json(insertedMenus, { status: 201 });
+  } catch (error: unknown) {
+    console.error('POST /api/menu error:', error instanceof Error ? error.message : error);
+    return NextResponse.json({ message: 'เกิดข้อผิดพลาดขณะอัปโหลดเมนู' }, { status: 500 });
+>>>>>>> Stashed changes
   }
 }
