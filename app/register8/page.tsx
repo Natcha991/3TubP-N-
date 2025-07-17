@@ -87,10 +87,12 @@ export default function Register8() { // เปลี่ยนชื่อ Compo
 
   // Auto scroll to first selected item on mount (ถ้ามีไลฟ์สไตล์ที่เลือกไว้แต่แรก)
   useEffect(() => {
-    if (selectedLifestyles.length == 0) {
-      setSelectedLifestyles(['กินง่าย อยู่ง่าย'])
+    if (selectedLifestyles.length === 0) {
+      setSelectedLifestyles(['กินง่าย อยู่ง่าย']);
     }
+  }, []);
 
+  useEffect(() => {
     if (selectedLifestyles.length > 0) {
       const firstSelectedIndex = lifestyles.findIndex((lifestyle) =>
         selectedLifestyles.includes(lifestyle)
@@ -99,7 +101,7 @@ export default function Register8() { // เปลี่ยนชื่อ Compo
         setTimeout(() => scrollToSelected(firstSelectedIndex), 100);
       }
     }
-  }, []); // Empty dependency array means this runs once on mount
+  }, [lifestyles, selectedLifestyles]);
 
   return (
     <div className="relative h-screen w-screen cursor-pointer font-prompt flex flex-col items-center bg-gradient-to-br from-orange-300 to-orange-100">

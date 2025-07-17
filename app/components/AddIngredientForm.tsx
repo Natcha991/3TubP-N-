@@ -82,7 +82,7 @@ export default function AddIngredientForm() {
       <div>
         <label className="font-semibold block mb-1">📂 อัปโหลดวัตถุดิบจากไฟล์ JSON:</label>
         <input type="file" accept=".json" onChange={handleJsonUpload} />
-        <p className="text-sm text-gray-500">* ต้องเป็น array ของ object วัตถุดิบ เช่น [&#123;"name": "กระเทียม", "price": 5&#125;]</p>
+        <p className="text-sm text-gray-500">* ต้องเป็น array ของ object วัตถุดิบ เช่น [&#123;&quot;name&quot;: &quot;กระเทียม&quot;, &quot;price&quot;: 5&#125;]</p>
       </div>
     </div>
   );

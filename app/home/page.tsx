@@ -22,8 +22,7 @@ export default function Home() {
 
   const [menus, setMenus] = useState<MenuItem[]>([]);
   const [isLoadingMenus, setIsLoadingMenus] = useState(true);
-  const [isRefreshing, setIsRefreshing] = useState(false);
-  const [hasMoreMenus, setHasMoreMenus] = useState(true);
+  
   const [currentPage, setCurrentPage] = useState(0);
   const [allShownMenuIds, setAllShownMenuIds] = useState<string[]>([]);
   const [searchTerm, setSearchTerm] = useState('');
@@ -61,18 +60,6 @@ export default function Home() {
       clearInterval(intervalTimer);
     };
   }, []); // กำหนด dependencies เป็น array ว่าง เพื่อให้ useEffect ทำงานแค่ครั้งเดียวตอน component mount
-
-  useEffect(() => {
-    // ตรวจสอบ userId ก่อน fetchMenus หากจำเป็น
-    // หาก userId ไม่มีค่าตอนแรก ให้พิจารณา redirect หรือแสดงข้อความ
-    if (!userId) {
-      console.warn("User ID is missing from URL. Cannot fetch personalized menus.");
-      // อาจจะ redirect ไปหน้า login หรือแสดง error message
-      // router.push('/login');
-      // return;
-    }
-    fetchMenus();
-  }, [userId]); // เพิ่ม userId เป็น dependency เพื่อให้ fetchMenus ทำงานเมื่อ userId มีค่า
 
   const fetchMenus = async (refresh = false) => {
     setIsLoadingMenus(true); // ตั้งค่า loading เป็น true ก่อนเริ่ม fetch
@@ -129,11 +116,9 @@ export default function Home() {
           setCurrentPage(pageToFetch);
         }
 
-        setHasMoreMenus(hasMore && filteredNewMenus.length > 0);
+        
 
-        if (data?.isLastPage || !hasMore || filteredNewMenus.length === 0) {
-          setHasMoreMenus(false);
-        }
+        
       } else {
         const validMenus = newMenus.filter((m) => m && m._id && m.name);
 
@@ -148,20 +133,30 @@ export default function Home() {
         const shouldShowMore = data?.hasMore !== undefined
           ? data.hasMore
           : validMenus.length >= 4;
-
-        setHasMoreMenus(shouldShowMore);
       }
     } catch (error) {
       console.error('Error fetching menus:', error);
-      if (refresh) {
-        setHasMoreMenus(false);
-      }
+     
     } finally {
       setIsLoadingMenus(false);
-      setIsRefreshing(false);
+      
       console.timeEnd(label);
     }
   };
+
+  useEffect(() => {
+    // ตรวจสอบ userId ก่อน fetchMenus หากจำเป็น
+    // หาก userId ไม่มีค่าตอนแรก ให้พิจารณา redirect หรือแสดงข้อความ
+    if (!userId) {
+      console.warn("User ID is missing from URL. Cannot fetch personalized menus.");
+      // อาจจะ redirect ไปหน้า login หรือแสดง error message
+      // router.push('/login');
+      // return;
+    }
+    fetchMenus();
+  }, [userId, fetchMenus]); // เพิ่ม userId เป็น dependency เพื่อให้ fetchMenus ทำงานเมื่อ userId มีค่า
+
+  
 
   // **แก้ไข: เพิ่ม userId เข้าไปใน URL เมื่อกดไปหน้า Menu**
   const goto = useCallback((id: string) => {
@@ -223,7 +218,7 @@ export default function Home() {
 
       setMenus(displayMenus);
       setSpecialMenu(supplementMenu);
-      setHasMoreMenus(false);
+      
     } catch (err) {
       console.error('Search error:', err);
     } finally {
@@ -242,11 +237,6 @@ export default function Home() {
     router.push(`/chatbot?id=${userId}`);
   };
 
-  const clearSearch = () => {
-    setSearchTerm('');
-    setIsLoadingMenus(true);
-    fetchMenus();
-  };
 
   if (isLoadingMenus) {
     return (

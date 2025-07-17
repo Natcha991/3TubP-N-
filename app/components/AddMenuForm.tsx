@@ -94,7 +94,8 @@ export default function AddMenuForm() {
       <div>
         <label className="font-semibold block mb-1">📂 อัปโหลดเมนูจากไฟล์ JSON:</label>
         <input type="file" accept=".json" onChange={handleJsonUpload} />
-        <p className="text-sm text-gray-500">* ต้องเป็น array ของ object เมนู เช่น [&#123;"name": "...", "calories": 123&#125;]</p>
+        <p className="text-sm text-gray-500">* ต้องเป็น array ของ object เมนู เช่น [&#123;&quot;name&quot;: &quot;...&quot;, &quot;calories&quot;: 123&#125;]</p>
+
       </div>
     </div>
   );

@@ -96,20 +96,17 @@ export default function Register7() { // เปลี่ยนชื่อ Compo
 
   // Auto scroll to first selected item on mount
   useEffect(() => {
-    // กำหนดค่าเริ่มต้นเป็น 'ไม่มี' หากไม่มีการเลือกใดๆ
-    if (selectedConditions.length === 0) {
-      setSelectedConditions(['ไม่มี']);
-    }
-
+    let timer: NodeJS.Timeout;
     if (selectedConditions.length > 0) {
       const firstSelectedIndex = conditions.findIndex((condition) =>
         selectedConditions.includes(condition)
       );
       if (firstSelectedIndex !== -1) {
-        setTimeout(() => scrollToSelected(firstSelectedIndex), 100);
+        timer = setTimeout(() => scrollToSelected(firstSelectedIndex), 100);
       }
     }
-  }, []); // Run once on mount
+    return () => clearTimeout(timer);
+  }, [conditions, selectedConditions]);
 
   return (
     <div className="relative h-screen w-screen cursor-pointer font-prompt flex flex-col items-center bg-gradient-to-br from-orange-300 to-orange-100">

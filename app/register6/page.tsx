@@ -80,20 +80,19 @@ export default function Register6() {
 
   // Auto scroll to first selected item on mount
   useEffect(() => {
+  if (selectedGoals.length === 0) {
+    setSelectedGoals(['เพิ่มกล้ามเนื้อ']);
+  }
 
-    if (selectedGoals.length === 0) {
-      setSelectedGoals(['เพิ่มกล้ามเนื้อ']);
+  if (selectedGoals.length > 0) {
+    const firstSelectedIndex = goals.findIndex((goal) =>
+      selectedGoals.includes(goal)
+    );
+    if (firstSelectedIndex !== -1) {
+      setTimeout(() => scrollToSelected(firstSelectedIndex), 100);
     }
-
-    if (selectedGoals.length > 0) {
-      const firstSelectedIndex = goals.findIndex((goal) =>
-        selectedGoals.includes(goal)
-      );
-      if (firstSelectedIndex !== -1) {
-        setTimeout(() => scrollToSelected(firstSelectedIndex), 100);
-      }
-    }
-  }, []); // Empty dependency array means this runs once on mount
+  }
+}, [goals, selectedGoals]);
 
   return (
     <div className="relative h-screen w-screen cursor-pointer font-prompt flex flex-col items-center bg-gradient-to-br from-orange-300 to-orange-100">

@@ -114,9 +114,10 @@ export default function IngredientPage() {
         }
 
         setIngredient(data);
-      } catch (err: any) {
-        console.error("Error fetching ingredient details:", err);
-        setError(err.message || "ไม่สามารถโหลดข้อมูลวัตถุดิบได้");
+      } catch (err: unknown) {
+        const error = err as Error;
+        console.error("Error fetching ingredient details:", error);
+        setError(error.message || "ไม่สามารถโหลดข้อมูลวัตถุดิบได้");
       } finally {
         setIsLoading(false);
       }
@@ -302,24 +303,29 @@ export default function IngredientPage() {
           </div>
 
           {/* ร้านค้าร่วมรายการ */}
-          {(ingredient as any).shopLinks && (
+          {ingredient?.shopLinks && (
             <div className="relative w-full justify-center items-center flex mt-[1.5rem]">
               <div className="flex gap-2 items-center">
-                <img src="/cart.png" className='w-[20px] h-[20px]'></img>
+                <img src="/cart.png" className='w-[20px] h-[20px]' alt="cart" />
                 <h1 className="text-[#611E1E] text-lg mr-[1.5rem] text-[1rem]">สั่งซื้อวัตถุดิบ</h1>
               </div>
               <div className="flex flex-wrap gap-2">
+<<<<<<< Updated upstream
                 {Object.entries((ingredient as any).shopLinks).map(([shop, url]) => (
+=======
+                {Object.entries(ingredient.shopLinks).map(([shop, url]) => (
+>>>>>>> Stashed changes
                   <a
                     key={shop}
-                    href={url as string}
+                    href={url}
                     target="_blank"
                     rel="noopener noreferrer"
-                    className={`px-3 py-1 rounded-lg text-white text-sm font-medium ${shop === 'makro' ? 'bg-red-600' :
-                        shop === 'lotus' ? 'bg-green-600' :
-                          shop === 'bigc' ? 'bg-yellow-500 text-black' :
-                            'bg-gray-500'
-                      }`}
+                    className={`px-3 py-1 rounded-lg text-white text-sm font-medium ${
+                      shop === 'makro' ? 'bg-red-600' :
+                      shop === 'lotus' ? 'bg-green-600' :
+                      shop === 'bigc' ? 'bg-yellow-500 text-black' :
+                      'bg-gray-500'
+                    }`}
                   >
                     {shop.charAt(0).toUpperCase() + shop.slice(1)}
                   </a>

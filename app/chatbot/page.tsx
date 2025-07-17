@@ -4,6 +4,7 @@ import { useRouter, useSearchParams } from "next/navigation";
 import { useState, useRef, useEffect } from "react";
 import { GoogleGenerativeAI } from "@google/generative-ai";
 import menuData from '@/data/menu_image_mapping.json';
+import React, { useCallback} from 'react';
 
 interface ChatMessage {
   from: string;
@@ -26,8 +27,12 @@ export default function IngredientPage() {
   const topic = searchParams.get("topic");
   const userId = searchParams.get("id") || "anonymous";
 
+<<<<<<< Updated upstream
   const allowedMenu = menuData;
   const allowedMenuNames = menuData.map((m) => m.name);
+=======
+  const allowedMenu: Menu[] = menuData as Menu[];
+>>>>>>> Stashed changes
 
   const genAI = new GoogleGenerativeAI(
     process.env.NEXT_PUBLIC_GEMINI_API_KEY as string
@@ -41,13 +46,80 @@ export default function IngredientPage() {
 
   const goto = () => router.push(`/home?id=${userId}`);
 
+  const handleSendAuto = useCallback(async (msg: string) => {
+    const userChat: ChatMessage = {
+      from: "user",
+      text: msg,
+      timestamp: getFormattedTime(),
+    };
+    setChatLog((prev) => [...prev, userChat]);
+    setIsLoading(true);
+    try {
+      const model = genAI.getGenerativeModel({
+        model: "gemini-2.5-flash",
+        systemInstruction: "ตอบแบบสั้น กระชับ ไม่เกิน 4 บรรทัด",
+      });
+
+      // ใช้ chatLog เวอร์ชันล่าสุดด้วย callback
+      setChatLog((prevChatLog) => {
+        const historyText = [...prevChatLog, userChat]
+          .map((msg) => `${msg.from === "user" ? "ผู้ใช้" : "AI"}: ${msg.text}`)
+          .join("\n");
+
+        (async () => {
+          const result = await model.generateContent(historyText);
+          const aiText = await result.response.text();
+
+          const aiChat: ChatMessage = {
+            from: "ai",
+            text: aiText,
+            timestamp: getFormattedTime(),
+          };
+
+          setChatLog((latestChatLog) => [...latestChatLog, aiChat]);
+
+          await fetch("/api/saveChat", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ sessionId: userId, chatLog: [userChat, aiChat] }),
+          });
+
+          setIsLoading(false);
+        })().catch(() => {
+          setChatLog((latestChatLog) => [
+            ...latestChatLog,
+            {
+              from: "ai",
+              text: "❌ ขออภัยครับ เกิดข้อผิดพลาดในการเชื่อมต่อกับ AI ลองใหม่อีกครั้งนะครับ",
+              timestamp: getFormattedTime(),
+            },
+          ]);
+          setIsLoading(false);
+        });
+
+        return [...prevChatLog, userChat];
+      });
+
+    } catch (error) {
+      setChatLog((prev) => [
+        ...prev,
+        {
+          from: "ai",
+          text: "❌ ขออภัยครับ เกิดข้อผิดพลาดในการเชื่อมต่อกับ AI ลองใหม่อีกครั้งนะครับ",
+          timestamp: getFormattedTime(),
+        },
+      ]);
+      setIsLoading(false);
+    }
+}, [userId, genAI]);
+
   useEffect(() => {
     const autoMessage = topic && topicMessages[topic];
     if (autoMessage && !isAutoSent.current) {
       isAutoSent.current = true;
       handleSendAuto(autoMessage);
     }
-  }, [topic]);
+  }, [topic, handleSendAuto]);
 
   useEffect(() => {
     const fetchHistory = async () => {
@@ -71,16 +143,13 @@ export default function IngredientPage() {
   }, [chatLog, isLoading]);
 
   const getFormattedTime = (): string => {
-    const now = new Date();
-    const options: Intl.DateTimeFormatOptions = {
-      hour: "2-digit",
-      minute: "2-digit",
-      hour12: false,
-      timeZone: "Asia/Bangkok",
-    };
-
-    const currentHourString = new Intl.DateTimeFormat("th-TH", options).format(now);
-    const currentHour = parseInt(currentHourString, 10);
+      const now = new Date();
+      const options: Intl.DateTimeFormatOptions = {
+        hour: "2-digit",
+        minute: "2-digit",
+        hour12: false,
+        timeZone: "Asia/Bangkok",
+      };
 
     return new Intl.DateTimeFormat("th-TH", options).format(now);
   };
@@ -126,53 +195,7 @@ export default function IngredientPage() {
     return "text-base";
   };
 
-  const handleSendAuto = async (msg: string) => {
-    const userChat: ChatMessage = {
-      from: "user",
-      text: msg,
-      timestamp: getFormattedTime(),
-    };
-    setChatLog((prev) => [...prev, userChat]);
-    setIsLoading(true);
-    try {
-      const model = genAI.getGenerativeModel({
-        model: "gemini-2.5-flash",
-        systemInstruction: "ตอบแบบสั้น กระชับ ไม่เกิน 4 บรรทัด",
-      });
-
-      const historyText = [...chatLog, userChat]
-        .map((msg) => `${msg.from === "user" ? "ผู้ใช้" : "AI"}: ${msg.text}`)
-        .join("\n");
-
-      const result = await model.generateContent(historyText);
-      const aiText = await result.response.text();
-
-      const aiChat: ChatMessage = {
-        from: "ai",
-        text: aiText,
-        timestamp: getFormattedTime(),
-      };
-
-      setChatLog((prev) => [...prev, aiChat]);
-
-      await fetch("/api/saveChat", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ sessionId: userId, chatLog: [userChat, aiChat] }),
-      });
-    } catch (error) {
-      setChatLog((prev) => [
-        ...prev,
-        {
-          from: "ai",
-          text: "❌ ขออภัยครับ เกิดข้อผิดพลาดในการเชื่อมต่อกับ AI ลองใหม่อีกครั้งนะครับ",
-          timestamp: getFormattedTime(),
-        },
-      ]);
-    } finally {
-      setIsLoading(false);
-    }
-  };
+  
 
   const handleSend = async () => {
     if (message.trim() === "") return;

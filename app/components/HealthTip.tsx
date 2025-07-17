@@ -52,7 +52,7 @@ export default function HealthTip({ userId }: { userId: string }) {
   useEffect(() => {
     const randomIndex = Math.floor(Math.random() * tips.length);
     setTipIndex(randomIndex);
-  }, []);
+  }, [tips.length]);
 
   const gotoChat = () => {
     router.push(`/chatbot?id=${userId}&topic=${tip.id}`);

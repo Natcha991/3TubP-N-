@@ -1,7 +1,11 @@
 // app/api/login/route.ts
 
 import { connectToDatabase } from '@/lib/mongodb';
+<<<<<<< Updated upstream
 import User from '@/models/User';
+=======
+import { User} from '@/models/User';
+>>>>>>> Stashed changes
 import { NextResponse } from 'next/server';
 
 export async function POST(req: Request) {

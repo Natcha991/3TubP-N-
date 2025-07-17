@@ -111,17 +111,19 @@ export default function MenuPage() {
     }, [menu]);
 
     useEffect(() => {
-        if (menu && menu.instructions && displayedSteps.length === 0) {
-            const instructions = Array.isArray(menu.instructions)
-                ? menu.instructions
-                : [menu.instructions];
+        if (!menu || !menu.instructions) return;
 
-            if (instructions.length > 0) {
-                setDisplayedSteps([instructions[0]]);
-                setNextStepIndex(1);
-            }
+        if (displayedSteps.length > 0) return;
+
+        const instructions = Array.isArray(menu.instructions)
+            ? menu.instructions
+            : [menu.instructions];
+
+        if (instructions.length > 0) {
+            setDisplayedSteps([instructions[0]]);
+            setNextStepIndex(1);
         }
-    }, [menu]);
+    }, [menu, displayedSteps.length]);
 
     useEffect(() => {
         if (methodCardsContainerRef.current) {
