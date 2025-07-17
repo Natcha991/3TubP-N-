@@ -2,6 +2,7 @@
 
 import { useRouter, useSearchParams } from 'next/navigation';
 import { useEffect, useState, useCallback } from 'react';
+import Image from 'next/image';
 import HealthTip from '@/app/components/HealthTip';
 
 interface MenuItem {
@@ -32,34 +33,21 @@ export default function Home() {
 
   useEffect(() => {
     let hideTimer: ReturnType<typeof setTimeout>;
-    let intervalTimer: ReturnType<typeof setInterval>;
 
     const displayBubble = () => {
-      setShowBubble(true); // แสดง bubble
-      hideTimer = setTimeout(() => {
-        setShowBubble(false); // ซ่อน bubble หลังจาก 5 วินาที
-      }, 5000); // ระยะเวลาแสดง bubble
+      setShowBubble(true);
+      hideTimer = setTimeout(() => setShowBubble(false), 5000);
     };
 
-    // ตั้งค่าให้แสดง bubble ครั้งแรกหลังจาก component mount (หรือหลังจากโหลดข้อมูลเสร็จ)
-    // คุณสามารถเลือกได้ว่าจะให้แสดงทันที หรือรอจน isLoadingMenus เป็น false
-    // ในตัวอย่างนี้ ผมจะให้มันแสดงครั้งแรกทันทีที่ useEffect นี้รัน
+    const intervalTimer: ReturnType<typeof setInterval> = setInterval(displayBubble, 30000);
 
-    // เรียก displayBubble ครั้งแรกทันที
     displayBubble();
 
-    // ตั้งค่า setInterval ให้เรียก displayBubble ทุกๆ 30 วินาที
-    // (5 วินาทีที่แสดง + 25 วินาทีที่ซ่อน)
-    intervalTimer = setInterval(() => {
-      displayBubble();
-    }, 30000); // 30 วินาที คือรวมเวลาที่แสดงและเวลาที่หายไป
-
-    // Cleanup function: เคลียร์ timers เมื่อ component unmounts
     return () => {
       clearTimeout(hideTimer);
       clearInterval(intervalTimer);
     };
-  }, []); // กำหนด dependencies เป็น array ว่าง เพื่อให้ useEffect ทำงานแค่ครั้งเดียวตอน component mount
+  }, []);
 
   const fetchMenus = useCallback(async (refresh = false) => {
     setIsLoadingMenus(true); // ตั้งค่า loading เป็น true ก่อนเริ่ม fetch

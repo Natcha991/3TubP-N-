@@ -32,8 +32,8 @@ export default function IngredientPage() {
   const [showBubble, setShowBubble] = useState(false);
 
   useEffect(() => {
-    let hideTimer: NodeJS.Timeout;
-    let intervalTimer: NodeJS.Timeout;
+    let hideTimer: ReturnType<typeof setTimeout>;
+    let intervalTimer: ReturnType<typeof setInterval>;
 
     const displayBubble = () => {
       setShowBubble(true); // แสดง bubble
