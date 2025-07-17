@@ -1,17 +1,18 @@
 import { GoogleGenerativeAI } from '@google/generative-ai';
 import { connectToDatabase } from '@/lib/mongodb';
 import { NextRequest, NextResponse } from 'next/server';
-import { ObjectId } from 'mongodb';
+import mongoose from 'mongoose';
 
 const genAI = new GoogleGenerativeAI(process.env.NEXT_PUBLIC_GEMINI_API_KEY || '');
 
-interface MenuItem {
-  _id: ObjectId;
-  name: string;
-  calories: number;
-  image?: string;
-  tags?: string[];
-}
+const User = mongoose.models.User || mongoose.model('User', new mongoose.Schema({}, { strict: false }), 'users');
+const Menu = mongoose.models.Menu || mongoose.model('Menu', new mongoose.Schema({
+  name: String,
+  calories: Number,
+  image: String,
+  tags: [String],
+}, { strict: false }), 'menus');
+const Recommendation = mongoose.models.Recommendation || mongoose.model('Recommendation', new mongoose.Schema({}, { strict: false }), 'recommendations');
 
 interface AIMenu {
   name: string;
@@ -22,15 +23,13 @@ interface AIMenu {
 
 export async function GET(request: NextRequest) {
   try {
+    // ✅ เชื่อมต่อ Database
+    await connectToDatabase();
+
     const refresh = request.nextUrl.searchParams.get('refresh') === 'true';
 
-    
-    const db = await connectToDatabase();
-
-
-    const user = await db.collection('users').findOne({}, { sort: { _id: -1 } });
-    const menus = await db.collection<MenuItem>('menus').find({}).toArray();
-
+    const user = await User.findOne().sort({ _id: -1 });
+    const menus = await Menu.find();
 
     if (!user || menus.length === 0) {
       return NextResponse.json({ error: 'ไม่พบข้อมูลผู้ใช้หรือเมนู' }, { status: 400 });
@@ -38,15 +37,15 @@ export async function GET(request: NextRequest) {
 
     const userId = user._id.toString();
 
-    // ✅ STEP 1: ใช้แคชถ้ายังไม่กด refresh
+    // ✅ ดึงข้อมูลจากแคชถ้ายังไม่ refresh
     if (!refresh) {
-      const existing = await db.collection('recommendations').findOne({ userId });
-      if (existing && Array.isArray(existing.recommendedMenus)) {
+      const existing = await Recommendation.findOne({ userId });
+      if (existing?.recommendedMenus?.length) {
         return NextResponse.json({ recommendedMenus: existing.recommendedMenus });
       }
     }
 
-    // ✅ STEP 2: สร้าง prompt เพื่อส่งให้ Gemini
+    // ✅ ส่ง prompt ให้ Gemini AI
     const prompt = `
 แนะนำเมนูอาหารจากข้าวกล้องที่เหมาะกับผู้ใช้รายนี้:
 - เป้าหมาย: ${Array.isArray(user.goals) ? user.goals.join(', ') : user.goals || '-'}
@@ -54,7 +53,7 @@ export async function GET(request: NextRequest) {
 - ไลฟ์สไตล์: ${Array.isArray(user.lifestyle) ? user.lifestyle.join(', ') : user.lifestyle || '-'}
 
 รายการเมนูทั้งหมด:
-${menus.map((m: MenuItem, i: number) => `${i + 1}. ${m.name} (${m.calories} KCAL) - tags: ${m.tags?.join(', ')}`).join('\n')}
+${menus.map((m, i) => `${i + 1}. ${m.name} (${m.calories} KCAL) - tags: ${m.tags?.join(', ')}`).join('\n')}
 
 กรุณาเลือกเมนูที่เหมาะสมที่สุด 3-5 รายการ และตอบกลับใน JSON:
 [
@@ -76,30 +75,30 @@ ${menus.map((m: MenuItem, i: number) => `${i + 1}. ${m.name} (${m.calories} KCAL
     const jsonStr = responseText.slice(jsonStart, jsonEnd + 1);
     const parsedMenus: AIMenu[] = JSON.parse(jsonStr);
 
-    const menuMap = Object.fromEntries(
-      menus.map((m: MenuItem) => [m.name.trim(), m])
-    );
+    const menuMap = new Map(menus.map((m) => [m.name.trim(), m]));
 
-    const recommendedMenus = parsedMenus.map((aiMenu: AIMenu) => {
-      const matched = menuMap[aiMenu.name.trim()];
-      return {
-        _id: matched?._id?.toString() || 'undefined',
-        name: aiMenu.name,
-        calories: aiMenu.calories,
-        image: matched?.image || '/default.png',
-        reason: aiMenu.reason || '',
-      };
-    }).filter((m) => m._id !== 'undefined');
+    const recommendedMenus = parsedMenus
+      .map((aiMenu) => {
+        const matched = menuMap.get(aiMenu.name.trim());
+        return matched ? {
+          _id: matched._id.toString(),
+          name: aiMenu.name,
+          calories: aiMenu.calories,
+          image: matched.image || '/default.png',
+          reason: aiMenu.reason || '',
+        } : null;
+      })
+      .filter(Boolean);
 
-    // ✅ STEP 3: บันทึกผลลัพธ์ใหม่ลง MongoDB
-    await db.collection('recommendations').insertOne({
+    // ✅ บันทึกผลลง database
+    await Recommendation.create({
       userId,
       recommendedMenus,
       createdAt: new Date(),
     });
 
     return NextResponse.json({ recommendedMenus });
-  } catch (error) {
+  } catch (error: unknown) {
     console.error('AI Error:', error);
     return NextResponse.json({ error: 'AI ประมวลผลล้มเหลว' }, { status: 500 });
   }
