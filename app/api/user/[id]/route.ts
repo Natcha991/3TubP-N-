@@ -1,17 +1,7 @@
 import { connectToDatabase } from '@/lib/mongodb';
-<<<<<<< Updated upstream
-<<<<<<< Updated upstream
-<<<<<<< Updated upstream
+
 import User from '@/models/User';
-=======
-import { User } from '@/models/User';
->>>>>>> Stashed changes
-=======
-import { User } from '@/models/User';
->>>>>>> Stashed changes
-=======
-import { User } from '@/models/User';
->>>>>>> Stashed changes
+
 import { NextResponse } from 'next/server';
 
 export async function PATCH(req: Request, { params }: { params: { id: string } }) {
