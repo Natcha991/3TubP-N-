@@ -55,13 +55,13 @@ export default function LoginPage() {
         const errorData = await res.json();
         setError(errorData.message || 'เกิดข้อผิดพลาดในการเข้าสู่ระบบ');
       }
-    } catch (err: any) { // ใช้ 'any' เพื่อให้ TypeScript ไม่ฟ้อง unknown type
-      console.error('Login error:', err);
-      // ปรับปรุงการแสดงข้อความ error ให้ยืดหยุ่นขึ้น
-      setError(err.message || 'เกิดข้อผิดพลาดในการเชื่อมต่อเซิร์ฟเวอร์');
+    } catch (err: unknown) {
+      const error = err as Error;
+      console.error('Login error:', error);
+      setError(error.message || 'เกิดข้อผิดพลาดในการเชื่อมต่อกับเซิร์ฟเวอร์');
     } finally {
       setLoading(false);
-    }
+    }     // ✅ ปิด function ตรงนี้
   };
 
   return (

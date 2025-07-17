@@ -31,8 +31,8 @@ export default function Home() {
   const [showBubble, setShowBubble] = useState(false);
 
   useEffect(() => {
-    let hideTimer: NodeJS.Timeout;
-    let intervalTimer: NodeJS.Timeout;
+    let hideTimer: ReturnType<typeof setTimeout>;
+    let intervalTimer: ReturnType<typeof setInterval>;
 
     const displayBubble = () => {
       setShowBubble(true); // แสดง bubble
@@ -61,7 +61,7 @@ export default function Home() {
     };
   }, []); // กำหนด dependencies เป็น array ว่าง เพื่อให้ useEffect ทำงานแค่ครั้งเดียวตอน component mount
 
-  const fetchMenus = async (refresh = false) => {
+  const fetchMenus = useCallback(async (refresh = false) => {
     setIsLoadingMenus(true); // ตั้งค่า loading เป็น true ก่อนเริ่ม fetch
 
     const pageToFetch = refresh ? currentPage + 1 : 0;
@@ -102,7 +102,6 @@ export default function Home() {
         ? data.recommendedMenus
         : [];
 
-      const hasMore = data?.hasMore !== undefined ? data.hasMore : newMenus.length >= 4;
 
       if (refresh) {
         const filteredNewMenus = newMenus.filter(newMenu =>
@@ -130,9 +129,7 @@ export default function Home() {
         setAllShownMenuIds(displayMenus.map(m => m._id));
         setCurrentPage(0);
 
-        const shouldShowMore = data?.hasMore !== undefined
-          ? data.hasMore
-          : validMenus.length >= 4;
+        
       }
     } catch (error) {
       console.error('Error fetching menus:', error);
@@ -142,19 +139,11 @@ export default function Home() {
       
       console.timeEnd(label);
     }
-  };
+  },[userId]);
 
   useEffect(() => {
-    // ตรวจสอบ userId ก่อน fetchMenus หากจำเป็น
-    // หาก userId ไม่มีค่าตอนแรก ให้พิจารณา redirect หรือแสดงข้อความ
-    if (!userId) {
-      console.warn("User ID is missing from URL. Cannot fetch personalized menus.");
-      // อาจจะ redirect ไปหน้า login หรือแสดง error message
-      // router.push('/login');
-      // return;
-    }
     fetchMenus();
-  }, [userId, fetchMenus]); // เพิ่ม userId เป็น dependency เพื่อให้ fetchMenus ทำงานเมื่อ userId มีค่า
+  }, [userId, fetchMenus]);
 
   
 

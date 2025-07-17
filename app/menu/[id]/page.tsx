@@ -96,9 +96,10 @@ export default function MenuPage() {
                     }
                     const data = await res.json();
                     setSimilarMenus(data);
-                } catch (err: any) {
-                    console.error("Error fetching similar menus:", err);
-                    setSimilarMenusError(err.message || "ไม่สามารถโหลดเมนูใกล้เคียงได้");
+                } catch (err: unknown) {
+                    const error = err as Error;
+                    console.error("Error fetching similar menus:", error);
+                    setSimilarMenusError(error.message || "ไม่สามารถโหลดเมนูใกล้เคียงได้");
                 } finally {
                     setIsLoadingSimilarMenus(false);
                 }

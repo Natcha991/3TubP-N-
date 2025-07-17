@@ -1,15 +1,14 @@
-// app/api/menu/[id]/route.ts
 import { NextResponse } from 'next/server';
 import { connectToDatabase } from '@/lib/mongodb';
-import { ObjectId } from 'mongodb';
+
+import Menu from '@/models/Menu'; // สร้าง Mongoose model ให้เรียบร้อย
 
 export async function GET(req: Request, context: { params: { id: string } }) {
   try {
+    await connectToDatabase();
     const { id } = context.params;
-    const mongoose = await connectToDatabase();
-    const db = mongoose.connection.db;
 
-    const menu = await db.collection('menus').findOne({ _id: new ObjectId(id) });
+    const menu = await Menu.findById(id);
 
     if (!menu) {
       return NextResponse.json({ error: 'ไม่พบเมนู' }, { status: 404 });

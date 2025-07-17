@@ -1,13 +1,10 @@
-// app/api/ingredient/[name]/route.ts
 import { NextRequest, NextResponse } from 'next/server';
 import { connectToDatabase } from '@/lib/mongodb';
 
 export async function GET(req: NextRequest, { params }: { params: { name: string } }) {
   try {
-    const mongoose = await connectToDatabase();
-    const db = mongoose.connection.db;
-
-    const ingredientName = decodeURIComponent(params.name); // 🔁 สำคัญ! แก้ชื่อให้เป็น UTF-8
+    const db = await connectToDatabase();
+    const ingredientName = decodeURIComponent(params.name);
     const ingredient = await db.collection('ingredients').findOne({ name: ingredientName });
 
     if (!ingredient) {

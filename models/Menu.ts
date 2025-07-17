@@ -1,6 +1,18 @@
-import mongoose, { Schema } from 'mongoose';
+import mongoose, { Schema, Document, Model } from 'mongoose';
 
-const MenuSchema = new Schema({
+export interface IMenu extends Document {
+  name: string;
+  calories: number;
+  riceType: string;
+  description: string;
+  healthNote: string;
+  tags: string[];
+  ingredients: string[];
+  instructions: string[];
+  image: string;
+}
+
+const MenuSchema = new Schema<IMenu>({
   name: String,
   calories: Number,
   riceType: String,
@@ -8,8 +20,9 @@ const MenuSchema = new Schema({
   healthNote: String,
   tags: [String],
   ingredients: [String],
-  instructions: [String], // ✅ ตรงนี้สำคัญมาก
-  image: String, // 👈 ชื่อไฟล์รูป เช่น "friedrice.png"
+  instructions: [String],
+  image: String,
 }, { timestamps: true });
 
-export default mongoose.models.Menu || mongoose.model('Menu', MenuSchema, 'menus');
+const Menu: Model<IMenu> = mongoose.models.Menu || mongoose.model<IMenu>('Menu', MenuSchema, 'menus');
+export default Menu;

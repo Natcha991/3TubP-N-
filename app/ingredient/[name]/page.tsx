@@ -11,6 +11,7 @@ interface Ingredient {
   description: string;
   image: string;
   price: string;
+  shopLinks?: Record<string, string>; // ✅ เพิ่มตรงนี้
 }
 
 export default function IngredientPage() {
@@ -27,7 +28,7 @@ export default function IngredientPage() {
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [userLocation, setUserLocation] = useState<{ lat: number; lng: number } | null>(null);
-  const [places, setPlaces] = useState<any[]>([]);
+  const [places, setPlaces] = useState<google.maps.places.PlaceResult[]>([]);
   const [showBubble, setShowBubble] = useState(false);
 
   useEffect(() => {
@@ -310,11 +311,7 @@ export default function IngredientPage() {
                 <h1 className="text-[#611E1E] text-lg mr-[1.5rem] text-[1rem]">สั่งซื้อวัตถุดิบ</h1>
               </div>
               <div className="flex flex-wrap gap-2">
-<<<<<<< Updated upstream
-                {Object.entries((ingredient as any).shopLinks).map(([shop, url]) => (
-=======
                 {Object.entries(ingredient.shopLinks).map(([shop, url]) => (
->>>>>>> Stashed changes
                   <a
                     key={shop}
                     href={url}

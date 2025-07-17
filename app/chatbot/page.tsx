@@ -27,12 +27,9 @@ export default function IngredientPage() {
   const topic = searchParams.get("topic");
   const userId = searchParams.get("id") || "anonymous";
 
-<<<<<<< Updated upstream
-  const allowedMenu = menuData;
-  const allowedMenuNames = menuData.map((m) => m.name);
-=======
-  const allowedMenu: Menu[] = menuData as Menu[];
->>>>>>> Stashed changes
+
+  
+
 
   const genAI = new GoogleGenerativeAI(
     process.env.NEXT_PUBLIC_GEMINI_API_KEY as string
@@ -100,7 +97,7 @@ export default function IngredientPage() {
         return [...prevChatLog, userChat];
       });
 
-    } catch (error) {
+    } catch {
       setChatLog((prev) => [
         ...prev,
         {
@@ -127,7 +124,7 @@ export default function IngredientPage() {
         const res = await fetch(`/api/saveChat?userId=${userId}`);
         if (!res.ok) throw new Error("Failed to fetch chat history");
         const data = await res.json();
-        const combinedChatLog = data.flatMap((item: any) => item.chatLog);
+        const combinedChatLog = data.flatMap((item: { chatLog: ChatMessage[] }) => item.chatLog);
         setChatLog(combinedChatLog);
       } catch (error) {
         console.error("❌ Error fetching chat history:", error);
@@ -281,7 +278,7 @@ ${allowedMenuNames.map((name, i) => `${i + 1}. ${name}`).join('\n')}
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ sessionId: userId, chatLog: [userChat, aiChat] }),
       });
-    } catch (error) {
+    } catch {
       setChatLog((prev) => [
         ...prev,
         {

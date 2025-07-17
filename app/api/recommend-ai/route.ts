@@ -1,11 +1,12 @@
 import { GoogleGenerativeAI } from '@google/generative-ai';
 import { connectToDatabase } from '@/lib/mongodb';
 import { NextRequest, NextResponse } from 'next/server';
+import { ObjectId } from 'mongodb';
 
 const genAI = new GoogleGenerativeAI(process.env.NEXT_PUBLIC_GEMINI_API_KEY || '');
 
 interface MenuItem {
-  _id: any;
+  _id: ObjectId;
   name: string;
   calories: number;
   image?: string;
@@ -23,11 +24,13 @@ export async function GET(request: NextRequest) {
   try {
     const refresh = request.nextUrl.searchParams.get('refresh') === 'true';
 
-    const mongoose = await connectToDatabase();
-    const db = mongoose.connection.db;
+    
+    const db = await connectToDatabase();
+
 
     const user = await db.collection('users').findOne({}, { sort: { _id: -1 } });
-    const menus: MenuItem[] = await db.collection('menus').find({}).toArray();
+    const menus = await db.collection<MenuItem>('menus').find({}).toArray();
+
 
     if (!user || menus.length === 0) {
       return NextResponse.json({ error: 'ไม่พบข้อมูลผู้ใช้หรือเมนู' }, { status: 400 });

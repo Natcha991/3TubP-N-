@@ -1,7 +1,6 @@
 // components/MethodCard.tsx
 import React from 'react';
 
-// กำหนด Type สำหรับ Props ของ MethodCard โดยตรงในไฟล์นี้
 interface MethodCardProps {
   num: number;
   title: string;
@@ -9,7 +8,7 @@ interface MethodCardProps {
   imageUrl: string;
 }
 
-const MethodCard: React.FC<MethodCardProps> = ({ num, title, detail, imageUrl }) => {
+const MethodCard: React.FC<MethodCardProps> = ({ num: _num, title, detail, imageUrl }) => {
   return (
     <div className="bg-[#FFF5DD] animate-OpenScene flex justify-between items-center border-2 border-[#C9AF90] sm:w-[400px] w-[400px] max-w-sm h-[7rem] rounded-[8px] overflow-hidden">
       <img className="h-full w-[120px] object-cover rounded-l-[8px]" src={imageUrl} alt={title || "Step Image"} />
