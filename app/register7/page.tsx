@@ -1,5 +1,5 @@
 'use client';
-
+export const dynamic = 'force-dynamic'
 import { useRouter, useSearchParams } from 'next/navigation';
 import { useState, useRef, useEffect } from 'react';
 import { Check } from 'lucide-react'; // ตรวจสอบว่าได้ติดตั้ง lucide-react แล้ว
