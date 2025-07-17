@@ -5,6 +5,14 @@ import { useState, useRef, useEffect } from "react";
 import { GoogleGenerativeAI } from "@google/generative-ai";
 import menuData from '@/data/menu_image_mapping.json';
 import React, { useCallback} from 'react';
+<<<<<<< Updated upstream
+=======
+
+interface Menu {
+  name: string;
+  image: string;
+}
+>>>>>>> Stashed changes
 
 interface ChatMessage {
   from: string;
@@ -32,6 +40,9 @@ export default function IngredientPage() {
   const allowedMenuNames = menuData.map((m) => m.name);
 =======
   const allowedMenu: Menu[] = menuData as Menu[];
+<<<<<<< Updated upstream
+>>>>>>> Stashed changes
+=======
 >>>>>>> Stashed changes
 
   const genAI = new GoogleGenerativeAI(

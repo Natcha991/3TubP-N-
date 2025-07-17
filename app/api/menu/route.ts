@@ -23,8 +23,13 @@ export async function GET(request: Request) {
       try {
         query._id = { $ne: new ObjectId(excludeId) };
 <<<<<<< Updated upstream
+<<<<<<< Updated upstream
       } catch (e) {
         console.warn(`Invalid ObjectId for excludeId: ${excludeId}. Continuing without exclusion.`);
+=======
+      } catch (error: unknown) {
+        console.warn(`Invalid ObjectId: ${excludeId}, skipping exclusion.`, error);
+>>>>>>> Stashed changes
 =======
       } catch (error: unknown) {
         console.warn(`Invalid ObjectId: ${excludeId}, skipping exclusion.`, error);
@@ -42,8 +47,13 @@ export async function GET(request: Request) {
 
     return NextResponse.json(menus);
 <<<<<<< Updated upstream
+<<<<<<< Updated upstream
   } catch (error) {
     console.error('GET /api/menus error:', error);
+=======
+  } catch (error: unknown) {
+    console.error('GET /api/menu error:', error instanceof Error ? error.message : error);
+>>>>>>> Stashed changes
 =======
   } catch (error: unknown) {
     console.error('GET /api/menu error:', error instanceof Error ? error.message : error);

@@ -311,7 +311,11 @@ export default function IngredientPage() {
               </div>
               <div className="flex flex-wrap gap-2">
 <<<<<<< Updated upstream
+<<<<<<< Updated upstream
                 {Object.entries((ingredient as any).shopLinks).map(([shop, url]) => (
+=======
+                {Object.entries(ingredient.shopLinks).map(([shop, url]) => (
+>>>>>>> Stashed changes
 =======
                 {Object.entries(ingredient.shopLinks).map(([shop, url]) => (
 >>>>>>> Stashed changes
