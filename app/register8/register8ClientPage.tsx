@@ -111,8 +111,8 @@ export default function Register8() { // เปลี่ยนชื่อ Compo
       <div className="absolute right-0 rotate-[180deg] top-[30rem]">
         <img src="/Group%2099.png" alt="Decoration"></img>
       </div>
-      <div className="absolute top-[35rem] left-[1.5rem] animate-shakeright">
-        <img className='' src="/image%2084.png" alt="Decoration"></img>
+      <div className="absolute top-[28rem] left-[0rem] animate-shakeright z-0">
+        <img className='w-[150px]' src="/image%2084.png" alt="Decoration"></img>
       </div>
       <div className="absolute top-[35rem] left-[19rem] rotate-[35deg] animate-shakeright2">
         <img src="/image%2084.png" className='w-[140px]' alt="Decoration"></img>
@@ -122,14 +122,14 @@ export default function Register8() { // เปลี่ยนชื่อ Compo
         <div className="w-full">
           <h1 className='text-center text-[#333333] mt-3 font-prompt font-[600] text-3xl'>เลือกไลฟ์สไตล์ของคุณ</h1>
         </div>
-        <div className="flex-1 flex items-start justify-center pt-11">
+        <div className="flex-1 flex items-start justify-center pt-5">
           <div className="w-full max-w-sm">
             {/* Scrollable Chips */}
             <div
               ref={scrollContainerRef}
-              className="scrollbar-hide"
+              className="w-full overflow-x-auto whitespace-nowrap scrollbar-hide"
             >
-              <div className="flex space-x-6 px-4 pb-4" style={{ width: 'max-content' }}>
+              <div className="inline-flex space-x-6 pb-4 pt-7 pl-4" style={{ width: 'max-content' }}>
                 {lifestyles.map((lifestyle, index) => (
                   <button
                     key={index}
@@ -163,7 +163,7 @@ export default function Register8() { // เปลี่ยนชื่อ Compo
               {/* ปุ่ม "เสร็จสิ้น" สำหรับส่งข้อมูล */}
               <button
                 onClick={handleSubmit} // เรียก handleSubmit เมื่อคลิก
-                className='bg-orange-400 z-200 text-white py-2 px-4 rounded-full w-40 flex justify-center items-center gap-2' // ปรับปุ่มให้เป็นสไตล์ที่ใช้บ่อย
+                className='bg-orange-400 z-200 text-white py-2 px-4 rounded-full w-30 flex justify-center items-center gap-2' // ปรับปุ่มให้เป็นสไตล์ที่ใช้บ่อย
               >
                 เสร็จสิ้น  {/* เพิ่มไอคอน */}
               </button>
@@ -172,7 +172,7 @@ export default function Register8() { // เปลี่ยนชื่อ Compo
           </div>
 
           <div className="absolute right-0 top-[30rem] z-102 -translate-y-55 transform translate-x-25 md:translate-x-12">
-            <div className="absolute animate-showUp z-105 left-[-2rem] top-[2.5rem] w-[140px] h-[100px]">
+            <div className="absolute animate-showUp z-105 left-[-4rem] top-[2.5rem] w-[140px] h-[100px]">
               <div className="bg-[#f1c783a4] absolute top-[1.5rem] left-[-3.5rem] border-white border-2 inline-flex py-[0.5rem] px-[1rem] font-Unbounded text-[#333333] rounded-4xl z-10">
                 Mr.Rice
               </div>

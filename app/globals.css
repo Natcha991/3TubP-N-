@@ -6,11 +6,7 @@
 @theme {
   --font-Unbounded: "Unbounded", sans-serif; 
   --font-prompt: "Prompt", sans-serif;
-}
-
-.no-scrollbar::-webkit-scrollbar {
-    display: none;
-}
+} 
 
 .scrollbar-none::-webkit-scrollbar {
   display: none;
