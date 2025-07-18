@@ -22,7 +22,7 @@ export default function Home() {
 
   const [menus, setMenus] = useState<MenuItem[]>([]);
   const [isLoadingMenus, setIsLoadingMenus] = useState(true);
-  
+
   const [currentPage, setCurrentPage] = useState(0);
   const [allShownMenuIds, setAllShownMenuIds] = useState<string[]>([]);
   const [searchTerm, setSearchTerm] = useState('');
@@ -102,9 +102,9 @@ export default function Home() {
           setCurrentPage(pageToFetch);
         }
 
-        
 
-        
+
+
       } else {
         const validMenus = newMenus.filter((m) => m && m._id && m.name);
 
@@ -116,23 +116,23 @@ export default function Home() {
         setAllShownMenuIds(displayMenus.map(m => m._id));
         setCurrentPage(0);
 
-        
+
       }
     } catch (error) {
       console.error('Error fetching menus:', error);
-     
+
     } finally {
       setIsLoadingMenus(false);
-      
+
       console.timeEnd(label);
     }
-  },[userId]);
+  }, [userId]);
 
   useEffect(() => {
     fetchMenus();
   }, [userId, fetchMenus]);
 
-  
+
 
   // **แก้ไข: เพิ่ม userId เข้าไปใน URL เมื่อกดไปหน้า Menu**
   const goto = useCallback((id: string) => {
@@ -194,7 +194,7 @@ export default function Home() {
 
       setMenus(displayMenus);
       setSpecialMenu(supplementMenu);
-      
+
     } catch (err) {
       console.error('Search error:', err);
     } finally {
@@ -258,7 +258,7 @@ export default function Home() {
           />
           <button
             onClick={handleSearch}
-            className="bg-orange-400 text-white items-center flex px-4 py-2 rounded-lg hover:bg-green-600 disabled:opacity-50 transition-colors"
+            className="bg-orange-400 text-white z-120 items-center flex px-4 py-2 rounded-lg hover:bg-green-600 disabled:opacity-50 transition-colors"
             disabled={isSearching}
           >
             <img className='w-[1rem] h-[1rem] mr-[0.3rem]' src="/search2.png" alt="search" />
@@ -266,15 +266,16 @@ export default function Home() {
           </button>
         </div>
 
-        <div className="absolute top-[33.3rem] left-[20rem] -translate-x-1/2 md:left-[15rem] md:translate-x-0">
+        <div className="absolute top-[33.3rem] z-200 left-[20rem] -translate-x-1/2 md:left-[15rem] md:translate-x-0 "> {/* เพิ่ม z-index ให้กับ Parent เพื่อควบคุม Stacking Context รวม */}
           {showBubble && (
-            <div className="w-[150px] h-[50px] z-[-1] absolute top-[1.5rem] shadow-grey shadow-xl left-[-7rem] p-[0.5rem] flex items-center bg-white rounded-md animate-showUp">
+            <div className="w-[150px] h-[50px] absolute top-[1.5rem] shadow-grey shadow-xl left-[-7rem] p-[0.5rem] flex items-center bg-white rounded-md animate-showUp z-200"> {/* ตั้ง z-index สูงๆ สำหรับ bubble */}
               <h1 className="text-[0.7rem]">ผม Mr.Rice อยากรู้อะไรสอบถามผมได้ครับ!</h1>
             </div>
           )}
           <img
             onClick={gotoChatbot}
-            className="mt-[3rem] animate-pulse animate-sizeUpdown cursor-pointer transform hover:scale-105 duration-300"
+            // ต้องมี position เพื่อให้ z-index ทำงานได้
+            className="mt-[3rem] animate-pulse animate-sizeUpdown relative z-10 cursor-pointer transform hover:scale-105 duration-300"
             src="/image%2069.png"
             alt="Chatbot icon"
             width={60}

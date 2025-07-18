@@ -13,7 +13,7 @@ interface MethodCardProps {
 
 const MethodCard: React.FC<MethodCardProps> = ({ title, detail, imageUrl }) => {
   return (
-    <div className="bg-[#FFF5DD] animate-OpenScene flex justify-between items-center border-2 border-[#C9AF90] sm:w-[400px] w-[400px] max-w-sm h-[7rem] rounded-[8px] overflow-hidden">
+    <div className="bg-[#FFF5DD] animate-OpenScene flex justify-between items-center border-2 border-[#C9AF90] sm:w-[350px] w-[350px] max-w-sm h-[7rem] rounded-[8px] overflow-hidden">
       <Image
         className="h-full w-[120px] object-cover rounded-l-[8px]"
         src={imageUrl}

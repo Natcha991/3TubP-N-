@@ -60,10 +60,10 @@ export default function Home() {
     return (
         <div className="relative h-screen w-screen flex flex-col items-center bg-gradient-to-br from-orange-300 to-orange-100">
             <div className="absolute left-0">
-                <img src="/group%2099.png" alt="Decoration"></img>
+                <img src="/Group%2099.png" alt="Decoration"></img>
             </div>
             <div className="absolute right-0 rotate-[180deg] top-[30rem]">
-                <img src="/group%2099.png" alt="Decoration"></img>
+                <img src="/Group%2099.png" alt="Decoration"></img>
             </div>
             <div className="absolute top-[20rem] left-[1.5rem] animate-shakeright">
                 <img className='' src="/image%2084.png" alt="Decoration"></img>
@@ -92,7 +92,7 @@ export default function Home() {
                     src="/image%2081.png"
                     alt='Decor'
                     // กำหนดความกว้างและความสูงคงที่
-                    className="w-[300px] h-[470px] animate-sizeUpdown"
+                    className="w-auto h-[470px] animate-sizeUpdown"
                 />
             </div>
             {/* ----------------------------------------------------- */}

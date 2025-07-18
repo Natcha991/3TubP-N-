@@ -203,7 +203,7 @@ export default function MenuPage() {
                 />
             </div>
 
-            <div className="mx-[1.5rem] w-[400px]">
+            <div className="mx-[1.5rem] w-[350px]">
                 <h1 className="text-3xl font-prompt text-[#611E1E] font-[600]">{menu.name}</h1>
                 <h1 className="text-[0.7rem] w-[250px] mt-[0.5rem] text-[#953333] font-prompt">{menu.description}</h1>
 
@@ -279,7 +279,7 @@ export default function MenuPage() {
                     </div>
 
                     {/* ส่วน "เมนูใกล้เคียง" ที่ดึงข้อมูลจาก API */}
-                    <div className="relative w-full max-w-[450px] mt-[3rem] mb-[5rem]">
+                    <div className="relative w-full max-w-[450px] mt-[3rem] mb-[3rem]">
                         <h1 className="font-[600] text-[#333333] mb-[2rem] text-[1.6rem]">เมนูใกล้เคียง</h1>
                         <div className="flex gap-2 justify-center">
                             {isLoadingSimilarMenus ? (
@@ -299,7 +299,7 @@ export default function MenuPage() {
                                         className="flex flex-col items-center w-[130px] bg-white border-2 border-[#C9AF90] rounded-t-full shadow-sm cursor-pointer transform transition duration-300 hover:scale-105"
                                     >
                                         <Image
-                                            className="h-[130px] animate-sizeUpdown w-auto object-cover rounded-t-full"
+                                            className="h-[110px] animate-sizeUpdown w-auto object-cover rounded-t-full"
                                             src={similarMenu.image ? `/menus/${encodeURIComponent(similarMenu.image)}` : "/default.png"}
                                             alt={similarMenu.name}
                                             width={90}

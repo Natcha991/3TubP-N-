@@ -380,7 +380,7 @@ export default function IngredientPage() {
         </div>
 
         {/* Random Ingredients Section */}
-        <div className="relative w-full max-w-[360px] mt-[3rem] mb-[5rem]">
+        <div className="relative w-full max-w-[360px] mt-[3rem] mb-[3rem]">
           <h1 className="font-[600] text-[#333333] mb-[2rem] text-[1.6rem]">วัตถุดิบอื่นๆ</h1>
           <div className="flex gap-2 justify-center">
             {randomIngredients.length > 0 ? (

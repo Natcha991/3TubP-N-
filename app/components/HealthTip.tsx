@@ -64,7 +64,7 @@ export default function HealthTip({ userId }: { userId: string }) {
         <div className="absolute top-[2rem]">
           <img className="w-[60px] bg-white h-[60px] rounded-full object-cover" src="/profile.jpeg" />
         </div>
-        <h1 className="text-[#333333] w-[200px] absolute font-prompt mt-12 text-[2rem] font-bold font-unbounded leading-tight">
+        <h1 className="text-[#333333] w-[150px] absolute font-prompt mt-12 text-[1.7rem] font-bold font-unbounded leading-tight">
           {tip.headline}
         </h1>
         <div className="py-[1rem] mt-[9rem] flex flex-col items-center">

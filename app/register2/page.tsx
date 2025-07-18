@@ -40,10 +40,10 @@ export default function Register2() {
   return (
     <div className="relative h-screen w-screen cursor-pointer flex flex-col items-center bg-gradient-to-br from-orange-300 to-orange-100">
       <div className="absolute left-0">
-        <img src="/group%2099.png"></img>
+        <img src="/Group%2099.png"></img>
       </div>
       <div className="absolute right-0 rotate-[180deg] top-[30rem]">
-        <img src="/group%2099.png"></img>
+        <img src="/Group%2099.png"></img>
       </div>
       <div className="absolute top-[20rem] left-[1.5rem] animate-shakeright">
         <img className='' src="/image%2084.png"></img>
@@ -84,7 +84,7 @@ export default function Register2() {
       </div>
 
       <div className="flex justify-center z-10 mt-[1rem] overflow-hidden animate-sizeUpdown">
-        <img src="/image%2086.png" alt='Decor' className="w-full h-[430px]" />
+        <img src="/image%2086.png" alt='Decor' className="w-auto h-[430px]" />
       </div>
 
       <div className="absolute bottom-0 left-0 right-0 flex justify-center font-prompt">
