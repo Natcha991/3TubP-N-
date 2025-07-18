@@ -46,7 +46,7 @@ export default function Register3() {
                 <img className='' src="/image%2084.png" alt="Decoration" width={100} height={100} /> {/* กำหนด width, height */}
             </div>
             {/* ภาพประกอบเคลื่อนไหวอีกอัน */}
-            <div className="absolute top-[35rem] left-[19rem] rotate-[35deg] animate-shakeright2">
+            <div className="absolute top-[30rem] left-[19rem] rotate-[35deg] animate-shakeright2">
                 <img src="/image%2084.png" className='w-[140px]' alt="Decoration" width={140} height={140} /> {/* กำหนด width, height */}
             </div>
 
@@ -80,12 +80,12 @@ export default function Register3() {
             {/* ----------------------------------------------------- */}
             {/* ส่วนรูปภาพที่ต้องการให้โดนจอกิน (จัดกลางแนวตั้ง, ชิดขวา, กินขอบ) */}
             {/* ----------------------------------------------------- */}
-            <div className="flex justify-center z-10 mt-[4rem] overflow-hidden animate-sizeUpdown">
+            <div className="flex justify-center z-10 mt-[1rem] overflow-hidden animate-sizeUpdown">
                 <img
                     src="/image%2087.png"
                     alt='Decor'
                     // กำหนดความกว้างและความสูงคงที่
-                    className="w-full h-[540px] object-cover" // เพิ่ม object-cover เพื่อให้รูปภาพครอบคลุมพื้นที่โดยไม่บิดเบี้ยว
+                    className="w-full h-[430px] object-cover" // เพิ่ม object-cover เพื่อให้รูปภาพครอบคลุมพื้นที่โดยไม่บิดเบี้ยว
                     width={1000} // กำหนด width ที่เหมาะสมกับ w-full, อาจจะต้องปรับตามขนาดจริง
                     height={540} // กำหนด height ตาม className
                 />

@@ -72,7 +72,7 @@ export default function LoginPage() {
       <div className="absolute right-0 rotate-[180deg] top-[30rem]">
         <img src="/group%2099.png" alt="Decoration"></img>
       </div>
-      <div className="absolute top-[20rem] left-[1.5rem] animate-shakeright">
+      <div className="absolute top-[20rem] left-[0.3rem] animate-shakeright">
         <img className='' src="/image%2084.png" alt="Decoration"></img>
       </div>
       <div className="absolute top-[35rem] left-[19rem] rotate-[35deg] animate-shakeright2">
@@ -125,12 +125,12 @@ export default function LoginPage() {
       {/* ----------------------------------------------------- */}
       {/* ส่วนรูปภาพที่ต้องการให้โดนจอกิน (จัดกลางแนวตั้ง, ชิดขวา, กินขอบ) */}
       {/* ----------------------------------------------------- */}
-      <div className="z-10 top-[300px] absolute flex justify-center overflow-hidden animate-sizeUpdown">
+      <div className="z-10 top-[260px] absolute flex justify-center overflow-hidden animate-sizeUpdown">
         <img
           src="/image%2086.png"
           alt='Decor'
           // กำหนดความกว้างและความสูงคงที่
-          className="h-[540px] w-full"
+          className="h-[430px] w-full"
         />
       </div>
     </div>

@@ -118,7 +118,7 @@ export default function Register6() {
             {/* Scrollable Chips */}
             <div
               ref={scrollContainerRef}
-              className="overflow-x-auto scrollbar-hide"
+              className=" scrollbar-hide"
             >
               <div className="flex space-x-6 px-4 pb-4" style={{ width: 'max-content' }}>
                 {goals.map((goal, index) => (
@@ -126,7 +126,7 @@ export default function Register6() {
                     key={index}
                     onClick={() => handleGoalToggle(goal, index)}
                     className={`
-                      relative flex z-120 animate-sizeUpdown items-center mt-3 justify-center px-6 py-8 rounded-2xl min-w-max transition-all duration-200 shadow-sm whitespace-nowrap
+                      relative flex z-120 animate-sizeUpdown items-center mt-[-1rem] justify-center px-6 py-8 rounded-2xl min-w-max transition-all duration-200 shadow-sm whitespace-nowrap
                       ${selectedGoals.includes(goal)
                         ? 'bg-white border-2 border-orange-400 shadow-md scale-115'
                         : 'bg-white/80 hover:border-gray-300 scale-90'
@@ -162,8 +162,8 @@ export default function Register6() {
 
           </div>
 
-          <div className="absolute right-0 top-[35rem] z-102 -translate-y-55 transform translate-x-35 md:translate-x-12">
-            <div className="absolute animate-showUp z-105 left-[-1rem] top-[1rem] w-[140px] h-[100px]">
+          <div className="absolute right-0 top-[30rem] z-102 -translate-y-55 transform translate-x-25 md:translate-x-12">
+            <div className="absolute animate-showUp z-105 left-[-2.5rem] top-[4rem] w-[140px] h-[100px]">
               <div className="bg-[#f1c783a4] absolute top-[1.5rem] left-[-3.5rem] border-white border-2 inline-flex py-[0.5rem] px-[1rem] font-Unbounded text-[#333333] rounded-4xl z-10">
                 Mr.Rice
               </div>
@@ -174,7 +174,7 @@ export default function Register6() {
             <img
               src="/image%20102.png"
               alt='Decor'
-              className="w-[430px] h-[540px] animate-sizeUpdown"
+              className="w-[350px] h-[430px] animate-sizeUpdown"
             />
           </div>
 

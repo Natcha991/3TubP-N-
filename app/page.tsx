@@ -83,16 +83,16 @@ export default function Home() {
             {/* ----------------------------------------------------- */}
             {/* ส่วนรูปภาพที่ต้องการให้โดนจอกิน (จัดกลางแนวตั้ง, ชิดขวา, กินขอบ) */}
             {/* ----------------------------------------------------- */}
-            <div className="absolute right-0 top-1/2 -translate-y-55 transform translate-x-23 md:translate-x-12 ">
+            <div className="absolute right-0 top-[25rem] -translate-y-55 transform translate-x-23 md:translate-x-12 ">
                 {/* Mr.Rice bubble */}
-                <div className="bg-[#f1c783a4] absolute top-[17rem] left-[-1rem] border-white border-2 inline-flex p-[1rem] px-[1.7rem] font-Unbounded text-[#333333] rounded-4xl z-10">
+                <div className="bg-[#f1c783a4] absolute top-[14rem] left-[-1rem] border-white border-2 inline-flex p-[1rem] px-[1.7rem] font-Unbounded text-[#333333] rounded-4xl z-10">
                     Mr.Rice
                 </div>
                 <img
                     src="/image%2081.png"
                     alt='Decor'
                     // กำหนดความกว้างและความสูงคงที่
-                    className="w-[350px] h-[540px] animate-sizeUpdown"
+                    className="w-[300px] h-[470px] animate-sizeUpdown"
                 />
             </div>
             {/* ----------------------------------------------------- */}
@@ -100,7 +100,7 @@ export default function Home() {
 
             {/* ส่วนล่างสุด (เมนู/ต่อไป) */}
             <div className="absolute bottom-0 left-0 shadow-3xl right-0 flex justify-center font-prompt">
-                <div className="bg-white w-[500px] px-[4rem] py-[4.5rem] rounded-t-4xl shadow-lg flex justify-between">
+                <div className="bg-white w-[500px] px-[4rem] py-[3rem] rounded-t-4xl shadow-lg flex justify-between">
                     {/* ปุ่ม "ต่อไป" - เรียก handleNavigationClick เพื่อตรวจสอบสถานะ */}
                     <div onClick={handleNavigationClick} className="flex items-center cursor-pointer">
                         <h1 className='bg-[#ff9e303e] text-2xl rounded-4xl py-[0.3rem] px-[1.5rem]'>ต่อไป</h1>
@@ -109,7 +109,7 @@ export default function Home() {
                     {/* ปุ่ม "เมนู" - เรียก handleNavigationClick เพื่อตรวจสอบสถานะ */}
                     <div onClick={handleNavigationClick} className="flex items-center pr-[1rem] cursor-pointer">
                         <h1 className='bg-[#ff9e303e] text-2xl rounded-4xl py-[0.3rem] px-[1.5rem]'>เมนู</h1>
-                        <img className='absolute left-[20.8rem] p-[0.5rem] w-[2.5rem] h-[2.5rem] rounded-4xl bg-[#FFBA9F] ' src="/image%2083.png" alt='Next'></img>
+                        <img className='absolute left-[19.8rem] p-[0.5rem] w-[2.5rem] h-[2.5rem] rounded-4xl bg-[#FFBA9F] ' src="/image%2083.png" alt='Next'></img>
                     </div>
                 </div>
             </div>

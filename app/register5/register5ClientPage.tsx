@@ -46,17 +46,17 @@ export default function Register5() {
             <div className="absolute top-[20rem] left-[1.5rem]  animate-shakeright">
                 <img className='' src="/image%2084.png"></img>
             </div>
-            <div className="absolute top-[35rem] left-[19rem] rotate-[35deg] animate-shakeright2">
+            <div className="absolute top-[30rem] left-[19rem] rotate-[35deg] animate-shakeright2">
                 <img src="/image%2084.png" className='w-[140px]'></img>
             </div>
 
             {/* ส่วนข้อความด้านบน */}
             <div className="flex flex-col items-center mt-[5rem]">
                 <div className="w-full">
-                    <h1 className='w-[300px] text-center text-[#333333] mt-2 font-prompt font-[500] text-3xl'>ทีนี้ ผมอยากรู้น้ำหนัก ส่วนสูงของคุณหน่อย</h1>
+                    <h1 className='w-[330px] text-center text-[#333333] mt-2 font-prompt font-[500] text-[1.5rem]'>ทีนี้ ผมอยากรู้น้ำหนัก ส่วนสูงของคุณหน่อย</h1>
                 </div>
                 {/* แก้แค่ส่วนนี้ */}
-                <form className="font-prompt flex flex-col items-center justify-center mt-[3rem] z-100" onSubmit={handleSubmit} >
+                <form className="font-prompt flex flex-col items-center justify-center mt-[1.5rem] z-100" onSubmit={handleSubmit} >
                     <div className="flex gap-2">
                         <input type="number"
                             placeholder="น้ำหนัก (kg)"
@@ -70,13 +70,13 @@ export default function Register5() {
                             onChange={(e) => setHeight(e.target.value)}
                             required
                             className=' rounded-3xl w-[130px] border-[#333333] border-2 p-[0.5rem]  bg-white'></input>
-                    </div>
-                    <button
-                        type='submit' // เรียก handleSubmit เมื่อคลิก
-                        className='bg-orange-400 mt-5 z-200 text-white py-2 px-4 rounded-full w-40 flex justify-center items-center gap-2' // ปรับปุ่มให้เป็นสไตล์ที่ใช้บ่อย
-                    >
-                        ถัดไป {/* เพิ่มไอคอน */}
-                    </button>
+                        <button
+                            type='submit' // ใช้ type="submit" เพื่อให้ Form รับรู้
+                            className='bg-grey-400 w-[45px] p-[0.8rem] transition hover:scale-105 duration-300 cursor-pointer flex items-center justify-center rounded-4xl border-[#333333] border-2 ml-[0.5rem] h-[45px]'
+                        >
+                            <img src="/image%2082.png" alt="Submit" width={24} height={24} /> {/* ใช้ Image component และกำหนด width, height */}
+                        </button>
+                    </div> 
                 </form>
             </div>
 
@@ -88,7 +88,7 @@ export default function Register5() {
                     src="/image%20100.png"
                     alt='Decor'
                     // กำหนดความกว้างและความสูงคงที่
-                    className="w-full h-[540px]"
+                    className="w-full h-[430px]"
                 />
             </div>
 

@@ -48,7 +48,7 @@ export default function Register2() {
       <div className="absolute top-[20rem] left-[1.5rem] animate-shakeright">
         <img className='' src="/image%2084.png"></img>
       </div>
-      <div className="absolute top-[35rem] left-[19rem] rotate-[35deg] animate-shakeright2">
+      <div className="absolute top-[30rem] left-[19rem] rotate-[35deg] animate-shakeright2">
         <img src="/image%2084.png" className='w-[140px]'></img>
       </div>
 
@@ -83,8 +83,8 @@ export default function Register2() {
         </div>
       </div>
 
-      <div className="flex justify-center z-10 mt-[4rem] overflow-hidden animate-sizeUpdown">
-        <img src="/image%2086.png" alt='Decor' className="w-full h-[540px]" />
+      <div className="flex justify-center z-10 mt-[1rem] overflow-hidden animate-sizeUpdown">
+        <img src="/image%2086.png" alt='Decor' className="w-full h-[430px]" />
       </div>
 
       <div className="absolute bottom-0 left-0 right-0 flex justify-center font-prompt">

@@ -21,12 +21,12 @@ export default function Home() {
             <div className="absolute top-[20rem] left-[1.5rem]  animate-shakeright">
                 <img className='' src="/image%2084.png"></img>
             </div>
-            <div className="absolute top-[35rem] left-[19rem] rotate-[35deg] animate-shakeright2">
+            <div className="absolute top-[30rem] left-[19rem] rotate-[35deg] animate-shakeright2">
                 <img src="/image%2084.png" className='w-[140px]'></img>
             </div>
 
             {/* ส่วนข้อความด้านบน */}
-            <div className="flex flex-col items-center mt-[8rem]">
+            <div className="flex flex-col items-center mt-[6rem]">
                 <div className="w-full"> 
                     <h1 className='w-[300px] text-center text-[#333333] mt-2 font-prompt font-[500] text-3xl animate-dopdop'>เดี๋ยวก่อน!! ก่อนจะไปดูเมนู ผมขอถามอะไรคุณก่อนสิ</h1>
                 </div>
@@ -40,7 +40,7 @@ export default function Home() {
                     src="/image%2085.png"
                     alt='Decor'
                     // กำหนดความกว้างและความสูงคงที่
-                    className="w-full h-[540px]" 
+                    className="w-full h-[430px]" 
                 /> 
             </div> 
 

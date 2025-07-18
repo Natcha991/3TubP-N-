@@ -43,14 +43,14 @@ export default function Register4() {
       <div className="absolute top-[20rem] left-[1.5rem] animate-shakeright">
         <img className='' src="/image%2084.png" alt="Decoration"></img>
       </div>
-      <div className="absolute top-[35rem] left-[19rem] rotate-[35deg] animate-shakeright2">
+      <div className="absolute top-[30rem] left-[19rem] rotate-[35deg] animate-shakeright2">
         <img src="/image%2084.png" className='w-[140px]' alt="Decoration"></img>
       </div>
 
       {/* ส่วนข้อความด้านบน */}
       <div className="flex flex-col items-center mt-[5rem]">
         <div className="w-full">
-          <h1 className='w-[330px] text-center text-[#333333] mt-2 font-prompt font-[500] text-3xl'>ผมเป็นผู้ชายนะ<br></br>แล้วคุณล่ะ?</h1>
+          <h1 className='w-[330px] text-center text-[#333333] mt-2 font-prompt font-[500] text-[1.8rem]'>ผมเป็นผู้ชายนะแล้วคุณล่ะ?</h1>
         </div>
 
         {/* ส่วนตัวเลือก ชาย หรือ หญิง */}
@@ -58,7 +58,7 @@ export default function Register4() {
           <button
             type='button' // เปลี่ยนเป็น type='button' เพื่อไม่ให้ submit form โดยตรง
             onClick={() => handleSubmit('ชาย')}
-            className={`bg-[#ACE5FF] border-2 ${gender === 'ชาย' ? 'border-[#FF6600]' : 'border-[#333333]'} flex text-2xl rounded-2xl px-[3rem] py-[1.5rem]`}
+            className={`bg-[#ACE5FF] border-2 ${gender === 'ชาย' ? 'border-[#FF6600]' : 'border-[#333333]'} flex text-[1rem] rounded-2xl px-[3rem] py-[1.5rem]`}
           >
             {/* คุณสามารถใส่รูปภาพได้ที่นี่: <img src="" alt="Male icon"> */}
             ผู้ชาย
@@ -66,7 +66,7 @@ export default function Register4() {
           <button
             type='button' // เปลี่ยนเป็น type='button' เพื่อไม่ให้ submit form โดยตรง
             onClick={() => handleSubmit('หญิง')}
-            className={`bg-[#FF9BCD] border-2 ${gender === 'หญิง' ? 'border-[#FF6600]' : 'border-[#333333]'} flex text-2xl rounded-2xl px-[3rem] py-[1.5rem]`}
+            className={`bg-[#FF9BCD] border-2 ${gender === 'หญิง' ? 'border-[#FF6600]' : 'border-[#333333]'} flex text-[1rem] rounded-2xl px-[3rem] py-[1.5rem]`}
           >
             {/* คุณสามารถใส่รูปภาพได้ที่นี่: <img src="" alt="Female icon"> */}
             ผู้หญิง
@@ -77,12 +77,12 @@ export default function Register4() {
       {/* ----------------------------------------------------- */}
       {/* ส่วนรูปภาพที่ต้องการให้โดนจอกิน (จัดกลางแนวตั้ง, ชิดขวา, กินขอบ) */}
       {/* ----------------------------------------------------- */}
-      <div className="flex justify-center z-10 mt-[2.5rem] overflow-hidden animate-sizeUpdown">
+      <div className="flex justify-center z-10 mt-[1rem] overflow-hidden animate-sizeUpdown">
         <img
           src="/image%2086.png"
           alt='Decor'
           // กำหนดความกว้างและความสูงคงที่
-          className="w-full h-[540px]"
+          className="w-full h-[430px]"
         />
       </div>
 
