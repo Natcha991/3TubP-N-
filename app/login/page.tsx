@@ -65,12 +65,12 @@ export default function LoginPage() {
   };
 
   return (
-    <div className="relative flex h-screen w-screen flex-col items-center bg-gradient-to-br from-orange-300 to-orange-100">
+    <div className="relative flex h-screen w-screen flex-col overflow-hidden items-center bg-gradient-to-br from-orange-300 to-orange-100">
       <div className="absolute left-0">
-        <img src="/group%2099.png" alt="Decoration"></img>
+        <img src="/Group%2099.png" alt="Decoration"></img>
       </div>
       <div className="absolute right-0 rotate-[180deg] top-[30rem]">
-        <img src="/group%2099.png" alt="Decoration"></img>
+        <img src="/Group%2099.png" alt="Decoration"></img>
       </div>
       <div className="absolute top-[20rem] left-[0.3rem] animate-shakeright">
         <img className='' src="/image%2084.png" alt="Decoration"></img>

@@ -8,6 +8,10 @@
   --font-prompt: "Prompt", sans-serif;
 }
 
+.no-scrollbar::-webkit-scrollbar {
+    display: none;
+}
+
 .scrollbar-none::-webkit-scrollbar {
   display: none;
 }

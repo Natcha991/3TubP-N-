@@ -36,12 +36,12 @@ export default function Register5() {
     };
 
     return (
-        <div className="relative h-screen w-screen cursor-pointer flex flex-col items-center bg-gradient-to-br from-orange-300 to-orange-100">
+        <div className="relative h-screen w-screen overflow-hidden cursor-pointer flex flex-col items-center bg-gradient-to-br from-orange-300 to-orange-100">
             <div className="absolute left-0">
-                <img src="/group%2099.png"></img>
+                <img src="/Group%2099.png"></img>
             </div>
             <div className="absolute right-0 rotate-[180deg] top-[30rem]">
-                <img src="/group%2099.png"></img>
+                <img src="/Group%2099.png"></img>
             </div>
             <div className="absolute top-[20rem] left-[1.5rem]  animate-shakeright">
                 <img className='' src="/image%2084.png"></img>
@@ -88,7 +88,7 @@ export default function Register5() {
                     src="/image%20100.png"
                     alt='Decor'
                     // กำหนดความกว้างและความสูงคงที่
-                    className="w-full h-[430px]"
+                    className="w-full h-[430px] object-cover"
                 />
             </div>
 

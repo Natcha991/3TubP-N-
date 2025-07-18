@@ -289,7 +289,7 @@ ${allowedMenuNames.map((name, i) => `${i + 1}. ${name}`).join('\n')}
   };
 
   return (
-    <div className="relative font-prompt min-h-screen flex flex-col">
+    <div className="relative font-prompt min-h-screen overflow-hidden flex flex-col">
       {/* Background gradients */}
       <div className={`absolute h-[450px] w-full z-[-2] ${BgColor}`}></div>
       <div className={`absolute h-[500px] top-[28rem] w-full z-[-2] ${GrassColor}`}></div>
@@ -308,30 +308,32 @@ ${allowedMenuNames.map((name, i) => `${i + 1}. ${name}`).join('\n')}
         <div className="absolute top-[15rem] left-[-3.5rem] xl:left-[10rem] z-0">
           <img className="w-[220px] animate-sizeUpdown" src="/image%2076.png" alt="Decorative icon" />
         </div>
-        <div className="h-[650px] xl:h-[500px] xl:w-[700px] overflow-y-auto pt-[4rem] relative z-10">
-          <div ref={chatContainerRef} className="flex flex-col gap-[1rem] px-[1.5rem] ml-[4rem] pb-[2rem]">
-            {chatLog.map((msg, index) => (
-              <div key={index} className={`flex flex-col items-center gap-1 ${msg.from === "user" ? "self-end" : "self-start"}`}>
-                {msg.from === "user" && (
-                  <h1 className="text-white text-[0.7rem] self-center">{msg.timestamp}</h1>
+        {/* ในส่วนนี้ให้ Scroll Bar หายไป และ ให้ มันเลื่อน Auto ทุกครั้งที่มี Bubble ใหม่ */}
+<div className="h-[450px] xl:h-[500px] xl:w-[700px] overflow-y-scroll pt-[4rem] relative z-10 no-scrollbar">
+            <div ref={chatContainerRef} className="flex flex-col gap-[1rem] px-[1.5rem] ml-[4rem] pb-[2rem]">
+                {chatLog.map((msg, index) => (
+                    <div key={index} className={`flex flex-col items-center gap-1 ${msg.from === "user" ? "self-end" : "self-start"}`}>
+                        {msg.from === "user" && (
+                            <h1 className="text-white text-[0.7rem] self-center">{msg.timestamp}</h1>
+                        )}
+                        <div className={`flex items-start gap-2 ${msg.from === "user" ? "flex-row-reverse" : ""}`}>
+                            <img src="/image%2075.png" alt="avatar" className="w-[40px] h-[40px] rounded-full" />
+                            <div className={`break-words p-2 rounded-2xl shadow ${msg.from === "user" ? "bg-blue-500 text-white" : `bg-white text-gray-800 ${getFontSizeClass(msg.text, true)}`} max-w-[calc(100vw-150px)]`}>
+                                {msg.text}
+                            </div>
+                        </div>
+                    </div>
+                ))}
+                {isLoading && (
+                    <div className="flex items-start gap-2">
+                        <img src="/image%2075.png" alt="AI avatar" className="w-[40px] h-[40px] rounded-full" />
+                        <div className="max-w-[calc(100vw-120px)] break-words p-2 bg-gray-200 rounded-2xl shadow text-base">
+                            AI กำลังคิดคำตอบ...
+                        </div>
+                    </div>
                 )}
-                <div className={`flex items-start gap-2 ${msg.from === "user" ? "flex-row-reverse" : ""}`}>
-                  <img src="/image%2075.png" alt="avatar" className="w-[40px] h-[40px] rounded-full" />
-                  <div className={`break-words p-2 rounded-2xl shadow ${msg.from === "user" ? "bg-blue-500 text-white" : `bg-white text-gray-800 ${getFontSizeClass(msg.text, true)}`} max-w-[calc(100vw-150px)]`}>
-                    {msg.text}
-                  </div>
-                </div>
-              </div>
-            ))}
-            {isLoading && (
-              <div className="flex items-start gap-2">
-                <img src="/image%2075.png" alt="AI avatar" className="w-[40px] h-[40px] rounded-full" />
-                <div className="max-w-[calc(100vw-120px)] break-words p-2 bg-gray-200 rounded-2xl shadow text-base">
-                  AI กำลังคิดคำตอบ...
-                </div>
-              </div>
-            )}
-          </div>
+            </div>
+          {/* ถึงตรงนี้ */}
         </div>
       </div>
 

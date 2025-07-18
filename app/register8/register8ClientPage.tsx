@@ -104,12 +104,12 @@ export default function Register8() { // เปลี่ยนชื่อ Compo
   }, [lifestyles, selectedLifestyles]);
 
   return (
-    <div className="relative h-screen w-screen cursor-pointer font-prompt flex flex-col items-center bg-gradient-to-br from-orange-300 to-orange-100">
+    <div className="relative h-screen w-screen overflow-hidden cursor-pointer font-prompt flex flex-col items-center bg-gradient-to-br from-orange-300 to-orange-100">
       <div className="absolute left-0">
-        <img src="/group%2099.png" alt="Decoration"></img>
+        <img src="/Group%2099.png" alt="Decoration"></img>
       </div>
       <div className="absolute right-0 rotate-[180deg] top-[30rem]">
-        <img src="/group%2099.png" alt="Decoration"></img>
+        <img src="/Group%2099.png" alt="Decoration"></img>
       </div>
       <div className="absolute top-[35rem] left-[1.5rem] animate-shakeright">
         <img className='' src="/image%2084.png" alt="Decoration"></img>

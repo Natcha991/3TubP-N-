@@ -38,28 +38,40 @@ export default function Register2() {
   };
 
   return (
-    <div className="relative h-screen w-screen cursor-pointer flex flex-col items-center bg-gradient-to-br from-orange-300 to-orange-100">
-      <div className="absolute left-0">
-        <img src="/Group%2099.png"></img>
+    // แก้ไข: เพิ่ม flex flex-col, overflow-hidden ให้กับ div หลัก
+    // เพื่อให้จัดการ Layout ในแนวตั้งได้ดีขึ้น และซ่อน Scrollbar ที่ไม่ต้องการ
+    <div className="relative h-screen w-screen cursor-pointer flex flex-col items-center bg-gradient-to-br from-orange-300 to-orange-100 overflow-hidden">
+      {/* รูปภาพตกแต่งด้านข้าง/มุม - ยังคงใช้ absolute ได้ */}
+      <div className="absolute left-0 top-0"> {/* แก้ไข: เพิ่ม top-0 เพื่อให้ชิดขอบบน */}
+        <img src="/Group%2099.png" alt="Decoration" />
       </div>
       <div className="absolute right-0 rotate-[180deg] top-[30rem]">
-        <img src="/Group%2099.png"></img>
+        <img src="/Group%2099.png" alt="Decoration" />
       </div>
-      <div className="absolute top-[20rem] left-[1.5rem] animate-shakeright">
-        <img className='' src="/image%2084.png"></img>
+      <div className="absolute top-[20rem] left-[-1rem] animate-shakeright">
+        <img className='' src="/image%2084.png" alt="Decoration" />
       </div>
       <div className="absolute top-[30rem] left-[19rem] rotate-[35deg] animate-shakeright2">
-        <img src="/image%2084.png" className='w-[140px]'></img>
+        <img src="/image%2084.png" className='w-[140px]' alt="Decoration" />
       </div>
 
-      <div className="flex flex-col items-center mt-[5rem]">
-        <div className="w-full">
-          <h1 className='w-[330px] text-center text-[#333333] mt-2 font-prompt font-[500] text-3xl '>
-            ผมชื่อ Mr.Rice นะ<br></br>แล้วคุณละ?
-          </h1>
+      {/* แก้ไข: เพิ่ม div ครอบเนื้อหาหลักที่อยู่ใน flow (h1, input, img)
+          ให้เป็น flex-col และใช้ justify-between เพื่อจัดเรียงลูกๆ
+          และใช้ pb-[...] เพื่อเว้นที่ว่างให้ footer
+      */}
+      <div className="flex flex-col items-center justify-between h-full pt-[5rem] pb-[13rem]"> {/* แก้ไข: h-full และปรับ pb */}
+        {/* ส่วนข้อความด้านบน */}
+        <div className="flex flex-col items-center mb-4">
+          <div className="w-full">
+            <h1 className='w-[330px] text-center text-[#333333] font-prompt font-[500] text-3xl '>
+              ผมชื่อ Mr.Rice นะ<br></br>แล้วคุณละ?
+            </h1>
+          </div>
         </div>
 
-        <div className='font-prompt flex flex-col items-center mt-[2rem] z-107'>
+        {/* ส่วน Input และปุ่ม */}
+        {/* แก้ไข: เพิ่ม z-index ให้ input field เพื่อให้แน่ใจว่าอยู่เหนือ content อื่นๆ หากมีการทับซ้อน */}
+        <div className='font-prompt flex flex-col items-center mt-[2rem] z-20'> {/* แก้ไข: z-index */}
           <div className='flex items-center'>
             <input
               value={name}
@@ -72,7 +84,7 @@ export default function Register2() {
               type='submit'
               className='bg-grey-400 w-[45px] transition hover:scale-105 duration-300 cursor-pointer flex items-center justify-center rounded-4xl border-[#333333] border-2 ml-[0.5rem] h-[45px]'
             >
-              <img src="/image%2082.png"></img>
+              <img src="/image%2082.png" alt="Submit" />
             </button>
           </div>
 
@@ -81,14 +93,20 @@ export default function Register2() {
             <p className="text-red-600 text-sm mt-2">{error}</p>
           )}
         </div>
+
+        {/* แก้ไข: รูปภาพตัวละคร image_86.png รักษาสูง 430px */}
+        <div className="flex justify-center z-10 mt-[1rem] animate-sizeUpdown">
+          <img src="/image%2086.png" alt='Decor' className="w-auto h-[430px] object-cover" />
+        </div>
+
+        {/* แก้ไข: ลบ div flex-grow ที่นี่ออก และใช้ justify-between ใน parent แทน */}
+        {/* <div className="flex-grow"></div> */}
       </div>
 
-      <div className="flex justify-center z-10 mt-[1rem] overflow-hidden animate-sizeUpdown">
-        <img src="/image%2086.png" alt='Decor' className="w-auto h-[430px]" />
-      </div>
-
+      {/* ส่วนล่างสุด (เมนู/ต่อไป) - ยังคงใช้ absolute เพื่อให้ติดขอบล่าง */}
       <div className="absolute bottom-0 left-0 right-0 flex justify-center font-prompt">
         <div className="bg-white w-[500px] px-[4rem] py-[4.5rem] rounded-t-4xl shadow-lg flex justify-between">
+          {/* เนื้อหาในส่วนล่างสุด */}
         </div>
       </div>
     </div>

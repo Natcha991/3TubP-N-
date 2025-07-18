@@ -216,7 +216,7 @@ export default function Home() {
 
   if (isLoadingMenus) {
     return (
-      <div className="">
+      <div className="overflow-hidden">
         <div className="absolute left-0">
           <img src="/group%2099.png" alt="Decoration"></img>
         </div>
