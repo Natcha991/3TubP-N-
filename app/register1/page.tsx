@@ -44,7 +44,7 @@ export default function Home() {
                 {/* ----------------------------------------------------- */}
                 {/* ส่วนรูปภาพที่ต้องการให้โดนจอกิน (จัดกลางแนวตั้ง, ชิดขวา, กินขอบ) */}
                 {/* ----------------------------------------------------- */}
-                <div className="flex justify-center z-10 animate-sizeUpdown">
+                <div className="flex justify-center z-10 mt-[1.5rem] animate-sizeUpdown">
                     <img
                         src="/image%2085.png"
                         alt='Decor'

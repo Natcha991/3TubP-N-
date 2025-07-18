@@ -88,7 +88,7 @@ export default function Register4() {
           <img
             src="/image%2086.png"
             alt='Decor'
-            className="w-full h-[430px] object-cover"
+            className="w-auto h-[430px] object-cover"
           />
         </div>
 

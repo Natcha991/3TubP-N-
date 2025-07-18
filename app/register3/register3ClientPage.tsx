@@ -85,7 +85,7 @@ export default function Register3() {
                     src="/image%2087.png"
                     alt='Decor'
                     // กำหนดความกว้างและความสูงคงที่
-                    className="w-full h-[430px] object-cover" // เพิ่ม object-cover เพื่อให้รูปภาพครอบคลุมพื้นที่โดยไม่บิดเบี้ยว
+                    className="w-auto h-[430px] object-cover" // เพิ่ม object-cover เพื่อให้รูปภาพครอบคลุมพื้นที่โดยไม่บิดเบี้ยว
                     width={1000} // กำหนด width ที่เหมาะสมกับ w-full, อาจจะต้องปรับตามขนาดจริง
                     height={540} // กำหนด height ตาม className
                 />

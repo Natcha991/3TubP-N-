@@ -88,7 +88,7 @@ export default function Register5() {
                     src="/image%20100.png"
                     alt='Decor'
                     // กำหนดความกว้างและความสูงคงที่
-                    className="w-full h-[430px] object-cover"
+                    className="w-auto h-[430px] object-cover"
                 />
             </div>
 

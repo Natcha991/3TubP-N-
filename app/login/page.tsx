@@ -130,7 +130,7 @@ export default function LoginPage() {
           src="/image%2086.png"
           alt='Decor'
           // กำหนดความกว้างและความสูงคงที่
-          className="h-[430px] w-full"
+          className="h-[430px] w-auto"
         />
       </div>
     </div>

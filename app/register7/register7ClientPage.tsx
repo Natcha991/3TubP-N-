@@ -190,7 +190,7 @@ export default function Register7() { // เปลี่ยนชื่อ Compo
             <img
               src="/image%20102.png"
               alt='Decor'
-              className="w-[350px] h-[430px] animate-sizeUpdown"
+              className="w-auto h-[430px] animate-sizeUpdown"
             />
           </div>
 

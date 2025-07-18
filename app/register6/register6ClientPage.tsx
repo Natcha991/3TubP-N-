@@ -174,7 +174,7 @@ export default function Register6() {
             <img
               src="/image%20102.png"
               alt='Decor'
-              className="w-[350px] h-[430px] animate-sizeUpdown"
+              className="w-auto h-[430px] animate-sizeUpdown"
             />
           </div>
 
