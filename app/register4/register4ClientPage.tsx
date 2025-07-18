@@ -63,7 +63,7 @@ export default function Register4() {
 
         {/* ส่วนตัวเลือก ชาย หรือ หญิง */}
         {/* แก้ไข: เพิ่ม z-index ให้ตัวเลือกเพศ เพื่อให้แน่ใจว่าอยู่เหนือ content อื่นๆ หากมีการทับซ้อน */}
-        <div className="font-prompt gap-2 flex items-center mt-[2rem] cursor-pointer z-20"> {/* แก้ไข: z-index */}
+        <div className="font-prompt gap-2 flex items-center mt-[1rem] cursor-pointer z-20"> {/* แก้ไข: z-index */}
           <button
             type='button'
             onClick={() => handleSubmit('ชาย')}

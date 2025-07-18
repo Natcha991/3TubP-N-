@@ -71,7 +71,7 @@ export default function Register2() {
 
         {/* ส่วน Input และปุ่ม */}
         {/* แก้ไข: เพิ่ม z-index ให้ input field เพื่อให้แน่ใจว่าอยู่เหนือ content อื่นๆ หากมีการทับซ้อน */}
-        <div className='font-prompt flex flex-col items-center mt-[2rem] z-20'> {/* แก้ไข: z-index */}
+        <div className='font-prompt flex flex-col items-center mt-[1rem] z-20'> {/* แก้ไข: z-index */}
           <div className='flex items-center'>
             <input
               value={name}
