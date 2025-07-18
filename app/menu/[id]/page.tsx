@@ -154,10 +154,10 @@ export default function MenuPage() {
 
     if (!menu) return <div className="overflow-hidden">
         <div className="absolute left-0">
-            <img src="/group%2099.png" alt="Decoration"></img>
+            <img src="/Group%2099.png" alt="Decoration"></img>
         </div>
         <div className="absolute right-0 rotate-[180deg] top-[30rem]">
-            <img src="/group%2099.png" alt="Decoration"></img>
+            <img src="/Group%2099.png" alt="Decoration"></img>
         </div>
         <div className="absolute top-[44rem] left-[1.5rem] animate-shakeright">
             <img className='' src="/image%2084.png" alt="Decoration"></img>

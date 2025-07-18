@@ -57,14 +57,14 @@ export default function Register3() {
                         คือวันไหน?</h1>
                 </div>
 
-                <form onSubmit={handleSubmit} className="flex mt-[2rem] justify-center items-center font-prompt z-30">
+                <form onSubmit={handleSubmit} className="flex mt-[1.5rem] justify-center items-center font-prompt z-30">
                     {/* DatePicker สำหรับใส่วันเกิด */}
                     <input
                         type="date"
                         value={birthday}
                         onChange={(e) => setBirthday(e.target.value)}
                         required
-                        className="p-[0.5rem] px-[0.8rem] rounded-3xl border-[#333333] border-2 bg-white ml-[0.5rem]" // ใช้คลาส CSS เดียวกัน
+                        className="p-[0.8rem] px-[0.8rem] rounded-3xl border-[#333333] border-2 bg-white ml-[0.5rem]" // ใช้คลาส CSS เดียวกัน
                     />
 
                     {/* ปุ่ม Submit */}
