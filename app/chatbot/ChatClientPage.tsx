@@ -270,7 +270,7 @@ ${allowedMenuNames.map((name, i) => `${i + 1}. ${name}`).join('\n')}
       {/* Header */}
       <div className="relative z-20 flex justify-between m-[2rem] items-center w-[calc(100%-4rem)]">
         <div onClick={goto} className="bg-white h-[50px] flex justify-center cursor-pointer items-center w-[50px] rounded-full shadow-xl">
-          <img className="h-[15px]" src="Group%2084.png" alt="Back" />
+          <img className="h-[15px]" src="/Group%2084.png" alt="Back" />
         </div>
         <h1 className="font-bold text-2xl text-white">3 TupP chat</h1>
         <img src="/image%2075.png" alt="User avatar" />

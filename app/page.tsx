@@ -36,7 +36,7 @@ export default function Home() {
     // คุณอาจจะเพิ่ม Loader หรือ UI อื่นๆ ในขณะที่กำลังตรวจสอบ isRegistered
     if (isRegistered === null) {
         return (
-            <div className="overflow-hidden">
+            <div className="h-screen overflow-hidden">
         <div className="absolute left-0">
           <img src="Group%2099.png" alt="Decoration"></img>
         </div>
