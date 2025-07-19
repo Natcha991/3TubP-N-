@@ -309,7 +309,7 @@ ${allowedMenuNames.map((name, i) => `${i + 1}. ${name}`).join('\n')}
       </div>
 
       {/* Input field */}
-      <div className="bg-white w-[90%] fixed max-w-[500px] mx-auto mb-[4rem] rounded-full h-[45px] px-4 flex items-center shadow-md bottom-0 left-1/2 -translate-x-1/2 z-20">
+      <div className="bg-white w-[90%] fixed max-w-[500px] mx-auto mb-[3.5rem] rounded-full h-[45px] px-4 flex items-center shadow-md bottom-0 left-1/2 -translate-x-1/2 z-20">
         <input
           className="flex-1 outline-none px-2"
           type="text"
