@@ -12,7 +12,7 @@ export default function Page() {
         <div className="absolute right-0 rotate-[180deg] top-[30rem]">
           <img src="/Group%2099.png" alt="Decoration"></img>
         </div>
-        <div className="absolute top-[44rem] left-[1.5rem] animate-shakeright">
+        <div className="absolute top-[34rem] left-[1.5rem] animate-shakeright">
           <img className='' src="/image%2084.png" alt="Decoration"></img>
         </div>
         <div className="absolute top-[3rem] left-[19rem] rotate-[35deg] animate-shakeright2">
