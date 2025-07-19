@@ -262,7 +262,7 @@ ${allowedMenuNames.map((name, i) => `${i + 1}. ${name}`).join('\n')}
   };
 
   return (
-    <div className="relative font-prompt min-h-screen flex flex-col">
+    <div className="relative font-prompt overflow-hidden min-h-screen flex flex-col">
       {/* Background gradients */}
       <div className={`absolute h-[450px] w-full z-[-2] ${BgColor}`}></div>
       <div className={`absolute h-[500px] top-[28rem] w-full z-[-2] ${GrassColor}`}></div>
@@ -281,7 +281,7 @@ ${allowedMenuNames.map((name, i) => `${i + 1}. ${name}`).join('\n')}
         <div className="absolute top-[15rem] left-[-3.5rem] xl:left-[10rem] z-0">
           <img className="w-[220px] animate-sizeUpdown" src="/image%2076.png" alt="Decorative icon" />
         </div>
-        <div className="h-[650px] xl:h-[500px] xl:w-[700px] overflow-y-auto pt-[4rem] relative z-10">
+        <div className="h-[450px] no-scrollbar xl:h-[500px] xl:w-[700px] overflow-y-auto pt-[4rem] relative z-10">
           <div ref={chatContainerRef} className="flex flex-col gap-[1rem] px-[1.5rem] ml-[4rem] pb-[2rem]">
             {chatLog.map((msg, index) => (
               <div key={index} className={`flex flex-col items-center gap-1 ${msg.from === "user" ? "self-end" : "self-start"}`}>
