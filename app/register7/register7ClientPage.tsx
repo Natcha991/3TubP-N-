@@ -94,6 +94,12 @@ export default function Register7() { // เปลี่ยนชื่อ Compo
     }
   };
 
+  useEffect(() => {
+    if (selectedConditions.length === 0) {
+      setSelectedConditions(['ไม่มี']);
+    }
+  }, [selectedConditions]);
+
   // Auto scroll to first selected item on mount
   useEffect(() => {
     let timer: NodeJS.Timeout;
