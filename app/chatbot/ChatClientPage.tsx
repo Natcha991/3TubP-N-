@@ -117,7 +117,7 @@ export default function IngredientPage() {
   useEffect(() => {
     const fetchHistory = async () => {
       try {
-        const res = await fetch(`/api/chat/${userId}`);
+        const res = await fetch(`/api/saveChat/${userId}`); // ✅ แก้ตรงนี้
         if (!res.ok) throw new Error("Failed to fetch chat history");
         const data = await res.json();
         const combinedChatLog = data.flatMap((item: { chatLog: ChatMessage[] }) => item.chatLog);
