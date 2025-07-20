@@ -1,3 +1,4 @@
+//app/api/ingredient/[name]/route.ts
 import { NextRequest, NextResponse } from 'next/server';
 import { connectToDatabase } from '@/lib/mongodb';
 
