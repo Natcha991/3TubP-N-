@@ -139,7 +139,7 @@ export default function IngredientPage() {
     const request = {
       location: userLocation,
       radius: 3000,
-      keyword: 'ตลาด',
+      keyword: 'supermarket',
       type: 'point_of_interest',
     };
 
@@ -149,7 +149,7 @@ export default function IngredientPage() {
       }
     });
   }, [userLocation, isLoaded]);
-  
+
   // Navigation functions
   const gotoHome = (menuId: string | null) => {
     if (menuId) {
