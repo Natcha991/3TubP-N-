@@ -144,6 +144,8 @@ export default function IngredientPage() {
     };
 
     service.nearbySearch(request, (results, status) => {
+      console.log('📌 ผลลัพธ์ทั้งหมด:', results);
+      console.log('จำนวน:', results?.length);
       if (status === window.google.maps.places.PlacesServiceStatus.OK && results) {
         setPlaces(results);
       }
