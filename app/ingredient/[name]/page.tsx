@@ -138,20 +138,18 @@ export default function IngredientPage() {
     const service = new window.google.maps.places.PlacesService(document.createElement('div'));
     const request = {
       location: userLocation,
-      radius: 5000, // เพิ่มเป็น 5km
-      keyword: 'ตลาด ตลาดสด ตลาดนัด supermarket grocery',
+      radius: 3000,
+      keyword: 'ตลาด',
       type: 'point_of_interest',
     };
 
     service.nearbySearch(request, (results, status) => {
-      console.log('📌 ผลลัพธ์ทั้งหมด:', results);
-      console.log('จำนวน:', results?.length);
       if (status === window.google.maps.places.PlacesServiceStatus.OK && results) {
         setPlaces(results);
       }
     });
   }, [userLocation, isLoaded]);
-
+  
   // Navigation functions
   const gotoHome = (menuId: string | null) => {
     if (menuId) {
