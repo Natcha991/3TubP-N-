@@ -1,3 +1,4 @@
+//api/saveChat/route.ts
 import { NextRequest, NextResponse } from 'next/server';
 import mongoose from 'mongoose';
 
@@ -24,33 +25,12 @@ async function connectDB() {
 }
 
 export async function POST(req: NextRequest) {
-  try {
-    await connectDB();
-
-    const { sessionId, chatLog } = await req.json();
-
-    if (!sessionId || !chatLog) {
-      return NextResponse.json({ message: 'Missing sessionId or chatLog' }, { status: 400 });
-    }
-
-    const newChat = await Chat.create({ sessionId, chatLog });
-    return NextResponse.json({ message: 'Saved', data: newChat });
-  } catch (err) {
-    console.error('❌ POST Error:', err);
-    return NextResponse.json({ message: 'Error Saving Chat' }, { status: 500 });
+  await connectDB();
+  const { sessionId, chatLog } = await req.json();
+  if (!sessionId || !chatLog) {
+    return NextResponse.json({ message: 'Missing sessionId or chatLog' }, { status: 400 });
   }
+  const newChat = await Chat.create({ sessionId, chatLog });
+  return NextResponse.json({ message: 'Saved', data: newChat });
 }
 
-export async function GET(req: NextRequest) {
-  const userId = req.nextUrl.searchParams.get('userId');
-  if (!userId) return NextResponse.json({ message: 'Missing userId' }, { status: 400 });
-
-  try {
-    await connectDB();
-    const chats = await Chat.find({ sessionId: userId }).sort({ createdAt: 1 });
-    return NextResponse.json(chats);
-  } catch (err) {
-    console.error('❌ GET Error:', err);
-    return NextResponse.json({ message: 'Error fetching chats' }, { status: 500 });
-  }
-}
