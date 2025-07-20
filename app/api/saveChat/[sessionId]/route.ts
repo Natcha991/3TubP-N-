@@ -15,7 +15,7 @@ const Chat = mongoose.models.Chat || mongoose.model('Chat', ChatSchema);
 
 async function connectDB() {
   if (mongoose.connection.readyState === 0) {
-    await mongoose.connect(uri, { dbName: '3tubp' });
+    await mongoose.connect(uri, { dbName: '3tubptest' });
     console.log('✅ Connected to MongoDB');
   }
 }
