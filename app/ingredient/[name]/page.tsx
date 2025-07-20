@@ -139,7 +139,7 @@ export default function IngredientPage() {
     const request = {
       location: userLocation,
       radius: 3000,
-      keyword: 'market',
+      keyword: 'ตลาดตลาด ตลาดสด ตลาดนัด supermarket grocery',
       type: 'point_of_interest',
     };
 
