@@ -150,7 +150,7 @@ export default function Home() {
       key={item._id}
       // **แก้ไข: ส่ง userId ไปยัง MenuPage จาก MenuCard**
       onClick={() => goto(item._id)}
-      className="bg-white w-[155px] py-[1rem] rounded-2xl transform transition duration-300 hover:scale-103 cursor-pointer shadow-md hover:shadow-lg"
+      className="w-[155px] py-[1rem] rounded-2xl bg-[rgba(255,255,255,0.38)] transform transition duration-300 hover:scale-103 cursor-pointer shadow-lg shadow-[#ffac7852] hover:shadow-xl"
     >
       <div className="flex flex-col items-center">
         <img
@@ -290,14 +290,14 @@ export default function Home() {
 
           {specialMenu && (
             <div
-              className="flex items-center h-[140px] w-[340px] bg-white rounded-bl-4xl rounded-tr-4xl rounded-br-md rounded-tl-md cursor-pointer shadow-lg hover:shadow-xl transition-shadow"
+              className="flex items-center h-[140px] w-[340px] bg-white rounded-bl-4xl rounded-tr-4xl rounded-br-md rounded-tl-md cursor-pointer shadow-lg shadow-[#ffac7853] hover:scale-102 duration-500"
               // **แก้ไข: ส่ง userId ไปยัง MenuPage จาก Special Menu**
               onClick={() => goto(specialMenu._id)}
             >
               <img
                 src={getImageUrl(specialMenu.image)}
                 alt={specialMenu.name || 'เมนูเสริม'}
-                className="h-[150px] w-[150px] object-cover animate-Open rounded-lg ml-2"
+                className="h-[150px] w-[150px] object-cover animate-Open rounded-lg ml-2 "
                 onError={(e) => {
                   const target = e.target as HTMLImageElement;
                   target.onerror = null;
@@ -307,7 +307,7 @@ export default function Home() {
               <div className="ml-[1rem] flex">
                 <div className="w-[0.1rem] h-[4rem] mt-[0.8rem] mr-[0.8rem] ml-[-0.8rem] bg-[#333333]"></div>
                 <div className="">
-                  <h1 className='font-prompt font-bold text-[1.1rem] mb-1 w-[150px] text-gray-800'>
+                  <h1 className='font-prompt font-bold text-[1.1rem] mb-1 w-[140px] text-gray-800'>
                     {specialMenu.name || 'เมนูพิเศษ'}
                   </h1>
                   <div className="flex items-baseline">

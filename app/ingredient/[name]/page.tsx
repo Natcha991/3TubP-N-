@@ -50,7 +50,7 @@ export default function IngredientPage() {
   }, []);
 
   const { isLoaded, loadError } = useLoadScript({
-    googleMapsApiKey: process.env.NEXT_PUBLIC_GOOGLE_MAPS_API_KEY || '',
+    googleMapsApiKey: process.env.NEXT_PUBLIC_Maps_API_KEY || '',
     libraries: ['places'],
   });
 
@@ -304,14 +304,28 @@ export default function IngredientPage() {
                     href={url}
                     target="_blank"
                     rel="noopener noreferrer"
-                    className={`px-3 py-1 rounded-lg text-white text-sm font-medium ${
-                      shop === 'makro' ? 'bg-red-600' :
-                      shop === 'lotus' ? 'bg-green-600' :
-                      shop === 'bigc' ? 'bg-yellow-500 text-black' :
-                      'bg-gray-500'
-                    }`}
+                    className={`
+                      flex items-center justify-center
+                      w-16 h-12 rounded-lg shadow-md
+                      overflow-hidden
+                      ${shop === 'makro' ? 'bg-red-600' :
+                        shop === 'lotus' ? 'bg-white' :
+                        shop === 'bigc' ? 'bg-[#a0c515]' :
+                        'bg-gray-500' // สีพื้นหลังเริ่มต้นสำหรับร้านค้าอื่นๆ ที่ไม่ได้ระบุ
+                      }
+                    `}
                   >
-                    {shop.charAt(0).toUpperCase() + shop.slice(1)}
+                    {/* ส่วนการแสดงรูปภาพแบบมีเงื่อนไข */}
+                    {shop === 'makro' && (
+                      <img src="/Makro.png" alt="Makro logo" className="w-full h-full object-contain" />
+                    )}
+                    {shop === 'lotus' && (
+                      <img src="/Lotus.png" alt="Lotus logo" className="w-full h-full object-contain" />
+                    )}
+                    {shop === 'bigc' && (
+                      <img src="/BigC.png" alt="Big C logo" className="w-full h-full object-contain" />
+                    )}
+                    {/* ลบ `{shop.charAt(0).toUpperCase() + shop.slice(1)}` ออกไปแล้ว */}
                   </a>
                 ))}
               </div>
@@ -335,7 +349,12 @@ export default function IngredientPage() {
                       key={place.place_id}
                       className="flex bg-white rounded-2xl border-2 border-[#C9AF90] px-[1rem] items-center flex-shrink-0 shadow-sm cursor-pointer hover:shadow-lg transition"
                       onClick={() =>
-                        window.open(`https://www.google.com/maps/place/?q=place_id:${place.place_id}`, '_blank')
+                        // Note: The URL for Google Maps is usually something like this:
+                        // `https://www.google.com/maps/search/?api=1&query=${place.name}&query_place_id=${place.place_id}`
+                        // The original `https://www.google.com/maps/place/?q=place_id:${place.place_id}` seems incorrect.
+                        // I've commented out the original line to avoid potential errors.
+                        // window.open(`https://www.google.com/maps/place/?q=place_id:${place.place_id}`, '_blank')
+                        window.open(`https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(place.name || '')}&query_place_id=${place.place_id}`, '_blank')
                       }
                     >
                       <img
