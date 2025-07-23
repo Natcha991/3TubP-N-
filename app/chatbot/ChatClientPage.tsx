@@ -4,7 +4,7 @@ import { useRouter, useSearchParams } from "next/navigation";
 import { useState, useRef, useEffect } from "react";
 import { GoogleGenerativeAI } from "@google/generative-ai";
 import menuData from '@/data/menu_image_mapping.json';
-import React, { useCallback} from 'react';
+import React, { useCallback } from 'react';
 
 interface ChatMessage {
   from: string;
@@ -104,7 +104,7 @@ export default function IngredientPage() {
       ]);
       setIsLoading(false);
     }
-}, [userId, genAI]);
+  }, [userId, genAI]);
 
   useEffect(() => {
     const autoMessage = topic && topicMessages[topic];
@@ -136,13 +136,13 @@ export default function IngredientPage() {
   }, [chatLog, isLoading]);
 
   const getFormattedTime = (): string => {
-      const now = new Date();
-      const options: Intl.DateTimeFormatOptions = {
-        hour: "2-digit",
-        minute: "2-digit",
-        hour12: false,
-        timeZone: "Asia/Bangkok",
-      };
+    const now = new Date();
+    const options: Intl.DateTimeFormatOptions = {
+      hour: "2-digit",
+      minute: "2-digit",
+      hour12: false,
+      timeZone: "Asia/Bangkok",
+    };
 
     return new Intl.DateTimeFormat("th-TH", options).format(now);
   };
@@ -178,7 +178,7 @@ export default function IngredientPage() {
       setBgColor("bg-gradient-to-b from-blue-400 to-orange-100");
       setGrassColor("bg-[#AFD39A]") // สีพื้นหลังปกติ
     }
-  }, []); 
+  }, []);
 
 
   const getFontSizeClass = (text: string, isAI: boolean) => {
@@ -188,7 +188,7 @@ export default function IngredientPage() {
     return "text-base";
   };
 
-  
+
 
   const handleSend = async () => {
     if (message.trim() === "") return;
@@ -206,7 +206,7 @@ export default function IngredientPage() {
     try {
       const model = genAI.getGenerativeModel({
         model: "gemini-2.5-flash",
-       systemInstruction: `คุณเป็นนักโภชนาการผู้ชายที่ใจดี อ่อนโยน สุภาพ และให้คำแนะนำด้านอาหารอย่างเป็นธรรมชาติ เหมือนเพื่อนที่คุยกันสบาย ๆ นอกจากนี้คุณยังเป็นเชี่ยวชาญในเรื่องข้าวโดยเฉพาะข้าวกล้อง ที่อยากจะใช้ข้าวกล้องในการดูแลสุขภาพ
+        systemInstruction: `คุณเป็นนักโภชนาการผู้ชายที่ใจดี อ่อนโยน สุภาพ และให้คำแนะนำด้านอาหารอย่างเป็นธรรมชาติ เหมือนเพื่อนที่คุยกันสบาย ๆ นอกจากนี้คุณยังเป็นเชี่ยวชาญในเรื่องข้าวโดยเฉพาะข้าวกล้อง ที่อยากจะใช้ข้าวกล้องในการดูแลสุขภาพ
 
 📌 แนวทางการพูด:
 - ตอบสั้น กระชับ ไม่เกิน 4 บรรทัดทุกคำถาม
@@ -227,7 +227,8 @@ ${allowedMenuNames.map((name, i) => `${i + 1}. ${name}`).join('\n')}
 - หากผู้ใช้พูดถึง “ปัญหาสุขภาพ” และต้องการคำแนะนำ → coach โดยถามย้อนกลับสั้น ๆ ให้ผู้ใช้คิดทบทวน
 -หากระหว่างการcoachมีเกี่ยวรายละเอียดเกี่ยวกับการกินคุณลองสอดแทรกข้าวกล้องตามความคิดของคุณเข้าไปด้วย
 - หากผู้ใช้ถามเรื่องนอกเหนือจากอาหาร, สุขภาพ, การออกกำลังกาย และการดูแลตนเอง → ตอบว่า:
-"ขออภัยครับ ผมสามารถตอบได้เฉพาะเรื่องอาหารและสุขภาพเท่านั้นนะครับ"`,});
+"ขออภัยครับ ผมสามารถตอบได้เฉพาะเรื่องอาหารและสุขภาพเท่านั้นนะครับ"`,
+      });
       const historyText = [...chatLog, userChat]
         .map((msg) => `${msg.from === "user" ? "ผู้ใช้" : "AI"}: ${msg.text}`)
         .join("\n");
@@ -260,6 +261,12 @@ ${allowedMenuNames.map((name, i) => `${i + 1}. ${name}`).join('\n')}
     } finally {
       setIsLoading(false);
     }
+
+    useEffect(() => {
+      if (chatContainerRef.current) {
+        chatContainerRef.current.scrollTop = chatContainerRef.current.scrollHeight;
+      }
+    }, [chatLog, isLoading]);
   };
 
   return (
@@ -277,13 +284,14 @@ ${allowedMenuNames.map((name, i) => `${i + 1}. ${name}`).join('\n')}
         <img src="/image%2075.png" alt="User avatar" />
       </div>
 
-      {/* Chat container */}
+      {/*ผมต้องการให้ตรงนี้ในส่วนของ แชท จะเลื่อนลงมาล่างสุดหรือปัจจุบัน โดยอัตโนมัติ*/}
       <div className="sm:flex flex-col items-center">
         <div className="absolute top-[15rem] left-[-3.5rem] xl:left-[10rem] z-0">
           <img className="w-[220px] animate-sizeUpdown" src="/image%2076.png" alt="Decorative icon" />
         </div>
-        <div className="h-[450px] no-scrollbar xl:h-[500px] xl:w-[700px] overflow-y-auto pt-[4rem] relative z-10">
-          <div ref={chatContainerRef} className="flex flex-col gap-[1rem] px-[1.5rem] ml-[4rem] pb-[2rem]">
+        {/* ✅ ย้าย ref={chatContainerRef} มาไว้ที่ div ที่มี overflow-y-auto */}
+        <div ref={chatContainerRef} className="h-[450px] no-scrollbar xl:h-[500px] xl:w-[700px] overflow-y-auto pt-[4rem] relative z-10">
+          <div className="flex flex-col gap-[1rem] px-[1.5rem] ml-[4rem] pb-[2rem]">
             {chatLog.map((msg, index) => (
               <div key={index} className={`flex flex-col items-center gap-1 ${msg.from === "user" ? "self-end" : "self-start"}`}>
                 {msg.from === "user" && (
@@ -308,6 +316,7 @@ ${allowedMenuNames.map((name, i) => `${i + 1}. ${name}`).join('\n')}
           </div>
         </div>
       </div>
+      {/* ถึงตรงนี้ในส่วนของแชท */}
 
       {/* Input field */}
       <div className="bg-white w-[90%] fixed max-w-[500px] mx-auto mb-[3.5rem] rounded-full h-[45px] px-4 flex items-center shadow-md bottom-0 left-1/2 -translate-x-1/2 z-20">
