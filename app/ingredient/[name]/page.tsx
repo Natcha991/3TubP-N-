@@ -145,7 +145,11 @@ export default function IngredientPage() {
 
     service.nearbySearch(request, (results, status) => {
       if (status === window.google.maps.places.PlacesServiceStatus.OK && results) {
+        console.log("✅ พบร้านค้า:", results.length); // <-- แสดงจำนวนร้าน
+        console.log("📦 รายการร้าน:", results);         // <-- แสดงรายละเอียดทั้งหมด
         setPlaces(results);
+      } else {
+        console.warn("❌ ไม่พบร้านค้าใกล้คุณ หรือเกิดข้อผิดพลาด:", status);
       }
     });
   }, [userLocation, isLoaded]);
