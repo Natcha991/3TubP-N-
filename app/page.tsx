@@ -75,8 +75,8 @@ export default function Home() {
             {/* ส่วนข้อความด้านบน */}
             <div className="block mt-[8rem]">
                 <div className="w-[300px]">
-                    <h1 className='text-[#FF4545] font-prompt font-[600] text-7xl animate-dopdop'>10 บาท</h1>
-                    <h1 className='w-[200px] text-[#333333] mt-2 font-prompt font-[500] text-2xl'>เปลี่ยนชีวิต คุณได้ด้วยการกิน</h1>
+                    <h1 className='text-[#FF4545] font-prompt font-[600] text-7xl animate-dopdop'>ข้าวขาว</h1>
+                    <h1 className='w-[200px] text-[#333333] mt-2 font-prompt font-[500] text-2xl'>ศัตรูของคนไทย โดยไม่รู้ตัว</h1>
                 </div>
             </div>
 
@@ -102,14 +102,14 @@ export default function Home() {
             <div className="absolute bottom-0 left-0 shadow-3xl right-0 flex justify-center font-prompt">
                 <div className="bg-white w-[500px] px-[4rem] py-[3rem] rounded-t-4xl shadow-lg flex justify-between">
                     {/* ปุ่ม "ต่อไป" - เรียก handleNavigationClick เพื่อตรวจสอบสถานะ */}
-                    <div onClick={handleNavigationClick} className="flex items-center cursor-pointer">
+                    <div onClick={handleNavigationClick} className="flex relative items-center cursor-pointer">
                         <h1 className='bg-[#ff9e303e] text-2xl rounded-4xl py-[0.3rem] px-[1.5rem]'>ต่อไป</h1>
-                        <img className='absolute left-[9.2rem] p-[0.5rem] w-[2.5rem] h-[2.5rem] rounded-4xl bg-[#FFBA9F] ' src="/image%2082.png" alt='Next'></img>
+                        <img className='absolute left-[5.3rem] p-[0.5rem] w-[2.5rem] h-[2.5rem] rounded-4xl bg-[#FFBA9F] ' src="/image%2082.png" alt='Next'></img>
                     </div>
                     {/* ปุ่ม "เมนู" - เรียก handleNavigationClick เพื่อตรวจสอบสถานะ */}
-                    <div onClick={handleNavigationClick} className="flex items-center pr-[1rem] cursor-pointer">
+                    <div onClick={handleNavigationClick} className="flex relative items-center pr-[1rem] cursor-pointer">
                         <h1 className='bg-[#ff9e303e] text-2xl rounded-4xl py-[0.3rem] px-[1.5rem]'>เมนู</h1>
-                        <img className='absolute left-[19.8rem] p-[0.5rem] w-[2.5rem] h-[2.5rem] rounded-4xl bg-[#FFBA9F] ' src="/image%2083.png" alt='Next'></img>
+                        <img className='absolute left-[4.5rem] p-[0.5rem] w-[2.5rem] h-[2.5rem] rounded-4xl bg-[#FFBA9F] ' src="/image%2083.png" alt='Next'></img>
                     </div>
                 </div>
             </div>
