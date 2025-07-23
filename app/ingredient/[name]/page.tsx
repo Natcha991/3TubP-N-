@@ -50,7 +50,7 @@ export default function IngredientPage() {
   }, []);
 
   const { isLoaded, loadError } = useLoadScript({
-    googleMapsApiKey: process.env.NEXT_PUBLIC_Maps_API_KEY || '',
+    googleMapsApiKey: process.env.NEXT_PUBLIC_GOOGLE_MAPS_API_KEY || '',
     libraries: ['places'],
   });
 
