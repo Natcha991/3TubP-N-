@@ -261,12 +261,6 @@ ${allowedMenuNames.map((name, i) => `${i + 1}. ${name}`).join('\n')}
     } finally {
       setIsLoading(false);
     }
-
-    useEffect(() => {
-      if (chatContainerRef.current) {
-        chatContainerRef.current.scrollTop = chatContainerRef.current.scrollHeight;
-      }
-    }, [chatLog, isLoading]);
   };
 
   return (
