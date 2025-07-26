@@ -104,7 +104,7 @@ export default function Register8() { // เปลี่ยนชื่อ Compo
   }, [lifestyles, selectedLifestyles]);
 
   return (
-    <div className="relative h-screen w-screen overflow-hidden cursor-pointer font-prompt flex flex-col items-center bg-gradient-to-br from-orange-300 to-orange-100">
+    <div className="relative h-[731px] w-screen overflow-hidden cursor-pointer font-prompt flex flex-col items-center bg-gradient-to-br from-orange-300 to-orange-100">
       <div className="absolute left-0">
         <img src="/Group%2099.png" alt="Decoration"></img>
       </div>
@@ -189,7 +189,7 @@ export default function Register8() { // เปลี่ยนชื่อ Compo
           </div>
 
           {/* ส่วนล่างสุด (เมนู/ต่อไป) */}
-          <div className="absolute bottom-0 left-0 right-0 flex justify-center font-prompt">
+          <div className="absolute top-[591px] left-0 right-0 flex justify-center font-prompt">
             <div className="bg-white w-[500px] px-[4rem] py-[4.5rem] rounded-t-4xl shadow-lg flex justify-between">
               {/* สามารถเพิ่มเนื้อหาสำหรับส่วนล่างสุดได้ที่นี่ */}
             </div>

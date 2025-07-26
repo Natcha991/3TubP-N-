@@ -14,7 +14,7 @@ export default function Home() {
         // ใช้ h-screen เพื่อให้ div หลักสูงเท่า viewport
         // ใช้ overflow-hidden เพื่อซ่อน scrollbar ที่อาจจะเกิดจากการล้น
         // และ flex flex-col เพื่อจัดเรียงเนื้อหาหลัก
-        <div onClick={goto} className="relative h-screen w-screen cursor-pointer flex flex-col items-center bg-gradient-to-br from-orange-300 to-orange-100 overflow-hidden">
+        <div onClick={goto} className="relative h-[731px] w-screen cursor-pointer flex flex-col items-center bg-gradient-to-br from-orange-300 to-orange-100 overflow-hidden">
 
             {/* รูปภาพตกแต่งด้านข้าง/มุม - ยังคงใช้ absolute ได้ */}
             <div className="absolute left-0 top-0">
@@ -60,7 +60,7 @@ export default function Home() {
 
             {/* ส่วนล่างสุด (เมนู/ต่อไป) - ยังคงใช้ absolute เพื่อให้ติดขอบล่าง */}
             {/* ต้องมั่นใจว่า bottom-0 ทำให้มันอยู่ชิดขอบล่างของ parent div หลัก (h-screen) */}
-            <div className="absolute bottom-0 left-0 right-0 flex justify-center font-prompt">
+            <div className="absolute top-[591px] left-0 right-0 flex justify-center font-prompt">
                 <div className="bg-white w-[500px] px-[4rem] py-[4.5rem] rounded-t-4xl shadow-lg flex justify-between">
                     {/* เนื้อหาในส่วนล่างสุด */}
                 </div>

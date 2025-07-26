@@ -70,7 +70,7 @@ export default function LoginPage() {
   };
 
   return (
-    <div className="relative flex h-screen w-screen flex-col overflow-hidden items-center bg-gradient-to-br from-orange-300 to-orange-100">
+    <div className="relative flex h-[731px] w-screen flex-col overflow-hidden items-center bg-gradient-to-br from-orange-300 to-orange-100">
       <div className="absolute left-0">
         <img src="/Group%2099.png" alt="Decoration"></img>
       </div>

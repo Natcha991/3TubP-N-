@@ -32,7 +32,7 @@ export default function Register3() {
     };
 
     return (
-        <div className="relative h-screen w-screen cursor-pointer flex flex-col items-center bg-gradient-to-br from-orange-300 to-orange-100">
+        <div className="relative h-[731px] w-screen cursor-pointer flex flex-col items-center bg-gradient-to-br from-orange-300 to-orange-100">
             {/* ภาพประกอบด้านซ้ายบน */}
             <div className="absolute left-0 top-0"> {/* เพิ่ม top-0 เพื่อให้ชิดขอบบน */}
                 <img src="/Group%2099.png" alt="Decoration" width={200} height={200} /> {/* กำหนด width, height */}
@@ -92,7 +92,7 @@ export default function Register3() {
             </div>
 
             {/* ส่วนล่างสุด (เมนู/ต่อไป) */}
-            <div className="absolute bottom-0 left-0 right-0 flex justify-center font-prompt">
+            <div className="absolute top-[591px] left-0 right-0 flex justify-center font-prompt">
                 <div className="bg-white w-[500px] px-[4rem] py-[4.5rem] rounded-t-4xl shadow-lg flex justify-between">
                     {/* ถ้ามีปุ่ม "ต่อไป" หรือเนื้อหาอื่น ๆ ในส่วนนี้ ให้เพิ่มได้เลย */}
                 </div>

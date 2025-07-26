@@ -34,7 +34,7 @@ export default function Register4() {
   return (
     // แก้ไข: เพิ่ม flex flex-col, overflow-hidden ให้กับ div หลัก
     // เพื่อให้จัดการ Layout ในแนวตั้งได้ดีขึ้น และซ่อน Scrollbar ที่ไม่ต้องการ
-    <div className="relative h-screen w-screen cursor-pointer flex flex-col items-center bg-gradient-to-br from-orange-300 to-orange-100 overflow-hidden">
+    <div className="relative h-[731px] w-screen cursor-pointer flex flex-col items-center bg-gradient-to-br from-orange-300 to-orange-100 overflow-hidden">
       {/* รูปภาพตกแต่งด้านข้าง/มุม - ยังคงใช้ absolute ได้ */}
       <div className="absolute left-0 top-0"> {/* แก้ไข: เพิ่ม top-0 เพื่อให้ชิดขอบบน */}
         <img src="/Group%2099.png" alt="Decoration"></img>
@@ -97,7 +97,7 @@ export default function Register4() {
       </div>
 
       {/* ส่วนล่างสุด (เมนู/ต่อไป) - ยังคงใช้ absolute เพื่อให้ติดขอบล่าง */}
-      <div className="absolute bottom-0 left-0 right-0 flex justify-center font-prompt">
+      <div className="absolute top-[591px] left-0 right-0 flex justify-center font-prompt">
         <div className="bg-white w-[500px] px-[4rem] py-[4.5rem] rounded-t-4xl shadow-lg flex justify-between">
           {/* สามารถเพิ่มเนื้อหาสำหรับส่วนล่างสุดได้ที่นี่ */}
         </div>

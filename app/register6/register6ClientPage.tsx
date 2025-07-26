@@ -109,7 +109,7 @@ export default function Register6() {
   }, [selectedGoals, goals]); // เพิ่ม goals ใน dependency array ด้วย
 
   return (
-    <div className="relative min-h-screen w-screen cursor-pointer overflow-hidden font-prompt flex flex-col items-center bg-gradient-to-br from-orange-300 to-orange-100">
+    <div className="relative h-[731px] w-screen cursor-pointer overflow-hidden font-prompt flex flex-col items-center bg-gradient-to-br from-orange-300 to-orange-100">
       {/* Background Decorations - ปรับ z-index ให้ต่ำ เพื่อไม่ให้บัง content หลัก */}
       <div className="absolute left-0 top-0 z-0"> {/* เพิ่ม top-0 เพื่อให้เริ่มจากขอบบน */}
         <img src="/Group%2099.png" alt="Decoration"></img>
@@ -200,7 +200,7 @@ export default function Register6() {
       </div>
 
       {/* Bottom section (Footer like) */}
-      <div className="absolute bottom-0 left-0 right-0 flex justify-center font-prompt"> {/* ปรับ z-index */}
+      <div className="absolute top-[591px] left-0 right-0 flex justify-center font-prompt"> {/* ปรับ z-index */}
         <div className="bg-white w-[500px] px-[4rem] py-[4.5rem] rounded-t-4xl shadow-lg flex justify-between">
           {/* สามารถเพิ่มเนื้อหาสำหรับส่วนล่างสุดได้ที่นี่ */}
         </div>
