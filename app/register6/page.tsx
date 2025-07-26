@@ -5,7 +5,7 @@ import { Suspense } from 'react';
 
 export default function Page() {
   return (
-    <Suspense fallback={<div className="h-screen overflow-hidden">
+    <Suspense fallback={<div className="h-[731px] overflow-hidden">
         <div className="absolute left-0">
           <img src="/Group%2099.png" alt="Decoration"></img>
         </div>

@@ -152,7 +152,7 @@ export default function MenuPage() {
         return "/methods/default.png";
     };
 
-    if (!menu) return <div className="h-screen overflow-hidden">
+    if (!menu) return <div className="h-[731px] overflow-hidden">
         <div className="absolute left-0">
             <img src="/Group%2099.png" alt="Decoration"></img>
         </div>
