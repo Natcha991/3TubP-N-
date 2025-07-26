@@ -19,7 +19,7 @@ export default function Home() {
   // ดึง userId จาก URL (id query parameter)
   // หรือให้เป็น string ว่าง ถ้าไม่มี (แต่ควรจะมีเสมอสำหรับการใช้งานจริง)
   const userId = searchParams.get('id') || '';
-
+  const [feedMenus, setFeedMenus] = useState<MenuItem[]>([]);
   const [menus, setMenus] = useState<MenuItem[]>([]);
   const [isLoadingMenus, setIsLoadingMenus] = useState(true);
 
@@ -108,8 +108,10 @@ export default function Home() {
       } else {
         const validMenus = newMenus.filter((m) => m && m._id && m.name);
 
-        const displayMenus = validMenus.slice(0, 4);
-        const supplementMenu = validMenus.length > 4 ? validMenus[4] : validMenus[0];
+        const generalMenus = validMenus.filter(m => !m.name.includes('ข้าวกล้อง'));
+
+        const displayMenus = generalMenus.slice(0, 4);
+        const supplementMenu = generalMenus.length > 4 ? generalMenus[4] : generalMenus[0];
 
         setMenus(displayMenus);
         setSpecialMenu(supplementMenu);
@@ -128,9 +130,25 @@ export default function Home() {
     }
   }, [userId]);
 
+  // โหลดเมนูแนะนำจาก AI
   useEffect(() => {
     fetchMenus();
   }, [userId, fetchMenus]);
+
+  // โหลด feed เมนูข้าวกล้องที่คุณอาจสนใจ
+  useEffect(() => {
+    if (!userId) return;
+    const fetchFeed = async () => {
+      try {
+        const res = await fetch(`/api/menu/feed?userId=${userId}`);
+        const data = await res.json();
+        setFeedMenus(data);
+      } catch (error) {
+        console.error("Feed error:", error);
+      }
+    };
+    fetchFeed();
+  }, [userId]);
 
 
 
@@ -324,6 +342,31 @@ export default function Home() {
           <div className="grid grid-cols-2 mb-[2rem] gap-4">
             {menus.slice(2, 4).map(renderMenuCard)}
           </div>
+
+          {feedMenus.length > 0 && (
+          <div className="relative w-full max-w-[450px] mt-[3rem] mb-[3rem]">
+            <h1 className="font-[600] text-[#333333] mb-[2rem] text-[1.6rem]">เมนูข้าวกล้องที่คุณอาจสนใจ</h1>
+            <div className="flex gap-2 justify-center flex-wrap">
+              {feedMenus.map((menu) => (
+                <div
+                  key={menu._id}
+                  onClick={() => router.push(`/menu/${menu._id}?userId=${userId}`)}
+                  className="flex flex-col items-center w-[130px] bg-white border-2 border-[#C9AF90] rounded-t-full shadow-sm cursor-pointer transform transition duration-300 hover:scale-105"
+                >
+                  <img
+                    src={menu.image ? `/menus/${encodeURIComponent(menu.image)}` : "/default.png"}
+                    alt={menu.name}
+                    width={90}
+                    height={90}
+                  />
+                  <h1 className="text-[0.8rem] my-[0.4rem] text-[#953333] text-center px-1">
+                    {menu.name}
+                  </h1>
+                </div>
+              ))}
+            </div>
+          </div>
+        )}
         </div>
       </div>
     </div>
