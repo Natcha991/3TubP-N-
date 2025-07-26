@@ -38,19 +38,19 @@ export default function Register3() {
         <div className="relative h-[731px] w-screen cursor-pointer flex flex-col items-center bg-gradient-to-br from-orange-300 to-orange-100">
             {/* ภาพประกอบด้านซ้ายบน */}
             <div className="absolute left-0 top-0"> {/* เพิ่ม top-0 เพื่อให้ชิดขอบบน */}
-                <img src="/Group%2099.png" alt="Decoration" width={200} height={200} /> {/* กำหนด width, height */}
+                <img src="/Group%2099.png" alt="Decoration" /> {/* กำหนด width, height */}
             </div>
             {/* ภาพประกอบด้านขวาล่าง */}
             <div className="absolute right-0 rotate-[180deg] top-[30rem]">
-                <img src="/Group%2099.png" alt="Decoration" width={200} height={200} /> {/* กำหนด width, height */}
+                <img src="/Group%2099.png" alt="Decoration" /> {/* กำหนด width, height */}
             </div>
             {/* ภาพประกอบเคลื่อนไหว */}
-            <div className="absolute top-[20rem] left-[1.5rem] animate-shakeright">
-                <img className='' src="/image%2084.png" alt="Decoration" width={100} height={100} /> {/* กำหนด width, height */}
+            <div className="absolute top-[20rem] left-[1.5rem] w-[100px] animate-shakeright">
+                <img className='' src="/image%2084.png" alt="Decoration"  /> {/* กำหนด width, height */}
             </div>
             {/* ภาพประกอบเคลื่อนไหวอีกอัน */}
             <div className="absolute top-[30rem] left-[19rem] rotate-[35deg] animate-shakeright2">
-                <img src="/image%2084.png" className='w-[140px]' alt="Decoration" width={140} height={140} /> {/* กำหนด width, height */}
+                <img src="/image%2084.png" className='w-[140px]' alt="Decoration"  /> {/* กำหนด width, height */}
             </div>
 
             {/* ส่วนข้อความด้านบนและ Form สำหรับ input */}
