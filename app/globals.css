@@ -287,4 +287,43 @@ body {
 
 .animate-dopdop {
 	animation: dopdop 4s ease-in-out infinite;
+} 
+
+.animate-press {
+    animation: button-press-animation 0.3s ease-in-out; /* ปรับ duration ให้สั้นลงเล็กน้อยเพื่อให้เข้ากับการเปลี่ยนหน้า */
+}
+
+@keyframes button-press-animation {
+    0% {
+        transform: scale(1);
+        box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1); /* default shadow */
+    }
+    50% {
+        transform: scale(0.95); /* Scale down slightly on press */
+        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05); /* smaller shadow */
+    }
+    100% {
+        transform: scale(1);
+        box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    }
+}
+
+/* Optional: Add a flash effect for the button text background */
+.animate-flash-fill {
+    animation: flash-fill-animation 0.5s ease-in-out;
+}
+
+@keyframes flash-fill-animation {
+    0% {
+        background-color: transparent;
+        color: inherit;
+    }
+    20% {
+        background-color: rgba(255, 170, 0, 0.2);
+        color: #fff;
+    }
+    100% {
+        background-color: transparent;
+        color: inherit;
+    }
 }

@@ -5,7 +5,9 @@ import React, { useEffect, useState } from 'react';
 
 export default function Home() {
     const router = useRouter();
-    const [isRegistered, setIsRegistered] = useState<boolean | null>(null); // สถานะว่าเคยลงทะเบียนแล้วหรือยัง
+    const [isRegistered, setIsRegistered] = useState<boolean | null>(null);
+    const [isNextAnimating, setIsNextAnimating] = useState(false);
+    const [isMenuAnimating, setIsMenuAnimating] = useState(false);
 
     useEffect(() => {
         // ตรวจสอบ Local Storage เมื่อ Component โหลดครั้งแรก
@@ -17,20 +19,37 @@ export default function Home() {
     }, []); // ให้ทำงานแค่ครั้งเดียวเมื่อ Component mount
 
     // ฟังก์ชันสำหรับจัดการการคลิกปุ่ม "ต่อไป" และ "เมนู"
-    const handleNavigationClick = () => {
+    const handleNavigationClick = (buttonType: 'next' | 'menu') => {
         if (isRegistered === null) {
-            // ยังไม่โหลดสถานะการลงทะเบียน อาจจะรอสักครู่หรือแสดง Loading
             console.log("Checking registration status, please wait...");
-            return; // ไม่ทำอะไรต่อจนกว่าสถานะจะพร้อม
+            return;
         }
 
-        if (isRegistered) {
-            // ถ้าเคยลงทะเบียนแล้ว ให้ไปหน้า Login
-            router.push("/login");
+        // Set the appropriate animation state based on buttonType
+        if (buttonType === 'next') {
+            setIsNextAnimating(true);
         } else {
-            // ถ้ายังไม่เคยลงทะเบียน ให้ไปหน้า Register1
-            router.push("/register1");
+            setIsMenuAnimating(true);
         }
+
+        // Animation duration (should match your CSS animation duration, e.g., 0.3s)
+        const animationDuration = 300; // milliseconds
+
+        setTimeout(() => {
+            // Reset animation state after the delay (optional, but good practice if not immediately navigating)
+            if (buttonType === 'next') {
+                setIsNextAnimating(false);
+            } else {
+                setIsMenuAnimating(false);
+            }
+
+            // Navigate based on registration status
+            if (isRegistered) {
+                router.push("/login");
+            } else {
+                router.push("/register1");
+            }
+        }, animationDuration);
     };
 
     // คุณอาจจะเพิ่ม Loader หรือ UI อื่นๆ ในขณะที่กำลังตรวจสอบ isRegistered
@@ -85,7 +104,7 @@ export default function Home() {
             {/* ----------------------------------------------------- */}
             <div className="absolute right-0 top-[25rem] -translate-y-55 transform translate-x-23 md:translate-x-12 ">
                 {/* Mr.Rice bubble */}
-                <div className="bg-[#f1c783a4] absolute top-[14rem] left-[-1rem] border-white border-2 inline-flex p-[1rem] px-[1.7rem] font-Unbounded text-[#333333] rounded-4xl z-10">
+                <div className="bg-[#f1c783] opacity-50 absolute top-[14rem] left-[-1rem] border-white border-2 inline-flex p-[1rem] px-[1.7rem] font-Unbounded text-[#333333] rounded-4xl z-10">
                     Mr.Rice
                 </div>
                 <img
@@ -102,13 +121,13 @@ export default function Home() {
             <div className="absolute bottom-0 left-0 shadow-3xl right-0 flex justify-center font-prompt">
                 <div className="bg-white w-[500px] px-[4rem] py-[3rem] rounded-t-4xl shadow-lg flex justify-between">
                     {/* ปุ่ม "ต่อไป" - เรียก handleNavigationClick เพื่อตรวจสอบสถานะ */}
-                    <div onClick={handleNavigationClick} className="flex relative items-center cursor-pointer">
-                        <h1 className='bg-[#ff9e303e] text-2xl rounded-4xl py-[0.3rem] px-[1.5rem]'>ต่อไป</h1>
+                    <div onClick={() => handleNavigationClick('next')} className={`flex relative items-center cursor-pointer ${isNextAnimating ? 'animate-press' : ''}`}>
+                        <h1 className={`bg-[#ff9e303e] text-2xl rounded-4xl py-[0.3rem] px-[1.5rem] ${isNextAnimating ? 'animate-flash-fill' : ''}`}>ต่อไป</h1>
                         <img className='absolute left-[5.3rem] p-[0.5rem] w-[2.5rem] h-[2.5rem] rounded-4xl bg-[#FFBA9F] ' src="/image%2082.png" alt='Next'></img>
                     </div>
                     {/* ปุ่ม "เมนู" - เรียก handleNavigationClick เพื่อตรวจสอบสถานะ */}
-                    <div onClick={handleNavigationClick} className="flex relative items-center pr-[1rem] cursor-pointer">
-                        <h1 className='bg-[#ff9e303e] text-2xl rounded-4xl py-[0.3rem] px-[1.5rem]'>เมนู</h1>
+                    <div onClick={() => handleNavigationClick('menu')} className={`flex relative items-center pr-[1rem] cursor-pointer ${isMenuAnimating ? 'animate-press' : ''}`}>
+                        <h1 className={`bg-[#ff9e303e] text-2xl rounded-4xl py-[0.3rem] px-[1.5rem] ${isMenuAnimating ? 'animate-flash-fill' : ''}`}>เมนู</h1>
                         <img className='absolute left-[4.5rem] p-[0.5rem] w-[2.5rem] h-[2.5rem] rounded-4xl bg-[#FFBA9F] ' src="/image%2083.png" alt='Next'></img>
                     </div>
                 </div>
