@@ -295,16 +295,13 @@ body {
 
 @keyframes button-press-animation {
     0% {
-        transform: scale(1);
-        box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1); /* default shadow */
+        transform: scale(1);  /* default shadow */
     }
     50% {
-        transform: scale(0.95); /* Scale down slightly on press */
-        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05); /* smaller shadow */
+        transform: scale(0.95); /* Scale down slightly on press */ 
     }
     100% {
-        transform: scale(1);
-        box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        transform: scale(1); 
     }
 }
 

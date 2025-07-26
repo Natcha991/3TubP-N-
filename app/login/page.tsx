@@ -10,10 +10,15 @@ export default function LoginPage() {
   const [username, setUsername] = useState<string>('');
   const [loading, setLoading] = useState<boolean>(false);
   const [error, setError] = useState<string | null>(null);
+  const [isAnimating, setIsAnimating] = useState(false);
   const router = useRouter();
 
   const goRegister = () => {
-    router.push('/register1')
+    setIsAnimating(true);
+
+    setTimeout(() => {
+      router.push('/register1')
+    }, 300)
   }
 
   const handleLogin = async (event: React.FormEvent) => {
@@ -112,7 +117,7 @@ export default function LoginPage() {
           </button>
         </form>
         <div className="">
-          <h1 onClick={goRegister} className='text-md text-red-600 mt-2 underline z-200 font-prompt cursor-pointer'>ยังไม่มีรหัส?</h1>
+          <h1 onClick={goRegister} className={`text-md text-red-600 mt-2 underline z-200 font-prompt cursor-pointer ${isAnimating ? "animate-press" : ''}`}>ยังไม่มีรหัส?</h1>
         </div>
         {/* ✅ เพิ่มการแสดงผลข้อผิดพลาดตรงนี้ */}
         {error && (

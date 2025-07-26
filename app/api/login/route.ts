@@ -18,7 +18,7 @@ export async function POST(req: Request) {
     const user = await User.findOne({ name: name.trim() });
 
     if (!user) {
-      return NextResponse.json({ message: '❌ ไม่พบชื่อผู้ใช้นี้ในระบบ' }, { status: 404 });
+      return NextResponse.json({ message: 'ไม่พบชื่อผู้ใช้นี้ในระบบ' }, { status: 404 });
     }
 
     return NextResponse.json({ userId: user._id.toString() }, { status: 200 });
