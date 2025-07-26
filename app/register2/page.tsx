@@ -91,7 +91,7 @@ export default function Register2() {
               onClick={handleSubmit}
               disabled={loading}
               type='submit'
-              className='bg-grey-400 w-[45px] transition hover:scale-105 duration-300 cursor-pointer flex items-center justify-center rounded-4xl border-[#333333] border-2 ml-[0.5rem] h-[45px]'
+              className='relative bg-grey-400 w-[45px] transition hover:scale-105 duration-300 cursor-pointer flex items-center justify-center rounded-4xl border-[#333333] border-2 ml-[0.5rem] h-[45px]'
             >
               <img src="/image%2082.png" alt="Submit" />
               {loading && (
