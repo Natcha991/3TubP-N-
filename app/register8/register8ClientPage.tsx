@@ -8,6 +8,7 @@ export default function Register8() { // เปลี่ยนชื่อ Compo
   const router = useRouter();
   const searchParams = useSearchParams();
   const userId = searchParams.get('id'); // ดึง userId จาก URL
+  const [isAnimating, setIsAnimating] = useState(false);
 
   // ใช้ selectedLifestyles ในการเก็บไลฟ์สไตล์ที่เลือก
   const [selectedLifestyles, setSelectedLifestyles] = useState<string[]>([]);
@@ -56,15 +57,19 @@ export default function Register8() { // เปลี่ยนชื่อ Compo
 
   // ฟังก์ชันสำหรับส่งข้อมูลไลฟ์สไตล์ไปยัง Backend
   const handleSubmit = async () => {
-    if (!userId) {
-      alert('ไม่พบรหัสผู้ใช้');
-      return;
-    }
+    setIsAnimating(true)
 
-    if (selectedLifestyles.length === 0) {
-      alert('กรุณาเลือกไลฟ์สไตล์อย่างน้อยหนึ่งข้อ');
-      return;
-    }
+    setTimeout(() => {
+      if (!userId) {
+        alert('ไม่พบรหัสผู้ใช้');
+        return;
+      }
+
+      if (selectedLifestyles.length === 0) {
+        alert('กรุณาเลือกข้อจำกัดด้านสุขภาพอย่างน้อยหนึ่งข้อ หรือเลือก "ไม่มี"');
+        return;
+      }
+    }, 300);
 
     try {
       const res = await fetch(`/api/user/${userId}`, { // ใช้ userId ใน URL endpoint
@@ -163,7 +168,7 @@ export default function Register8() { // เปลี่ยนชื่อ Compo
               {/* ปุ่ม "เสร็จสิ้น" สำหรับส่งข้อมูล */}
               <button
                 onClick={handleSubmit} // เรียก handleSubmit เมื่อคลิก
-                className='bg-orange-400 z-200 text-white py-2 px-4 rounded-full w-30 flex justify-center items-center gap-2' // ปรับปุ่มให้เป็นสไตล์ที่ใช้บ่อย
+                className={`bg-orange-400 z-200 text-white py-2 px-2 rounded-full w-30 flex justify-center items-center gap-2 ${isAnimating ? "animate-press" : ''}`} // ปรับปุ่มให้เป็นสไตล์ที่ใช้บ่อย
               >
                 เสร็จสิ้น  {/* เพิ่มไอคอน */}
               </button>

@@ -6,6 +6,7 @@ import { useState } from 'react';
 export default function Register2() {
   const router = useRouter();
   const [name, setName] = useState('');
+  const [loading, setLoading] = useState<boolean>(false);
   const [error, setError] = useState('');
 
   const handleSubmit = async () => {
@@ -14,6 +15,8 @@ export default function Register2() {
       setError('กรุณากรอกชื่อก่อน');
       return;
     }
+
+    setLoading(true);
 
     const res = await fetch('/api/user', {
       method: 'POST',
@@ -81,10 +84,16 @@ export default function Register2() {
             />
             <button
               onClick={handleSubmit}
+              disabled={loading}
               type='submit'
               className='bg-grey-400 w-[45px] transition hover:scale-105 duration-300 cursor-pointer flex items-center justify-center rounded-4xl border-[#333333] border-2 ml-[0.5rem] h-[45px]'
             >
               <img src="/image%2082.png" alt="Submit" />
+              {loading && (
+                <span className="absolute inset-0 flex items-center justify-center text-[0.6rem] text-white bg-black bg-opacity-50 rounded-4xl">
+                  กำลังโหลด...
+                </span>
+              )}
             </button>
           </div>
 

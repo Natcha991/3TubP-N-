@@ -42,7 +42,7 @@ export default function Register4() {
       <div className="absolute right-0 rotate-[180deg] top-[30rem]">
         <img src="/Group%2099.png" alt="Decoration"></img>
       </div>
-      <div className="absolute top-[20rem] left-[1.5rem] animate-shakeright">
+      <div className="absolute top-[20rem] left-[1.5rem] w-[100px] animate-shakeright">
         <img className='' src="/image%2084.png" alt="Decoration"></img>
       </div>
       <div className="absolute top-[30rem] left-[19rem] rotate-[35deg] animate-shakeright2">

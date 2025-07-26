@@ -8,6 +8,7 @@ export default function Register7() { // เปลี่ยนชื่อ Compo
   const router = useRouter();
   const searchParams = useSearchParams();
   const userId = searchParams.get('id'); // ดึง userId จาก URL
+  const [isAnimating, setIsAnimating] = useState(false);
 
   // ใช้ selectedConditions ในการเก็บข้อจำกัดที่เลือก
   const [selectedConditions, setSelectedConditions] = useState<string[]>([]);
@@ -65,15 +66,20 @@ export default function Register7() { // เปลี่ยนชื่อ Compo
 
   // ฟังก์ชันสำหรับส่งข้อมูลข้อจำกัดไปยัง Backend
   const handleSubmit = async () => {
-    if (!userId) {
-      alert('ไม่พบรหัสผู้ใช้');
-      return;
-    }
 
-    if (selectedConditions.length === 0) {
-      alert('กรุณาเลือกข้อจำกัดด้านสุขภาพอย่างน้อยหนึ่งข้อ หรือเลือก "ไม่มี"');
-      return;
-    }
+    setIsAnimating(true)
+
+    setTimeout(() => {
+      if (!userId) {
+        alert('ไม่พบรหัสผู้ใช้');
+        return;
+      }
+
+      if (selectedConditions.length === 0) {
+        alert('กรุณาเลือกข้อจำกัดด้านสุขภาพอย่างน้อยหนึ่งข้อ หรือเลือก "ไม่มี"');
+        return;
+      }
+    }, 300);
 
     try {
       const res = await fetch(`/api/user/${userId}`, { // ใช้ userId ใน URL endpoint
@@ -174,7 +180,7 @@ export default function Register7() { // เปลี่ยนชื่อ Compo
               {/* ปุ่ม "ถัดไป" สำหรับส่งข้อมูล */}
               <button
                 onClick={handleSubmit} // เรียก handleSubmit เมื่อคลิก
-                className='bg-orange-400 z-200 text-white py-2 px-4 rounded-full w-30 flex justify-center items-center gap-2' // ปรับปุ่มให้เป็นสไตล์ที่ใช้บ่อย
+                className={`bg-orange-400 z-200 text-white py-2 px-2 rounded-full w-30 flex justify-center items-center gap-2 ${isAnimating ? "animate-press" : ''}`} // ปรับปุ่มให้เป็นสไตล์ที่ใช้บ่อย
               >
                 ถัดไป {/* เพิ่มไอคอน */}
               </button>
@@ -201,7 +207,7 @@ export default function Register7() { // เปลี่ยนชื่อ Compo
           </div>
 
           {/* ส่วนล่างสุด (เมนู/ต่อไป) */}
-          <div className="absolute bottom-[591px] left-0 right-0 flex justify-center font-prompt">
+          <div className="absolute top-[591px] left-0 right-0 flex justify-center font-prompt">
             <div className="bg-white w-[500px] px-[4rem] py-[4.5rem] rounded-t-4xl shadow-lg flex justify-between">
               {/* สามารถเพิ่มเนื้อหาสำหรับส่วนล่างสุดได้ที่นี่ */}
             </div>

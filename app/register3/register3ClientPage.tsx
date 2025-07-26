@@ -7,6 +7,7 @@ export default function Register3() {
     const router = useRouter();
     const searchParams = useSearchParams();
     const userId = searchParams.get('id'); // 🔍 ดึง userId ที่ส่งมาจาก register2
+    const [loading, setLoading] = useState<boolean>(false);
 
     const [birthday, setBirthday] = useState('');
 
@@ -17,6 +18,8 @@ export default function Register3() {
             alert('ไม่พบรหัสผู้ใช้');
             return;
         }
+
+        setLoading(true)
 
         const res = await fetch(`/api/user/${userId}`, {
             method: 'PATCH',
@@ -70,9 +73,15 @@ export default function Register3() {
                     {/* ปุ่ม Submit */}
                     <button
                         type='submit' // ใช้ type="submit" เพื่อให้ Form รับรู้
+                        disabled={loading}
                         className='bg-grey-400 w-[45px] p-[0.8rem] transition hover:scale-105 duration-300 cursor-pointer flex items-center justify-center rounded-4xl border-[#333333] border-2 ml-[0.5rem] h-[45px]'
                     >
                         <img src="/image%2082.png" alt="Submit" width={24} height={24} /> {/* ใช้ Image component และกำหนด width, height */}
+                        {loading && (
+                            <span className="absolute inset-0 flex items-center justify-center text-[0.6rem] text-white bg-black bg-opacity-50 rounded-4xl">
+                                กำลังโหลด...
+                            </span>
+                        )}
                     </button>
                 </form>
             </div>

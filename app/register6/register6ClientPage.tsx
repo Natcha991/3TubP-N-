@@ -8,6 +8,7 @@ export default function Register6() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const userId = searchParams.get('id');
+  const [isAnimating, setIsAnimating] = useState(false);
 
   const [selectedGoals, setSelectedGoals] = useState<string[]>([]);
   const scrollContainerRef = useRef<HTMLDivElement>(null);
@@ -61,15 +62,20 @@ export default function Register6() {
   };
 
   const handleSubmit = async () => {
-    if (!userId) {
-      alert('ไม่พบรหัสผู้ใช้');
-      return;
-    }
 
-    if (selectedGoals.length === 0) {
-      alert('กรุณาเลือกเป้าหมายอย่างน้อยหนึ่งข้อ');
-      return;
-    }
+    setIsAnimating(true)
+
+    setTimeout(() => {
+      if (!userId) {
+        alert('ไม่พบรหัสผู้ใช้');
+        return;
+      }
+
+      if (selectedGoals.length === 0) {
+        alert('กรุณาเลือกเป้าหมายอย่างน้อยหนึ่งข้อ');
+        return;
+      }
+    }, 300)
 
     try {
       const res = await fetch(`/api/user/${userId}`, {
@@ -173,7 +179,7 @@ export default function Register6() {
             {/* ปุ่ม "ถัดไป" สำหรับส่งข้อมูล */}
             <button
               onClick={handleSubmit}
-              className='bg-orange-400 z-200 text-white py-2 px-2 rounded-full w-30 flex justify-center items-center gap-2'
+              className={`bg-orange-400 z-200 text-white py-2 px-2 rounded-full w-30 flex justify-center items-center gap-2 ${isAnimating ? "animate-press" : ''}` }
             >
               ถัดไป
             </button>
