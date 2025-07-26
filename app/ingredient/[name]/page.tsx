@@ -178,7 +178,8 @@ export default function IngredientPage() {
   // Loading state
   if (isLoading) {
     return (
-      <div className="h-[731px] overflow-hidden">
+      <div className="relative h-[731px] w-screen overflow-hidden flex flex-col items-center justify-center
+                bg-gradient-to-br from-orange-300 to-orange-100 text-xl text-gray-700 font-prompt">
         <div className="absolute left-0">
           <img src="/Group%2099.png" alt="Decoration"></img>
         </div>
@@ -191,10 +192,9 @@ export default function IngredientPage() {
         <div className="absolute top-[3rem] left-[19rem] rotate-[35deg] animate-shakeright2">
           <img src="/image%2084.png" className='w-[140px]' alt="Decoration"></img>
         </div>
-        <div className="flex flex-col font-prompt min-h-screen items-center justify-center bg-gradient-to-br from-orange-300 to-orange-100 text-xl text-gray-700">
-          <img className='animate-sizeUpdown2 mb-[1.5rem]' src="/image%2069.png"></img>
-          กำลังโหลดข้อมูล...
-        </div>
+        {/* ส่วนสีพื้นหลัง */}
+        <img className='animate-sizeUpdown2 mb-[1.5rem]' src="/image%2069.png"></img>
+        <p className="z-10">กำลังโหลดข้อมูล...</p>
       </div>
     );
   }
@@ -314,8 +314,8 @@ export default function IngredientPage() {
                       overflow-hidden
                       ${shop === 'makro' ? 'bg-red-600' :
                         shop === 'lotus' ? 'bg-white' :
-                        shop === 'bigc' ? 'bg-[#a0c515]' :
-                        'bg-gray-500' // สีพื้นหลังเริ่มต้นสำหรับร้านค้าอื่นๆ ที่ไม่ได้ระบุ
+                          shop === 'bigc' ? 'bg-[#a0c515]' :
+                            'bg-gray-500' // สีพื้นหลังเริ่มต้นสำหรับร้านค้าอื่นๆ ที่ไม่ได้ระบุ
                       }
                     `}
                   >
