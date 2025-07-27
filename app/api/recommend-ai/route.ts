@@ -48,11 +48,7 @@ export async function GET(request: NextRequest) {
 
     // ✅ ส่ง prompt ให้ Gemini AI
     const prompt = `
-แนะนำเมนูอาหารเพื่อสุขภาพที่เหมาะกับผู้ใช้รายนี้:
-- ไม่ต้องเลือกเมนูที่มีคำว่า "ข้าวกล้อง" อยู่ใน **ชื่อเมนู**
-- เลือกเฉพาะเมนูที่เหมาะกับเป้าหมายและข้อจำกัดของผู้ใช้
-
-รายละเอียดผู้ใช้:
+แนะนำเมนูอาหารจากข้าวกล้องที่เหมาะกับผู้ใช้รายนี้:
 - เป้าหมาย: ${Array.isArray(user.goals) ? user.goals.join(', ') : user.goals || '-'}
 - โรคประจำตัว: ${Array.isArray(user.conditions) ? user.conditions.join(', ') : user.conditions || '-'}
 - ไลฟ์สไตล์: ${Array.isArray(user.lifestyle) ? user.lifestyle.join(', ') : user.lifestyle || '-'}
@@ -65,8 +61,8 @@ ${menus.map((m, i) => `${i + 1}. ${m.name} (${m.calories} KCAL) - tags: ${m.tags
   {
     "name": "ชื่อเมนู",
     "calories": 300,
-    "image": "ชื่อไฟล์รูปภาพ (เช่น 'ต้มจืดไก่.png')",
-    "reason": "เหตุผลที่เลือกเมนูนี้ให้ผู้ใช้"
+    "image": "url",
+    "reason": "เหตุผล"
   }
 ]
 
