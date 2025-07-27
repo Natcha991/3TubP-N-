@@ -4,7 +4,6 @@ import { useRouter, useSearchParams } from 'next/navigation';
 import { useEffect, useState, useCallback } from 'react';
 import HealthTip from '@/app/components/HealthTip';
 
-
 interface MenuItem {
   _id: string;
   name: string;
@@ -17,163 +16,63 @@ interface MenuItem {
 export default function Home() {
   const router = useRouter();
   const searchParams = useSearchParams();
-  // ดึง userId จาก URL (id query parameter)
-  // หรือให้เป็น string ว่าง ถ้าไม่มี (แต่ควรจะมีเสมอสำหรับการใช้งานจริง)
   const userId = searchParams.get('id') || '';
   const [menus, setMenus] = useState<MenuItem[]>([]);
   const [isLoadingMenus, setIsLoadingMenus] = useState(true);
   const [animatingMenuId, setAnimatingMenuId] = useState<string | null>(null);
   const [isAnimating, setIsAnimating] = useState(false);
-  const [isAnimating2, setIsAnimating2] = useState(false);
-
-
-  const [currentPage, setCurrentPage] = useState(0);
-  const [allShownMenuIds, setAllShownMenuIds] = useState<string[]>([]);
+  const [specialMenu, setSpecialMenu] = useState<MenuItem | null>(null);
   const [searchTerm, setSearchTerm] = useState('');
   const [isSearching, setIsSearching] = useState(false);
-  const [specialMenu, setSpecialMenu] = useState<MenuItem | null>(null);
   const [showBubble, setShowBubble] = useState(false);
-  const [isLoadingMore, setIsLoadingMore] = useState(false);
   const [noMoreMenus, setNoMoreMenus] = useState(false);
 
-  const loadMoreMenus = async () => {
-    setIsLoadingMore(true);
-    setIsAnimating2(true) 
+  const resetMenus = async () => {
+    setIsLoadingMenus(true);
+    const seed = Math.random().toString(36).substring(2);
     try {
-      const res = await fetch(`/api/menu/nearby?userId=${userId}&excludeIds=${allShownMenuIds.join(',')}`);
+      const res = await fetch(`/api/menu/nearby?userId=${userId}&seed=${seed}`);
       const data = await res.json();
-
       const newMenus: MenuItem[] = Array.isArray(data?.menus) ? data.menus : [];
-      if (newMenus.length === 0) {
-        setNoMoreMenus(true);
-      } else {
-        setMenus(prev => [...prev, ...newMenus]);
-        setAllShownMenuIds(prev => [...prev, ...newMenus.map(m => m._id)]);
-      }
+
+      const displayMenus = newMenus.slice(0, 4);
+      const supplementMenu = newMenus.length > 4 ? newMenus[4] : newMenus[0];
+
+      setMenus(displayMenus);
+      setSpecialMenu(supplementMenu);
     } catch (err) {
-      console.error('Load more menus error:', err);
+      console.error('Error loading menus:', err);
     } finally {
-      setIsLoadingMore(false);
+      setIsLoadingMenus(false);
     }
   };
 
   useEffect(() => {
-    let hideTimer: ReturnType<typeof setTimeout>;
+    resetMenus();
+  }, [userId]);
 
+  useEffect(() => {
+    let hideTimer: ReturnType<typeof setTimeout>;
     const displayBubble = () => {
       setShowBubble(true);
       hideTimer = setTimeout(() => setShowBubble(false), 5000);
     };
-
     const intervalTimer: ReturnType<typeof setInterval> = setInterval(displayBubble, 30000);
-
     displayBubble();
-
     return () => {
       clearTimeout(hideTimer);
       clearInterval(intervalTimer);
     };
   }, []);
 
-  const fetchMenus = useCallback(async (refresh = false) => {
-    setIsLoadingMenus(true); // ตั้งค่า loading เป็น true ก่อนเริ่ม fetch
-
-    const pageToFetch = refresh ? currentPage + 1 : 0;
-
-    const params = new URLSearchParams({
-      userId: userId, // <-- ตรวจสอบให้แน่ใจว่า userId ถูกส่งไปที่ API ด้วย
-      page: pageToFetch.toString(),
-      limit: '4',
-      sortBy: 'relevance'
-    });
-
-    if (refresh && allShownMenuIds.length > 0) {
-      params.append('excludeIds', allShownMenuIds.join(','));
-    }
-
-    const endpoint = refresh
-      ? `/api/recommend-ai?${params.toString()}&refresh=true`
-      : `/api/recommend-ai?${params.toString()}`;
-
-    const label = refresh ? 'Refresh menus' : 'Fetch recommended menus';
-
-    console.time(label);
-    try {
-      const res = await fetch(endpoint, {
-        method: 'GET',
-        headers: {
-          'Content-Type': 'application/json',
-        }
-      });
-
-      const text = await res.text();
-
-      if (!res.ok) throw new Error(text || res.statusText);
-      if (!text) return;
-
-      const data = JSON.parse(text);
-      const newMenus: MenuItem[] = Array.isArray(data?.recommendedMenus)
-        ? data.recommendedMenus
-        : [];
-
-
-      if (refresh) {
-        const filteredNewMenus = newMenus.filter(newMenu =>
-          newMenu && newMenu._id && newMenu.name &&
-          !allShownMenuIds.includes(newMenu._id)
-        );
-
-        if (filteredNewMenus.length > 0) {
-          setMenus((prev) => [...prev, ...filteredNewMenus]);
-          setAllShownMenuIds(prev => [...prev, ...filteredNewMenus.map(m => m._id)]);
-          setCurrentPage(pageToFetch);
-        }
-
-
-
-
-      } else {
-        const validMenus = newMenus.filter((m) => m && m._id && m.name);
-        const displayMenus = validMenus.slice(0, 4);
-        const supplementMenu = validMenus.length > 4 ? validMenus[4] : validMenus[0];
-
-
-        setMenus(displayMenus);
-        setSpecialMenu(supplementMenu);
-        setAllShownMenuIds(displayMenus.map(m => m._id));
-        setCurrentPage(0);
-
-
-      }
-    } catch (error) {
-      console.error('Error fetching menus:', error);
-
-    } finally {
-      setIsLoadingMenus(false);
-
-      console.timeEnd(label);
-    }
-  }, [userId]);
-
-  // โหลดเมนูแนะนำจาก AI
-  useEffect(() => {
-    fetchMenus();
-  }, [userId, fetchMenus]);
-
-  // **แก้ไข: เพิ่ม userId เข้าไปใน URL เมื่อกดไปหน้า Menu**
   const goto = useCallback((id: string) => {
     if (!id || id === 'undefined') return;
-
-    setAnimatingMenuId(id); // ตั้งค่า ID ของเมนูที่กำลังเล่นอนิเมชัน
-
-    // หน่วงเวลา (เช่น 300ms) เพื่อให้อนิเมชันเล่นเสร็จก่อนเปลี่ยนหน้า
-    const animationDuration = 300; // ควรเท่ากับ animation-duration ของ animate-press ใน globals.css
-
+    setAnimatingMenuId(id);
     setTimeout(() => {
       router.push(`/menu/${id}${userId ? `?userId=${userId}` : ''}`);
-      setAnimatingMenuId(null); // Reset animation state after navigation
-    }, animationDuration);
-  }, [router, userId]); // เพิ่ม userId ใน dependency array
+      setAnimatingMenuId(null);
+    }, 300);
+  }, [router, userId]);
 
   const getImageUrl = useCallback((image: string) =>
     image && image !== 'undefined' ? `/menus/${encodeURIComponent(image)}` : '/default.png',
@@ -182,7 +81,6 @@ export default function Home() {
   const renderMenuCard = useCallback((item: MenuItem) => (
     <div
       key={item._id}
-      // **แก้ไข: ส่ง userId ไปยัง MenuPage จาก MenuCard**
       onClick={() => goto(item._id)}
       className={`w-[155px] py-[1rem] rounded-2xl bg-[rgba(255,255,255,0.38)] transform transition duration-300 hover:scale-103 cursor-pointer shadow-lg shadow-[#ffac7852] hover:shadow-xl ${animatingMenuId ? "animate-press" : ''}`}
     >
@@ -215,20 +113,15 @@ export default function Home() {
 
   const handleSearch = async () => {
     if (!searchTerm.trim()) return;
-
     setIsSearching(true);
     try {
-      // **แก้ไข: ส่ง userId ไปด้วยเมื่อค้นหาเมนู**
       const res = await fetch(`/api/search-menu?query=${encodeURIComponent(searchTerm)}&userId=${userId}`);
       const data = await res.json();
       const foundMenus: MenuItem[] = Array.isArray(data?.menus) ? data.menus : [];
-
       const displayMenus = foundMenus.slice(0, 4);
       const supplementMenu = foundMenus.length > 4 ? foundMenus[4] : foundMenus[0];
-
       setMenus(displayMenus);
       setSpecialMenu(supplementMenu);
-
     } catch (err) {
       console.error('Search error:', err);
     } finally {
@@ -243,48 +136,23 @@ export default function Home() {
   };
 
   const gotoChatbot = () => {
-
-    setIsAnimating(true)
+    setIsAnimating(true);
     setTimeout(() => {
-      // **แก้ไข: ส่ง userId ไปยัง Chatbot Page ด้วย**
       router.push(`/chatbot?id=${userId}`);
     }, 300);
   };
 
-
   if (isLoadingMenus) {
-    return (
-      <div className="h-screen overflow-hidden">
-        <div className="absolute left-0">
-          <img src="/Group%2099.png" alt="Decoration"></img>
-        </div>
-        <div className="absolute right-0 rotate-[180deg] top-[30rem]">
-          <img src="/Group%2099.png" alt="Decoration"></img>
-        </div>
-        <div className="absolute top-[34rem] left-[1.5rem] animate-shakeright">
-          <img className='' src="/image%2084.png" alt="Decoration"></img>
-        </div>
-        <div className="absolute top-[3rem] left-[19rem] rotate-[35deg] animate-shakeright2">
-          <img src="/image%2084.png" className='w-[140px]' alt="Decoration"></img>
-        </div>
-        <div className="flex flex-col font-prompt min-h-screen items-center justify-center bg-gradient-to-br from-orange-300 to-orange-100 text-xl text-gray-700">
-          <img className='animate-sizeUpdown2 mb-[1.5rem]' src="/image%2069.png"></img>
-          กำลังโหลดข้อมูล...
-        </div>
-      </div>
-    );
+    return <div className="text-center mt-10">กำลังโหลดเมนู...</div>;
   }
 
   return (
     <div className='font-prompt'>
-      {/* HealthTip ก็ต้องได้รับ userId ด้วยเช่นกัน ถ้า HealthTip ใช้ */}
       <HealthTip userId={userId} />
-
       <div className="flex flex-col items-center">
         <h1 className="font-[600] mt-[2rem] text-[#333333] font-prompt mb-[2rem] mr-[9rem] text-[2rem]">
           เมนูแนะนำ
         </h1>
-
         <div className="flex gap-2 mb-[1.5rem]">
           <input
             type="text"
@@ -304,16 +172,15 @@ export default function Home() {
           </button>
         </div>
 
-        <div className="absolute top-[46.2rem] z-200 left-[20rem] -translate-x-1/2 md:left-[15rem] md:translate-x-0 "> {/* เพิ่ม z-index ให้กับ Parent เพื่อควบคุม Stacking Context รวม */}
+        <div className="absolute top-[46.2rem] z-200 left-[20rem] -translate-x-1/2 md:left-[15rem] md:translate-x-0">
           {showBubble && (
-            <div className="w-[150px] h-[50px] absolute top-[1.5rem] shadow-grey shadow-xl left-[-7rem] p-[0.5rem] flex items-center bg-white rounded-md animate-showUp z-200"> {/* ตั้ง z-index สูงๆ สำหรับ bubble */}
+            <div className="w-[150px] h-[50px] absolute top-[1.5rem] shadow-grey shadow-xl left-[-7rem] p-[0.5rem] flex items-center bg-white rounded-md animate-showUp z-200">
               <h1 className="text-[0.7rem]">ผม Mr.Rice อยากรู้อะไรสอบถามผมได้ครับ!</h1>
             </div>
           )}
           <img
             onClick={gotoChatbot}
-            // ต้องมี position เพื่อให้ z-index ทำงานได้
-            className={`mt-[3rem] animate-pulse animate-sizeUpdown relative z-10 cursor-pointer transform hover:scale-105 duration-300 ${isAnimating ? "animate-press" : ''}` }
+            className={`mt-[3rem] animate-pulse animate-sizeUpdown relative z-10 cursor-pointer transform hover:scale-105 duration-300 ${isAnimating ? "animate-press" : ''}`}
             src="/image%2069.png"
             alt="Chatbot icon"
             width={60}
@@ -329,7 +196,6 @@ export default function Home() {
           {specialMenu && (
             <div
               className="flex items-center h-[140px] w-[340px] bg-white rounded-bl-4xl rounded-tr-4xl rounded-br-md rounded-tl-md cursor-pointer shadow-lg shadow-[#ffac7853] hover:scale-102 duration-500"
-              // **แก้ไข: ส่ง userId ไปยัง MenuPage จาก Special Menu**
               onClick={() => goto(specialMenu._id)}
             >
               <img
@@ -361,17 +227,14 @@ export default function Home() {
 
           <div className="grid grid-cols-2 mb-[2rem] gap-4">
             {menus.slice(2, 4).map(renderMenuCard)}
-          </div> 
-          
-          {!noMoreMenus && (
-            <button
-              onClick={loadMoreMenus}
-              disabled={isLoadingMore}
-              className={`mt-4 mb-[5rem] px-4 py-2 bg-orange-400 text-white rounded hover:bg-orange-600 disabled:opacity-50 ${isAnimating2 ? "animate-press" : ''}`}
-            >
-              {isLoadingMore ? "กำลังโหลด..." : "โหลดเมนูเพิ่มเติม"}
-            </button>
-          )}
+          </div>
+
+          <button
+            onClick={resetMenus}
+            className="mt-4 mb-[5rem] px-4 py-2 bg-orange-400 text-white rounded hover:bg-orange-600"
+          >
+            🔄 สุ่มเมนูใหม่ที่ตรงกับคุณ
+          </button>
 
           {noMoreMenus && (
             <p className="text-gray-500 mt-4 mb-[5rem]">ไม่มีเมนูที่สอดคล้องแล้ว</p>
