@@ -25,7 +25,7 @@ export default function Home() {
   const [searchTerm, setSearchTerm] = useState('');
   const [isSearching, setIsSearching] = useState(false);
   const [showBubble, setShowBubble] = useState(false);
-  const [noMoreMenus, setNoMoreMenus] = useState(false);
+  const [noMoreMenus] = useState(false);
 
   const resetMenus = async () => {
     setIsLoadingMenus(true);
