@@ -43,6 +43,11 @@ const lifestyleToBlockedTags: Record<string, string[]> = {
 };
 
 function matchMenuToUser(menuTags: string[], user: any): boolean {
+  console.log('👤 [DEBUG] user input to matcher:', user);
+  console.log('🎯 user.goal:', user.goal);
+  console.log('💉 user.condition:', user.condition);
+  console.log('🧬 user.lifestyle:', user.lifestyle);
+
   const matchedTags = new Set<string>();
   const blockedTags = new Set<string>();
 
@@ -50,11 +55,19 @@ function matchMenuToUser(menuTags: string[], user: any): boolean {
   const conditions = (user.condition || "").split(",").map((s: string) => s.trim());
   const lifestyles = (user.lifestyle || "").split(",").map((s: string) => s.trim());
 
+  console.log('✅ goals:', goals);
+  console.log('⛑️ conditions:', conditions);
+  console.log('🏃 lifestyles:', lifestyles);
+
   goals.forEach((goal: string) => goalToTags[goal]?.forEach(tag => matchedTags.add(tag)));
   lifestyles.forEach((lf: string) => lifestyleToTags[lf]?.forEach(tag => matchedTags.add(tag)));
 
   conditions.forEach((cond: string) => conditionToBlockedTags[cond]?.forEach(tag => blockedTags.add(tag)));
   lifestyles.forEach((lf: string) => lifestyleToBlockedTags[lf]?.forEach(tag => blockedTags.add(tag)));
+
+  console.log('🔵 matchedTags:', Array.from(matchedTags));
+  console.log('🔴 blockedTags:', Array.from(blockedTags));
+  console.log('🏷️ menuTags:', menuTags);
 
   const hasMatch = menuTags.some(tag => matchedTags.has(tag));
   const isBlocked = menuTags.some(tag => blockedTags.has(tag));
@@ -65,6 +78,7 @@ function matchMenuToUser(menuTags: string[], user: any): boolean {
 
   return hasMatch && !isBlocked;
 }
+
 
 
 
