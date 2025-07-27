@@ -4,6 +4,7 @@ import { useRouter, useSearchParams } from 'next/navigation';
 import { useEffect, useState, useCallback } from 'react';
 import HealthTip from '@/app/components/HealthTip';
 
+
 interface MenuItem {
   _id: string;
   name: string;
@@ -31,6 +32,28 @@ export default function Home() {
   const [isSearching, setIsSearching] = useState(false);
   const [specialMenu, setSpecialMenu] = useState<MenuItem | null>(null);
   const [showBubble, setShowBubble] = useState(false);
+  const [isLoadingMore, setIsLoadingMore] = useState(false);
+  const [noMoreMenus, setNoMoreMenus] = useState(false);
+
+  const loadMoreMenus = async () => {
+    setIsLoadingMore(true);
+    try {
+      const res = await fetch(`/api/menu/nearby?userId=${userId}&excludeIds=${allShownMenuIds.join(',')}`);
+      const data = await res.json();
+
+      const newMenus: MenuItem[] = Array.isArray(data?.menus) ? data.menus : [];
+      if (newMenus.length === 0) {
+        setNoMoreMenus(true);
+      } else {
+        setMenus(prev => [...prev, ...newMenus]);
+        setAllShownMenuIds(prev => [...prev, ...newMenus.map(m => m._id)]);
+      }
+    } catch (err) {
+      console.error('Load more menus error:', err);
+    } finally {
+      setIsLoadingMore(false);
+    }
+  };
 
   useEffect(() => {
     let hideTimer: ReturnType<typeof setTimeout>;
@@ -337,6 +360,21 @@ export default function Home() {
           <div className="grid grid-cols-2 mb-[2rem] gap-4">
             {menus.slice(2, 4).map(renderMenuCard)}
           </div>
+
+          // เพิ่มปุ่มด้านล่างสุดของเมนู
+          {!noMoreMenus && (
+            <button
+              onClick={loadMoreMenus}
+              disabled={isLoadingMore}
+              className="mt-4 mb-[5rem] px-4 py-2 bg-orange-400 text-white rounded hover:bg-orange-600 disabled:opacity-50"
+            >
+              {isLoadingMore ? "กำลังโหลด..." : "โหลดเมนูเพิ่มเติม"}
+            </button>
+          )}
+
+          {noMoreMenus && (
+            <p className="text-gray-500 mt-4 mb-[5rem]">ไม่มีเมนูที่สอดคล้องแล้ว</p>
+          )}
         </div>
       </div>
     </div>
