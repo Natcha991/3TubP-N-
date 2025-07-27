@@ -21,6 +21,9 @@ export default function Home() {
   const userId = searchParams.get('id') || '';
   const [menus, setMenus] = useState<MenuItem[]>([]);
   const [isLoadingMenus, setIsLoadingMenus] = useState(true);
+  const [animatingMenuId, setAnimatingMenuId] = useState<string | null>(null);
+  const [isAnimating, setIsAnimating] = useState(false);
+
 
   const [currentPage, setCurrentPage] = useState(0);
   const [allShownMenuIds, setAllShownMenuIds] = useState<string[]>([]);
@@ -108,7 +111,7 @@ export default function Home() {
         const validMenus = newMenus.filter((m) => m && m._id && m.name);
         const displayMenus = validMenus.slice(0, 4);
         const supplementMenu = validMenus.length > 4 ? validMenus[4] : validMenus[0];
-        
+
 
         setMenus(displayMenus);
         setSpecialMenu(supplementMenu);
@@ -135,8 +138,16 @@ export default function Home() {
   // **แก้ไข: เพิ่ม userId เข้าไปใน URL เมื่อกดไปหน้า Menu**
   const goto = useCallback((id: string) => {
     if (!id || id === 'undefined') return;
-    // ส่ง userId เป็น query parameter ไปยัง MenuPage
-    router.push(`/menu/${id}${userId ? `?userId=${userId}` : ''}`);
+
+    setAnimatingMenuId(id); // ตั้งค่า ID ของเมนูที่กำลังเล่นอนิเมชัน
+
+    // หน่วงเวลา (เช่น 300ms) เพื่อให้อนิเมชันเล่นเสร็จก่อนเปลี่ยนหน้า
+    const animationDuration = 300; // ควรเท่ากับ animation-duration ของ animate-press ใน globals.css
+
+    setTimeout(() => {
+      router.push(`/menu/${id}${userId ? `?userId=${userId}` : ''}`);
+      setAnimatingMenuId(null); // Reset animation state after navigation
+    }, animationDuration);
   }, [router, userId]); // เพิ่ม userId ใน dependency array
 
   const getImageUrl = useCallback((image: string) =>
@@ -148,7 +159,7 @@ export default function Home() {
       key={item._id}
       // **แก้ไข: ส่ง userId ไปยัง MenuPage จาก MenuCard**
       onClick={() => goto(item._id)}
-      className="w-[155px] py-[1rem] rounded-2xl bg-[rgba(255,255,255,0.38)] transform transition duration-300 hover:scale-103 cursor-pointer shadow-lg shadow-[#ffac7852] hover:shadow-xl"
+      className={`w-[155px] py-[1rem] rounded-2xl bg-[rgba(255,255,255,0.38)] transform transition duration-300 hover:scale-103 cursor-pointer shadow-lg shadow-[#ffac7852] hover:shadow-xl ${animatingMenuId ? "animate-press" : ''}`}
     >
       <div className="flex flex-col items-center">
         <img
@@ -207,8 +218,12 @@ export default function Home() {
   };
 
   const gotoChatbot = () => {
-    // **แก้ไข: ส่ง userId ไปยัง Chatbot Page ด้วย**
-    router.push(`/chatbot?id=${userId}`);
+
+    setIsAnimating(true)
+    setTimeout(() => {
+      // **แก้ไข: ส่ง userId ไปยัง Chatbot Page ด้วย**
+      router.push(`/chatbot?id=${userId}`);
+    }, 300);
   };
 
 
@@ -245,7 +260,7 @@ export default function Home() {
           เมนูแนะนำ
         </h1>
 
-        <div className="flex gap-2 mb-[4rem]">
+        <div className="flex gap-2 mb-[1.5rem]">
           <input
             type="text"
             placeholder="ค้นหาเมนู"
@@ -264,7 +279,7 @@ export default function Home() {
           </button>
         </div>
 
-        <div className="absolute top-[33.3rem] z-200 left-[20rem] -translate-x-1/2 md:left-[15rem] md:translate-x-0 "> {/* เพิ่ม z-index ให้กับ Parent เพื่อควบคุม Stacking Context รวม */}
+        <div className="absolute top-[46.2rem] z-200 left-[20rem] -translate-x-1/2 md:left-[15rem] md:translate-x-0 "> {/* เพิ่ม z-index ให้กับ Parent เพื่อควบคุม Stacking Context รวม */}
           {showBubble && (
             <div className="w-[150px] h-[50px] absolute top-[1.5rem] shadow-grey shadow-xl left-[-7rem] p-[0.5rem] flex items-center bg-white rounded-md animate-showUp z-200"> {/* ตั้ง z-index สูงๆ สำหรับ bubble */}
               <h1 className="text-[0.7rem]">ผม Mr.Rice อยากรู้อะไรสอบถามผมได้ครับ!</h1>
@@ -273,7 +288,7 @@ export default function Home() {
           <img
             onClick={gotoChatbot}
             // ต้องมี position เพื่อให้ z-index ทำงานได้
-            className="mt-[3rem] animate-pulse animate-sizeUpdown relative z-10 cursor-pointer transform hover:scale-105 duration-300"
+            className={`mt-[3rem] animate-pulse animate-sizeUpdown relative z-10 cursor-pointer transform hover:scale-105 duration-300 ${isAnimating ? "animate-press" : ''}` }
             src="/image%2069.png"
             alt="Chatbot icon"
             width={60}

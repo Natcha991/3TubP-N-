@@ -180,7 +180,7 @@ export default function IngredientPage() {
     return (
       <div className="relative h-[731px] w-screen overflow-hidden flex flex-col items-center justify-center
                 bg-gradient-to-br from-orange-300 to-orange-100 text-xl text-gray-700 font-prompt">
-        <div className="absolute left-0">
+        <div className="absolute top-0 left-0">
           <img src="/Group%2099.png" alt="Decoration"></img>
         </div>
         <div className="absolute right-0 rotate-[180deg] top-[30rem]">

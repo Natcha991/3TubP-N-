@@ -118,8 +118,8 @@ export default function Home() {
 
 
             {/* ส่วนล่างสุด (เมนู/ต่อไป) */}
-            <div className="absolute top-[591px] left-0 shadow-3xl right-0 flex justify-center font-prompt">
-                <div className="bg-white w-[500px] px-[4rem] py-[3rem] rounded-t-4xl shadow-lg flex justify-between">
+            <div className="absolute top-[593px] left-0 right-0 flex justify-center font-prompt">
+                <div className="bg-white w-[500px] px-[4rem] py-[3rem] rounded-t-4xl flex justify-between">
                     {/* ปุ่ม "ต่อไป" - เรียก handleNavigationClick เพื่อตรวจสอบสถานะ */}
                     <div onClick={() => handleNavigationClick('next')} className={`flex relative items-center cursor-pointer ${isNextAnimating ? 'animate-press' : ''}`}>
                         <h1 className={`bg-[#ff9e303e] text-2xl rounded-4xl py-[0.3rem] px-[1.5rem] ${isNextAnimating ? 'animate-flash-fill' : ''}`}>ต่อไป</h1>

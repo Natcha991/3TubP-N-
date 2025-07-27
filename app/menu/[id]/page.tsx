@@ -154,7 +154,7 @@ export default function MenuPage() {
 
     if (!menu) return <div className="relative h-[731px] w-screen overflow-hidden flex flex-col items-center justify-center
                 bg-gradient-to-br from-orange-300 to-orange-100 text-xl text-gray-700 font-prompt">
-      <div className="absolute left-0">
+      <div className="absolute left-0 top-0">
         <img src="/Group%2099.png" alt="Decoration"></img>
       </div>
       <div className="absolute right-0 rotate-[180deg] top-[30rem]">
