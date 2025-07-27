@@ -1,4 +1,3 @@
-// api/menu/nearby
 import { NextResponse } from 'next/server';
 import { connectToDatabase } from '@/lib/mongodb';
 import Menu from '@/models/Menu';
@@ -13,10 +12,10 @@ const goalToTags: Record<string, string[]> = {
 };
 
 const conditionToBlockedTags: Record<string, string[]> = {
-  'โรคไต': ['โซเดียมสูง', 'ถั่ว', 'โปรตีนสูง'],  // ใช้ tag "โปรตีนสูง" ตรง ๆ
-  'โรคเบาหวาน': [], // ป้องกันความหวาน
+  'โรคไต': ['โซเดียมสูง', 'ถั่ว', 'โปรตีนสูง'],
+  'โรคเบาหวาน': [],
   'โรคความดันโลหิตสูง': ['โซเดียมสูง'],
-  'โรคหัวใจ': ['ไขมันต่ำ'], // ปรับแทน "ไขมันอิ่มตัว"
+  'โรคหัวใจ': ['ไขมันต่ำ'],
   'แพ้อาหาร': [],
   'ตั้งครรภ์': [],
   'ให้นมบุตร': [],
@@ -30,7 +29,7 @@ const lifestyleToTags: Record<string, string[]> = {
   'ติดบ้าน': ['ทำกินที่บ้าน', 'อบ', 'ต้ม'],
   'รักสุขภาพ': ['ไม่ใส่น้ำตาล', 'ไขมันต่ำ', 'สุขภาพ'],
   'กินมังสวิรัติ': ['มังสวิรัติ'],
-  'กินเจ': ['วีแกน'], // ใช้แทนคำว่า "เจ"
+  'กินเจ': ['วีแกน'],
   'ไม่ทานเนื้อสัตว์': ['วีแกน'],
   'ทำงานหนัก': ['พลังงานสูง', 'กล่องเดียวจบ'],
   'เดินทางบ่อย': ['พกพาสะดวก', 'กล่องเดียวจบ'],
@@ -42,7 +41,13 @@ const lifestyleToBlockedTags: Record<string, string[]> = {
   'ไม่ทานเนื้อสัตว์': ['หมู', 'ไก่', 'เนื้อ', 'ปลา', 'อาหารทะเล', 'กุ้ง'],
 };
 
-function matchMenuToUser(menuTags: string[], user: any): boolean {
+interface UserProfile {
+  goal?: string;
+  condition?: string;
+  lifestyle?: string;
+}
+
+function matchMenuToUser(menuTags: string[], user: UserProfile): boolean {
   console.log('👤 [DEBUG] user input to matcher:', user);
   console.log('🎯 user.goal:', user.goal);
   console.log('💉 user.condition:', user.condition);
@@ -51,19 +56,18 @@ function matchMenuToUser(menuTags: string[], user: any): boolean {
   const matchedTags = new Set<string>();
   const blockedTags = new Set<string>();
 
-  const goals = (user.goal || "").split(",").map((s: string) => s.trim());
-  const conditions = (user.condition || "").split(",").map((s: string) => s.trim());
-  const lifestyles = (user.lifestyle || "").split(",").map((s: string) => s.trim());
+  const goals = (user.goal || "").split(",").map(s => s.trim());
+  const conditions = (user.condition || "").split(",").map(s => s.trim());
+  const lifestyles = (user.lifestyle || "").split(",").map(s => s.trim());
 
   console.log('✅ goals:', goals);
   console.log('⛑️ conditions:', conditions);
   console.log('🏃 lifestyles:', lifestyles);
 
-  goals.forEach((goal: string) => goalToTags[goal]?.forEach(tag => matchedTags.add(tag)));
-  lifestyles.forEach((lf: string) => lifestyleToTags[lf]?.forEach(tag => matchedTags.add(tag)));
-
-  conditions.forEach((cond: string) => conditionToBlockedTags[cond]?.forEach(tag => blockedTags.add(tag)));
-  lifestyles.forEach((lf: string) => lifestyleToBlockedTags[lf]?.forEach(tag => blockedTags.add(tag)));
+  goals.forEach(goal => goalToTags[goal]?.forEach(tag => matchedTags.add(tag)));
+  lifestyles.forEach(lf => lifestyleToTags[lf]?.forEach(tag => matchedTags.add(tag)));
+  conditions.forEach(cond => conditionToBlockedTags[cond]?.forEach(tag => blockedTags.add(tag)));
+  lifestyles.forEach(lf => lifestyleToBlockedTags[lf]?.forEach(tag => blockedTags.add(tag)));
 
   console.log('🔵 matchedTags:', Array.from(matchedTags));
   console.log('🔴 blockedTags:', Array.from(blockedTags));
@@ -78,9 +82,6 @@ function matchMenuToUser(menuTags: string[], user: any): boolean {
 
   return hasMatch && !isBlocked;
 }
-
-
-
 
 function createSeededRandom(seed: string): () => number {
   let h = 0;
@@ -108,12 +109,13 @@ export async function GET(req: Request) {
       return NextResponse.json({ message: 'Missing userId' }, { status: 400 });
     }
 
-    const user = await User.findById(userId).lean();
-    if (!user) {
+    const userDoc = await User.findById(userId).lean();
+    if (!userDoc) {
       return NextResponse.json({ message: 'User not found' }, { status: 404 });
     }
 
-    console.log("🧑‍🍳 user profile →", user); // ✅ ใส่ตรงนี้
+    const user = userDoc as UserProfile;
+    console.log("🧑‍🍳 user profile →", user);
 
     const excluded: string[] = excludeIds
       .split(',')
@@ -123,13 +125,15 @@ export async function GET(req: Request) {
     const allMenus = await Menu.find({ _id: { $nin: excluded } }).lean();
     console.log('📦 Total candidate menus:', allMenus.length);
 
-    const matchedMenus = allMenus.filter(menu => matchMenuToUser(menu.tags || [], user));
+    const matchedMenus = allMenus.filter(menu =>
+      matchMenuToUser(menu.tags || [], user)
+    );
     console.log('✅ Matched menus after filtering by user:', matchedMenus.map(m => m.name));
 
     const random = seed ? createSeededRandom(seed) : () => 0.5 - Math.random();
 
-    let brownRiceMenus = matchedMenus.filter(menu => menu.tags?.includes("ข้าวกล้อง"));
-    let otherMenus = matchedMenus.filter(menu => !menu.tags?.includes("ข้าวกล้อง"));
+    const brownRiceMenus = matchedMenus.filter(menu => menu.tags?.includes("ข้าวกล้อง"));
+    const otherMenus = matchedMenus.filter(menu => !menu.tags?.includes("ข้าวกล้อง"));
     console.log('🍚 Brown rice menus:', brownRiceMenus.map(m => m.name));
     console.log('🍛 Other menus:', otherMenus.map(m => m.name));
 
