@@ -24,6 +24,7 @@ export default function Home() {
   const [isLoadingMenus, setIsLoadingMenus] = useState(true);
   const [animatingMenuId, setAnimatingMenuId] = useState<string | null>(null);
   const [isAnimating, setIsAnimating] = useState(false);
+  const [isAnimating2, setIsAnimating2] = useState(false);
 
 
   const [currentPage, setCurrentPage] = useState(0);
@@ -37,6 +38,7 @@ export default function Home() {
 
   const loadMoreMenus = async () => {
     setIsLoadingMore(true);
+    setIsAnimating2(true) 
     try {
       const res = await fetch(`/api/menu/nearby?userId=${userId}&excludeIds=${allShownMenuIds.join(',')}`);
       const data = await res.json();
@@ -359,14 +361,13 @@ export default function Home() {
 
           <div className="grid grid-cols-2 mb-[2rem] gap-4">
             {menus.slice(2, 4).map(renderMenuCard)}
-          </div>
-
-          // เพิ่มปุ่มด้านล่างสุดของเมนู
+          </div> 
+          
           {!noMoreMenus && (
             <button
               onClick={loadMoreMenus}
               disabled={isLoadingMore}
-              className="mt-4 mb-[5rem] px-4 py-2 bg-orange-400 text-white rounded hover:bg-orange-600 disabled:opacity-50"
+              className={`mt-4 mb-[5rem] px-4 py-2 bg-orange-400 text-white rounded hover:bg-orange-600 disabled:opacity-50 ${isAnimating2 ? "animate-press" : ''}`}
             >
               {isLoadingMore ? "กำลังโหลด..." : "โหลดเมนูเพิ่มเติม"}
             </button>
