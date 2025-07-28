@@ -18,29 +18,33 @@ export default function Home() {
   const searchParams = useSearchParams();
   const rawId = searchParams.get('id');
   const userId = rawId && rawId !== 'undefined' ? rawId : null;
+
   const [menus, setMenus] = useState<MenuItem[]>([]);
-  const [isLoadingMenus, setIsLoadingMenus] = useState(true);
-  const [animatingMenuId, setAnimatingMenuId] = useState<string | null>(null);
-  const [isAnimating, setIsAnimating] = useState(false);
   const [specialMenu, setSpecialMenu] = useState<MenuItem | null>(null);
+  const [isLoadingMenus, setIsLoadingMenus] = useState(true);
+  const [isAnimating, setIsAnimating] = useState(false);
+  const [animatingMenuId, setAnimatingMenuId] = useState<string | null>(null);
   const [searchTerm, setSearchTerm] = useState('');
   const [isSearching, setIsSearching] = useState(false);
+  const [isSearchMode, setIsSearchMode] = useState(false);
   const [showBubble, setShowBubble] = useState(false);
-  const [noMoreMenus] = useState(false);
+
+  const [currentPage, setCurrentPage] = useState(1);
+  const itemsPerPage = 6;
+  const totalPages = Math.ceil(menus.length / itemsPerPage);
+  const pagedMenus = menus.slice((currentPage - 1) * itemsPerPage, currentPage * itemsPerPage);
 
   const resetMenus = async () => {
+    setIsSearchMode(false);
     setIsLoadingMenus(true);
     const seed = Math.random().toString(36).substring(2);
     try {
       const res = await fetch(`/api/menu/nearby?userId=${userId}&seed=${seed}`);
       const data = await res.json();
       const newMenus: MenuItem[] = Array.isArray(data?.menus) ? data.menus : [];
-
-      const displayMenus = newMenus.slice(0, 4);
-      const supplementMenu = newMenus.length > 4 ? newMenus[4] : newMenus[0];
-
-      setMenus(displayMenus);
-      setSpecialMenu(supplementMenu);
+      setMenus(newMenus);
+      setSpecialMenu(newMenus[2] || null);
+      setCurrentPage(1);
     } catch (err) {
       console.error('Error loading menus:', err);
     } finally {
@@ -77,7 +81,7 @@ export default function Home() {
 
   const getImageUrl = useCallback((image: string) =>
     image && image !== 'undefined' ? `/menus/${encodeURIComponent(image)}` : '/default.png',
-    []);
+  []);
 
   const renderMenuCard = useCallback((item: MenuItem) => (
     <div
@@ -97,7 +101,7 @@ export default function Home() {
           }}
         />
         <div className="flex items-center">
-          <div className="w-[0.1rem] h-[2rem] mt-[0.8rem] mr-[0.4rem] ml-[0.5rem] bg-[#333333]"></div>
+          <div className="w-[0.1rem] h-[2rem] mt-[0.8rem] mr-[0.4rem] ml-[0.5rem] bg-[#333333]" />
           <div>
             <h1 className="text-[0.9rem] w-[123px] font-bold mt-2.5 mb-1 font-prompt">
               {item.name?.toUpperCase() || 'ไม่มีชื่อเมนู'}
@@ -115,14 +119,13 @@ export default function Home() {
   const handleSearch = async () => {
     if (!searchTerm.trim()) return;
     setIsSearching(true);
+    setIsSearchMode(true);
+    setCurrentPage(1);
     try {
       const res = await fetch(`/api/search-menu?query=${encodeURIComponent(searchTerm)}&userId=${userId}`);
       const data = await res.json();
       const foundMenus: MenuItem[] = Array.isArray(data?.menus) ? data.menus : [];
-      const displayMenus = foundMenus.slice(0, 4);
-      const supplementMenu = foundMenus.length > 4 ? foundMenus[4] : foundMenus[0];
-      setMenus(displayMenus);
-      setSpecialMenu(supplementMenu);
+      setMenus(foundMenus);
     } catch (err) {
       console.error('Search error:', err);
     } finally {
@@ -131,9 +134,7 @@ export default function Home() {
   };
 
   const handleKeyPress = (e: React.KeyboardEvent) => {
-    if (e.key === 'Enter') {
-      handleSearch();
-    }
+    if (e.key === 'Enter') handleSearch();
   };
 
   const gotoChatbot = () => {
@@ -143,17 +144,14 @@ export default function Home() {
     }, 300);
   };
 
-  if (isLoadingMenus) {
-    return <div className="text-center mt-10">กำลังโหลดเมนู...</div>;
-  }
+  if (isLoadingMenus) return <div className="text-center mt-10">กำลังโหลดเมนู...</div>;
 
   return (
-    <div className='font-prompt'>
+    <div className="font-prompt">
       <HealthTip userId={userId ?? ''} />
       <div className="flex flex-col items-center">
-        <h1 className="font-[600] mt-[2rem] text-[#333333] font-prompt mb-[2rem] mr-[9rem] text-[2rem]">
-          เมนูแนะนำ
-        </h1>
+        <h1 className="font-[600] mt-[2rem] text-[#333333] font-prompt mb-[2rem] text-[2rem]">เมนูแนะนำ</h1>
+
         <div className="flex gap-2 mb-[1.5rem]">
           <input
             type="text"
@@ -173,6 +171,7 @@ export default function Home() {
           </button>
         </div>
 
+        {/* Mr.Rice Bubble */}
         <div className="absolute top-[46.2rem] z-200 left-[20rem] -translate-x-1/2 md:left-[15rem] md:translate-x-0">
           {showBubble && (
             <div className="w-[150px] h-[50px] absolute top-[1.5rem] shadow-grey shadow-xl left-[-7rem] p-[0.5rem] flex items-center bg-white rounded-md animate-showUp z-200">
@@ -189,57 +188,84 @@ export default function Home() {
           />
         </div>
 
+        {/* Menu Display */}
         <div className="flex flex-col items-center gap-4 mb-[4rem]">
-          <div className="grid grid-cols-2 gap-4">
-            {menus.slice(0, 2).map(renderMenuCard)}
-          </div>
+          {isSearchMode ? (
+            <>
+              <div className="grid grid-cols-2 gap-4">
+                {pagedMenus.map(renderMenuCard)}
+              </div>
+                {totalPages > 1 && (
+                  <div className="max-w-[18rem] px-2 mt-4 overflow-x-auto scrollbar-hide">
+                    <div className="flex gap-2 w-max">
+                      {Array.from({ length: totalPages }, (_, i) => (
+                        <button
+                          key={i}
+                          onClick={() => setCurrentPage(i + 1)}
+                          className={`min-w-[2rem] px-3 py-1 rounded whitespace-nowrap ${
+                            currentPage === i + 1
+                              ? 'bg-orange-500 text-white'
+                              : 'bg-gray-200 text-black'
+                          }`}
+                        >
+                          {i + 1}
+                        </button>
+                      ))}
+                    </div>
+                  </div>
+                )}
+            </>
+          ) : (
+            <>
+              <div className="grid grid-cols-2 gap-4">
+                {menus.slice(0, 2).map(renderMenuCard)}
+              </div>
 
-          {specialMenu && (
-            <div
-              className="flex items-center h-[140px] w-[340px] bg-white rounded-bl-4xl rounded-tr-4xl rounded-br-md rounded-tl-md cursor-pointer shadow-lg shadow-[#ffac7853] hover:scale-102 duration-500"
-              onClick={() => goto(specialMenu._id)}
-            >
-              <img
-                src={getImageUrl(specialMenu.image)}
-                alt={specialMenu.name || 'เมนูเสริม'}
-                className="h-[150px] w-[150px] object-cover animate-Open rounded-lg ml-2 "
-                onError={(e) => {
-                  const target = e.target as HTMLImageElement;
-                  target.onerror = null;
-                  target.src = '/default.png';
-                }}
-              />
-              <div className="ml-[1rem] flex">
-                <div className="w-[0.1rem] h-[4rem] mt-[0.8rem] mr-[0.8rem] ml-[-0.8rem] bg-[#333333]"></div>
-                <div className="">
-                  <h1 className='font-prompt font-bold text-[1.1rem] mb-1 w-[140px] text-gray-800'>
-                    {specialMenu.name || 'เมนูพิเศษ'}
-                  </h1>
-                  <div className="flex items-baseline">
-                    <h1 className='font-Unbounded text-[1rem] font-bold text-gray-600 '>
-                      {specialMenu.calories}
-                    </h1>
-                    <h1 className='text-[0.7rem] ml-2 font-Unbounded text-gray-600'>KCAL</h1>
+              {specialMenu && (
+                <div
+                  className="flex items-center h-[140px] w-[340px] bg-white rounded-bl-4xl rounded-tr-4xl rounded-br-md rounded-tl-md cursor-pointer shadow-lg shadow-[#ffac7853] hover:scale-102 duration-500"
+                  onClick={() => goto(specialMenu._id)}
+                >
+                  <img
+                    src={getImageUrl(specialMenu.image)}
+                    alt={specialMenu.name || 'เมนูพิเศษ'}
+                    className="h-[150px] w-[150px] object-cover animate-Open rounded-lg ml-2"
+                    onError={(e) => {
+                      const target = e.target as HTMLImageElement;
+                      target.onerror = null;
+                      target.src = '/default.png';
+                    }}
+                  />
+                  <div className="ml-[1rem] flex">
+                    <div className="w-[0.1rem] h-[4rem] mt-[0.8rem] mr-[0.8rem] ml-[-0.8rem] bg-[#333333]" />
+                    <div>
+                      <h1 className='font-prompt font-bold text-[1.1rem] mb-1 w-[140px] text-gray-800'>
+                        {specialMenu.name || 'เมนูพิเศษ'}
+                      </h1>
+                      <div className="flex items-baseline">
+                        <h1 className='font-Unbounded text-[1rem] font-bold text-gray-600'>
+                          {specialMenu.calories}
+                        </h1>
+                        <h1 className='text-[0.7rem] ml-2 font-Unbounded text-gray-600'>KCAL</h1>
+                      </div>
+                    </div>
                   </div>
                 </div>
+              )}
+
+              <div className="grid grid-cols-2 gap-4">
+                {menus.slice(3, 5).map(renderMenuCard)}
               </div>
-            </div>
+            </>
           )}
 
-          <div className="grid grid-cols-2 mb-[2rem] gap-4">
-            {menus.slice(2, 4).map(renderMenuCard)}
-          </div>
-
+          {/* Shuffle Button */}
           <button
             onClick={resetMenus}
             className="mt-4 mb-[5rem] px-4 py-2 bg-orange-400 text-white rounded hover:bg-orange-600"
           >
             🔄 สุ่มเมนูใหม่ที่ตรงกับคุณ
           </button>
-
-          {noMoreMenus && (
-            <p className="text-gray-500 mt-4 mb-[5rem]">ไม่มีเมนูที่สอดคล้องแล้ว</p>
-          )}
         </div>
       </div>
     </div>

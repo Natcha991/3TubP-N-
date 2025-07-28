@@ -13,7 +13,7 @@ export async function GET(req: NextRequest) {
     // ใช้ mongoose model แทนการใช้ db.collection
     const menus = await Menu.find({
       name: { $regex: query, $options: 'i' }, // ค้นหาแบบไม่สนตัวพิมพ์เล็ก/ใหญ่
-    }).limit(10);
+    })
 
     return NextResponse.json({ menus });
   } catch (error) {
