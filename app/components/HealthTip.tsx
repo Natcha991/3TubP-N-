@@ -6,17 +6,16 @@ import React from 'react';
 interface Tip {
   id: string;
   content: React.ReactNode;
-  headline: string; // เพิ่มเพื่อแสดงตรงพาดหัว
+  headline: string;
   imageHead: string;
 }
 
 export default function HealthTip({ userId }: { userId: string }) {
-  if (!userId) return null; // ✅ ป้องกัน error ถ้ายังไม่มี userId
-  const router = useRouter();
-
+  const router = useRouter(); // ✅ ย้ายมาก่อน return
+  const [tipIndex, setTipIndex] = useState(0); // ✅ เรียกเสมอ
   const tips: Tip[] = [
     {
-      id: 'water', 
+      id: 'water',
       content: (
         <>
           <span className="text-blue-600 font-bold">น้ำ</span> อย่างไรให้ไม่เสียสุขภาพ
@@ -47,13 +46,14 @@ export default function HealthTip({ userId }: { userId: string }) {
     },
   ];
 
-  const [tipIndex, setTipIndex] = useState(0);
-  const tip = tips[tipIndex];
-
   useEffect(() => {
     const randomIndex = Math.floor(Math.random() * tips.length);
     setTipIndex(randomIndex);
   }, [tips.length]);
+
+  if (!userId) return null; // ✅ Early return หลังเรียก Hook
+
+  const tip = tips[tipIndex];
 
   const gotoChat = () => {
     router.push(`/chatbot?id=${userId}&topic=${tip.id}`);
@@ -63,15 +63,19 @@ export default function HealthTip({ userId }: { userId: string }) {
     <div className="relative cursor-pointer flex justify-center font-prompt" onClick={gotoChat}>
       <div className="[background:linear-gradient(0deg,rgba(255,255,255,0.54)_0%,rgba(255,255,255,1)_100%)] w-[245px] pt-[7rem] pb-[2rem] px-[2rem] mr-[11.5rem] rounded-br-3xl">
         <div className="absolute top-[2rem]">
-          <img className="w-[60px] bg-white h-[60px] rounded-full object-cover" src="/profile.jpeg" />
+          <img
+            className="w-[60px] bg-white h-[60px] rounded-full object-cover"
+            src="/profile.jpeg"
+            alt="Mr. Rice"
+          />
         </div>
         <h1 className="text-[#333333] w-[150px] absolute font-prompt mt-12 text-[1.7rem] font-bold font-unbounded leading-tight">
           {tip.headline}
         </h1>
         <div className="py-[1rem] mt-[9rem] flex flex-col items-center">
-          <img src="/image%2069.png" className="w-[2rem] mt-[2rem] mb-1" />
+          <img src="/image%2069.png" className="w-[2rem] mt-[2rem] mb-1" alt="icon" />
           <h1 className="text-[#333333] font-prompt text-xs mb-[1rem]">แนะนำโดย Mr.Rice</h1>
-        </div> 
+        </div>
       </div>
       <img
         className="absolute z-[-1] object-cover w-[433px] h-[450px] [mask-image:linear-gradient(to_bottom,black_60%,transparent)]"
