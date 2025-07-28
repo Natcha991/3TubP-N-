@@ -171,8 +171,8 @@ export default function Register2() {
                 </div>
 
                 {/* รูปภาพตัวละคร image_86.png - ปรับให้ใช้ max-h-[vh] และ object-contain เพื่อให้ Responsive */}
-                <div className="flex justify-center z-10 mt-[1rem] animate-sizeUpdown">
-                    <img src="/image%2086.png" alt='Decor' className="w-auto max-h-[60vh] object-contain" /> {/* Changed h-[430px] to max-h-[40vh] */}
+                <div className="flex justify-center z-10 mt-[3.5rem] animate-sizeUpdown">
+                    <img src="/image%2086.png" alt='Decor' className="w-auto max-h-[50vh] object-contain" /> {/* Changed h-[430px] to max-h-[40vh] */}
                 </div>
             </div>
 

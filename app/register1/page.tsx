@@ -70,7 +70,7 @@ export default function Home() {
                     <img
                         src="/image%2085.png"
                         alt='Mr.Rice asking'
-                        className="w-auto max-h-[60vh] object-contain" // Set max height relative to viewport and maintain aspect ratio
+                        className="w-auto max-h-[50vh] object-contain" // Set max height relative to viewport and maintain aspect ratio
                     />
                 </div>
             </div>
