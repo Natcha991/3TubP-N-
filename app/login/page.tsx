@@ -154,7 +154,7 @@ export default function LoginPage() {
             {/* ----------------------------------------------------- */}
             {/* ส่วนรูปภาพด้านล่าง (ไม่ใช่ fixed) */}
             {/* ปรับให้ใช้ max-h-[vh] และ object-contain เพื่อให้ Responsive */}
-            <div className="flex justify-center overflow-hidden animate-sizeUpdown w-full"> {/* ลบ absolute bottom-0 ออก */}
+            <div className="flex justify-center overflow-hidden mb-15 animate-sizeUpdown w-full"> {/* ลบ absolute bottom-0 ออก */}
                 <img
                     src="/image%2086.png"
                     alt='Decor'
