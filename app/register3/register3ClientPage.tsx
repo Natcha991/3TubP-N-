@@ -104,7 +104,7 @@ export default function Register3() {
                 <img src="/image%2084.png" alt="Decoration" />
             </div>
             {/* ภาพประกอบเคลื่อนไหว - ตัวที่สอง */}
-            <div className="absolute top-[50vh] right-[5vw] rotate-[35deg] animate-shakeright2 w-[25vw] max-w-[120px] z-10">
+            <div className="absolute top-[50vh] right-0 rotate-[35deg] animate-shakeright2 w-[25vw] max-w-[120px] z-10">
                 <img src="/image%2084.png" className='w-[140px]' alt="Decoration" />
             </div>
 
