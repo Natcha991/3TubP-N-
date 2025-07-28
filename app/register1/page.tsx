@@ -58,7 +58,7 @@ export default function Home() {
             {/* Adjust padding-top to create space from the top */}
             <div className="flex flex-col items-center flex-grow justify-center pt-19 pb-8"> {/* Added pb-8 for bottom padding */}
                 {/* Top text section */}
-                <div className="flex flex-col items-center mb-4 text-center">
+                <div className="flex flex-col items-center text-center">
                     <h1 className='w-[300px] text-[#333333] font-[500] text-3xl animate-dopdop leading-tight'>
                         เดี๋ยวก่อน!! ก่อนจะไปดูเมนู ผมขอถามอะไรคุณก่อนสิ
                     </h1>
@@ -66,7 +66,7 @@ export default function Home() {
 
                 {/* Mr.Rice image section */}
                 {/* Use max-h-[vh] and object-contain for responsive image sizing */}
-                <div className="flex justify-center z-10 animate-sizeUpdown mt-8 flex-grow items-center"> {/* Added flex-grow and items-center to center the image vertically within its flex container */}
+                <div className="flex justify-center z-10 animate-sizeUpdown flex-grow items-center"> {/* Added flex-grow and items-center to center the image vertically within its flex container */}
                     <img
                         src="/image%2085.png"
                         alt='Mr.Rice asking'
@@ -75,11 +75,10 @@ export default function Home() {
                 </div>
             </div>
 
-            {/* Removed the empty bottom absolute div as requested */}
-            {/* <div className="absolute bottom-0 left-0 right-0 flex justify-center font-prompt">
-                <div className="bg-white w-[500px] px-[4rem] py-[4.5rem] rounded-t-4xl shadow-lg flex justify-between">
+            <div className="absolute bottom-0 left-0 right-0 flex justify-center font-prompt"> {/* เพิ่ม z-index ให้ปุ่มอยู่บนสุด */}
+                <div className="bg-white w-[500px] px-[4rem] py-[4.5rem] rounded-t-4xl flex justify-between"> 
                 </div>
-            </div> */}
+            </div>
         </div>
     );
 }
