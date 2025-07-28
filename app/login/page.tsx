@@ -96,10 +96,10 @@ export default function LoginPage() {
             style={{ height: appHeight }}
         >
             {/* Decoration images - ปรับขนาดด้วย w-[%] และ max-w-[] เพื่อให้ Responsive */}
-            <div className="absolute left-0 w-[30%] max-w-[150px]"> {/*  */}
+            <div className="absolute left-0 w-[60%] max-w-[250px]"> {/*  */}
                 <img src="/Group%2099.png" alt="Decoration"></img>
             </div>
-            <div className="absolute right-0 rotate-[180deg] top-[30rem] w-[30%] max-w-[150px]"> {/*  */}
+            <div className="absolute right-0 rotate-[180deg] top-[30rem] w-[60%] max-w-[250px]"> {/*  */}
                 <img src="/Group%2099.png" alt="Decoration"></img>
             </div>
             <div className="absolute top-[20rem] left-[0.3rem] animate-shakeright w-[60%] max-w-[100px]"> {/*  */}
