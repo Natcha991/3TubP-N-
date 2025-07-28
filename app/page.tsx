@@ -81,7 +81,7 @@ export default function Home() {
     }
 
     return (
-        <div className="relative min-h-screen w-screen flex flex-col overflow-hidden items-center bg-gradient-to-br from-orange-300 to-orange-100">
+        <div className="relative h-screen w-screen flex flex-col overflow-hidden items-center bg-gradient-to-br from-orange-300 to-orange-100">
             {/* Decoration images */}
             <div className="absolute left-0">
                 <img src="/Group%2099.png" alt="Decoration"></img>
