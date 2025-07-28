@@ -1,7 +1,6 @@
 'use client';
 export const dynamic = 'force-dynamic';
-import { useRouter } from 'next/navigation';
-import React, { useEffect } from 'react'; // ไม่ต้องใช้ useState, useCallback ถ้ามีแค่ goto ง่ายๆ
+import { useRouter } from 'next/navigation'; // ไม่ต้องใช้ useState, useCallback ถ้ามีแค่ goto ง่ายๆ
 
 export default function Home() {
     const router = useRouter();
