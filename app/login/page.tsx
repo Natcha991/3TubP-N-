@@ -96,22 +96,22 @@ export default function LoginPage() {
             style={{ height: appHeight }}
         >
             {/* Decoration images - ปรับขนาดด้วย w-[%] และ max-w-[] เพื่อให้ Responsive */}
-            <div className="absolute left-0 **w-[30%] max-w-[150px]**"> {/*  */}
+            <div className="absolute left-0 w-[30%] max-w-[150px]"> {/*  */}
                 <img src="/Group%2099.png" alt="Decoration"></img>
             </div>
-            <div className="absolute right-0 rotate-[180deg] top-[30rem] **w-[30%] max-w-[150px]**"> {/*  */}
+            <div className="absolute right-0 rotate-[180deg] top-[30rem] w-[30%] max-w-[150px]"> {/*  */}
                 <img src="/Group%2099.png" alt="Decoration"></img>
             </div>
-            <div className="absolute top-[20rem] left-[0.3rem] animate-shakeright **w-[20%] max-w-[100px]**"> {/*  */}
+            <div className="absolute top-[20rem] left-[0.3rem] animate-shakeright w-[60%] max-w-[100px]"> {/*  */}
                 <img className='' src="/image%2084.png" alt="Decoration"></img>
             </div>
-            <div className="absolute top-[35rem] left-[19rem] rotate-[35deg] animate-shakeright2 **w-[25%] max-w-[120px]**"> {/*  */}
+            <div className="absolute top-[35rem] left-[19rem] rotate-[35deg] animate-shakeright2 w-[45%] max-w-[120px]"> {/*  */}
                 <img src="/image%2084.png" className='w-[140px]' alt="Decoration"></img>
             </div>
 
             {/* ส่วนข้อความด้านบนและฟอร์ม */}
             {/* ใช้ flex-grow เพื่อให้ส่วนนี้ขยายตัวและดันรูปภาพด้านล่างลงไปได้ */}
-            <div className="mt-[5rem] flex flex-col items-center z-200 **flex-grow**">
+            <div className="mt-[5rem] flex flex-col items-center z-200 flex-grow">
                 <div className="w-full">
                     <h1 className='w-[330px] text-center font-prompt text-3xl font-[500] text-[#333333] mt-2'>
                         กรอกชื่อเพื่อเข้าสู่ระบบ
@@ -152,14 +152,14 @@ export default function LoginPage() {
             </div>
 
             {/* ----------------------------------------------------- */}
-            {/* ส่วนรูปภาพที่ต้องการให้โดนจอกิน (จัดกลางแนวตั้ง, ชิดขวา, กินขอบ) */}
+            {/* ส่วนรูปภาพด้านล่าง (ไม่ใช่ fixed) */}
             {/* ปรับให้ใช้ max-h-[vh] และ object-contain เพื่อให้ Responsive */}
-            <div className="z-10 absolute bottom-7 flex justify-center overflow-hidden animate-sizeUpdown **w-full**">
+            <div className="flex justify-center overflow-hidden animate-sizeUpdown w-full"> {/* ลบ absolute bottom-0 ออก */}
                 <img
                     src="/image%2086.png"
                     alt='Decor'
                     // กำหนดความสูงสูงสุดเป็น 60% ของ viewport height และให้รูปภาพปรับขนาดแบบ contain
-                    className="w-auto **max-h-[60vh] h-[60vh] object-contain**"
+                    className="w-auto max-h-[60vh] object-contain"
                 />
             </div>
         </div>
