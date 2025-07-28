@@ -2,7 +2,6 @@
 import { useRouter } from 'next/navigation';
 import React, { useEffect, useState } from 'react';
 
-
 export default function Home() {
     const router = useRouter();
     const [isRegistered, setIsRegistered] = useState<boolean | null>(null);
@@ -44,8 +43,12 @@ export default function Home() {
             }
 
             // Navigate based on registration status
+            // Note: If you want the animation to fully complete before navigation,
+            // ensure your CSS animation duration matches this setTimeout delay.
+            // Also, consider if `router.push` should happen directly,
+            // or if you want to pass the userId for `menu` button.
             if (isRegistered) {
-                router.push("/login");
+                router.push("/login"); // หรือ /home?id=userId ถ้า userId มีอยู่แล้ว
             } else {
                 router.push("/register1");
             }
@@ -55,8 +58,9 @@ export default function Home() {
     // คุณอาจจะเพิ่ม Loader หรือ UI อื่นๆ ในขณะที่กำลังตรวจสอบ isRegistered
     if (isRegistered === null) {
         return (
-            <div className="relative h-[731px] w-screen overflow-hidden flex flex-col items-center justify-center
-                bg-gradient-to-br from-orange-300 to-orange-100 text-xl text-gray-700 font-prompt">
+            <div className="relative h-screen w-screen overflow-hidden flex flex-col items-center justify-center
+                 bg-gradient-to-br from-orange-300 to-orange-100 text-xl text-gray-700 font-prompt">
+                {/* Decoration images - consider using Next.js Image component for performance */}
                 <div className="absolute left-0">
                     <img src="/Group%2099.png" alt="Decoration"></img>
                 </div>
@@ -77,7 +81,8 @@ export default function Home() {
     }
 
     return (
-        <div className="relative h-[731px] w-screen flex flex-col overflow-hidden items-center bg-gradient-to-br from-orange-300 to-orange-100">
+        <div className="relative min-h-screen w-screen flex flex-col overflow-hidden items-center bg-gradient-to-br from-orange-300 to-orange-100">
+            {/* Decoration images */}
             <div className="absolute left-0">
                 <img src="/Group%2099.png" alt="Decoration"></img>
             </div>
@@ -116,9 +121,9 @@ export default function Home() {
             </div>
             {/* ----------------------------------------------------- */}
 
-
             {/* ส่วนล่างสุด (เมนู/ต่อไป) */}
-            <div className="absolute top-[593px] left-0 right-0 flex justify-center font-prompt">
+            {/* เปลี่ยน top-[593px] เป็น bottom-0 */}
+            <div className="absolute bottom-0 left-0 right-0 flex justify-center font-prompt">
                 <div className="bg-white w-[500px] px-[4rem] py-[3rem] rounded-t-4xl flex justify-between">
                     {/* ปุ่ม "ต่อไป" - เรียก handleNavigationClick เพื่อตรวจสอบสถานะ */}
                     <div onClick={() => handleNavigationClick('next')} className={`flex relative items-center cursor-pointer ${isNextAnimating ? 'animate-press' : ''}`}>
