@@ -94,16 +94,16 @@ export default function Home() {
             style={{ height: appHeight }} // ใช้ appHeight ที่คำนวณจาก JS
         >
             {/* Decoration images - ปรับขนาดและตำแหน่งให้เหมาะสมกับ viewport */}
-            <div className="absolute left-0 **w-[40%] max-w-[200px]**">
+            <div className="absolute left-0 w-[60%] max-w-[250px]">
                 <img src="/Group%2099.png" alt="Decoration"></img>
             </div>
-            <div className="absolute right-0 rotate-[180deg] top-[30rem] **w-[40%] max-w-[200px]**">
+            <div className="absolute right-0 rotate-[180deg] top-[30rem] w-[60%] max-w-[250px]">
                 <img src="/Group%2099.png" alt="Decoration"></img>
             </div>
-            <div className="absolute top-[20rem] left-[1.5rem] animate-shakeright **w-[20%] max-w-[100px]**">
+            <div className="absolute top-[20rem] left-[1.5rem] animate-shakeright w-[20%] max-w-[100px]">
                 <img className='' src="/image%2084.png" alt="Decoration"></img>
             </div>
-            <div className="absolute top-[3rem] left-[19rem] rotate-[35deg] animate-shakeright2 **w-[30%] max-w-[140px]**">
+            <div className="absolute top-[3rem] left-[19rem] rotate-[35deg] animate-shakeright2 w-[30%] max-w-[140px]">
                 <img src="/image%2084.png" className='w-[140px]' alt="Decoration"></img>
             </div>
 
@@ -118,11 +118,11 @@ export default function Home() {
             {/* ----------------------------------------------------- */}
             {/* ส่วนรูปภาพที่ต้องการให้โดนจอกิน (จัดกลางแนวตั้ง, ชิดขวา, กินขอบ) */}
             {/* ----------------------------------------------------- */}
-            <div className="absolute right-0 top-[25rem] -translate-y-55 transform translate-x-23 md:translate-x-12 **max-h-[60vh] overflow-hidden flex items-end**"> {/* จำกัดความสูงและจัดให้ชิดด้านล่างของ div นี้ */} 
+            <div className="absolute right-0 top-[25rem] -translate-y-48 transform translate-x-13 md:translate-x-12 overflow-hidden flex items-end"> {/* จำกัดความสูงและจัดให้ชิดด้านล่างของ div นี้ */} 
                 <img
                     src="/image%2081.png"
                     alt='Decor'
-                    className="w-auto **h-full object-contain** animate-sizeUpdown" // h-full จะทำให้รูปสูงเท่า parent div
+                    className="w-auto max-h-[50vh] object-contain animate-sizeUpdown" // h-full จะทำให้รูปสูงเท่า parent div
                 />
             </div>
             {/* ----------------------------------------------------- */}

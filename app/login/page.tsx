@@ -159,7 +159,7 @@ export default function LoginPage() {
                     src="/image%2086.png"
                     alt='Decor'
                     // กำหนดความสูงสูงสุดเป็น 60% ของ viewport height และให้รูปภาพปรับขนาดแบบ contain
-                    className="w-auto max-h-[60vh] object-contain"
+                    className="w-auto max-h-[50vh] object-contain"
                 />
             </div>
         </div>
