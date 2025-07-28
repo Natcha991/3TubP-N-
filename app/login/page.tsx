@@ -93,74 +93,77 @@ export default function LoginPage() {
         // ใช้ appHeight ที่คำนวณจาก JS เพื่อความสูงที่ถูกต้องบนมือถือ
         <div
             className="relative flex w-screen flex-col overflow-hidden items-center bg-gradient-to-br from-orange-300 to-orange-100"
-            style={{ height: appHeight }}
+            style={{ height: appHeight }} // Apply the calculated height
         >
-            {/* Decoration images - ปรับขนาดด้วย w-[%] และ max-w-[] เพื่อให้ Responsive */}
-            <div className="absolute left-0 w-[60%] max-w-[250px]"> {/*  */}
+            {/* Decoration images - ใช้ absolute เพื่อให้ลอยอยู่เหนือเนื้อหาและไม่ได้รับผลกระทบจากแป้นพิมพ์ */}
+            {/* ปรับขนาดด้วย w-[%] และ max-w-[] เพื่อให้ Responsive และไม่โดนบีบเมื่อแป้นพิมพ์ขึ้น */}
+            <div className="absolute left-0 w-[60%] max-w-[250px] z-10"> {/*  */}
                 <img src="/Group%2099.png" alt="Decoration"></img>
             </div>
-            <div className="absolute right-0 rotate-[180deg] top-[30rem] w-[60%] max-w-[250px]"> {/*  */}
+            <div className="absolute right-0 rotate-[180deg] top-[30rem] w-[60%] max-w-[250px] z-10"> {/*  */}
                 <img src="/Group%2099.png" alt="Decoration"></img>
             </div>
-            <div className="absolute top-[20rem] left-[0.3rem] animate-shakeright w-[60%] max-w-[100px]"> {/*  */}
+            <div className="absolute top-[20rem] left-[0.3rem] animate-shakeright w-[60%] max-w-[100px] z-10"> {/*  */}
                 <img className='' src="/image%2084.png" alt="Decoration"></img>
             </div>
-            <div className="absolute top-[35rem] left-[19rem] rotate-[35deg] animate-shakeright2 w-[45%] max-w-[120px]"> {/*  */}
+            <div className="absolute top-[35rem] left-[19rem] rotate-[35deg] animate-shakeright2 w-[45%] max-w-[120px] z-10"> {/*  */}
                 <img src="/image%2084.png" className='w-[140px]' alt="Decoration"></img>
             </div>
 
-            {/* ส่วนข้อความด้านบนและฟอร์ม */}
-            {/* ใช้ flex-grow เพื่อให้ส่วนนี้ขยายตัวและดันรูปภาพด้านล่างลงไปได้ */}
-            <div className="mt-[5rem] flex flex-col items-center z-200 flex-grow">
-                <div className="w-full">
-                    <h1 className='w-[330px] text-center font-prompt text-3xl font-[500] text-[#333333] mt-2'>
-                        กรอกชื่อเพื่อเข้าสู่ระบบ
-                    </h1>
+            {/* ส่วนเนื้อหาหลักทั้งหมด (ข้อความ, ฟอร์ม, รูปภาพ Mr.Rice) */}
+            {/* ใช้ flex-grow เพื่อให้ส่วนนี้ขยายตัวเติมเต็มพื้นที่ที่เหลือ และจัดเรียงลูกๆ ให้ตรงกลางในแนวตั้ง */}
+            <div className="flex flex-col items-center justify-center flex-grow pt-[2rem] pb-[2rem]"> {/* เพิ่ม pt/pb เพื่อเว้นระยะขอบ */}
+                {/* ส่วนข้อความด้านบนและฟอร์ม */}
+                <div className="flex flex-col items-center z-20">
+                    <div className="w-full">
+                        <h1 className='w-[330px] text-center font-prompt text-3xl font-[500] text-[#333333] mt-2'>
+                            กรอกชื่อเพื่อเข้าสู่ระบบ
+                        </h1>
+                    </div>
+                    <form onSubmit={handleLogin} className='font-prompt relative z-20 mt-[2rem] flex items-center'> {/* เพิ่ม z-index ให้ฟอร์ม */}
+                        <input
+                            id="username"
+                            name="username"
+                            type="text"
+                            required
+                            value={username}
+                            onChange={(e) => setUsername(e.target.value)}
+                            className='rounded-3xl border-2 border-[#333333] bg-white p-[0.5rem] px-[0.8rem]'
+                            placeholder='ชื่อของคุณ'
+                        />
+                        <button
+                            type='submit'
+                            disabled={loading}
+                            className='bg-grey-400 relative ml-[0.5rem] flex h-[45px] w-[45px] cursor-pointer items-center justify-center rounded-4xl border-2 border-[#333333] transition duration-300 hover:scale-105 disabled:cursor-not-allowed disabled:opacity-50'
+                        >
+                            <img src="/image%2082.png" alt="Login Icon" className="w-[20px] object-cover" /> {/*  */}
+                            {loading && (
+                                <span className="absolute inset-0 flex items-center justify-center text-[0.6rem] text-white bg-black bg-opacity-50 rounded-4xl">
+                                    กำลังโหลด...
+                                </span>
+                            )}
+                        </button>
+                    </form>
+                    <div className="">
+                        <h1 onClick={goRegister} className={`text-md text-red-600 mt-2 underline z-20 font-prompt cursor-pointer ${isAnimating ? "animate-press" : ''}`}>ยังไม่มีรหัส?</h1> {/* เพิ่ม z-index */}
+                    </div>
+                    {error && (
+                        <p className="mt-4 text-center text-sm text-red-600 z-20"> {/* เพิ่ม z-index */}
+                            {error}
+                        </p>
+                    )}
                 </div>
-                <form onSubmit={handleLogin} className='font-prompt relative z-107 mt-[2rem] flex items-center'>
-                    <input
-                        id="username"
-                        name="username"
-                        type="text"
-                        required
-                        value={username}
-                        onChange={(e) => setUsername(e.target.value)}
-                        className='rounded-3xl border-2 border-[#333333] bg-white p-[0.5rem] px-[0.8rem]'
-                        placeholder='ชื่อของคุณ'
-                    />
-                    <button
-                        type='submit'
-                        disabled={loading}
-                        className='bg-grey-400 relative ml-[0.5rem] flex h-[45px] w-[45px] cursor-pointer items-center justify-center rounded-4xl border-2 border-[#333333] transition duration-300 hover:scale-105 disabled:cursor-not-allowed disabled:opacity-50'
-                    >
-                        <img src="/image%2082.png" alt="Login Icon" className="w-[20px] object-cover" /> {/*  */}
-                        {loading && (
-                            <span className="absolute inset-0 flex items-center justify-center text-[0.6rem] text-white bg-black bg-opacity-50 rounded-4xl">
-                                กำลังโหลด...
-                            </span>
-                        )}
-                    </button>
-                </form>
-                <div className="">
-                    <h1 onClick={goRegister} className={`text-md text-red-600 mt-2 underline z-200 font-prompt cursor-pointer ${isAnimating ? "animate-press" : ''}`}>ยังไม่มีรหัส?</h1>
-                </div>
-                {error && (
-                    <p className="mt-4 text-center text-sm text-red-600 z-107">
-                        {error}
-                    </p>
-                )}
-            </div>
 
-            {/* ----------------------------------------------------- */}
-            {/* ส่วนรูปภาพด้านล่าง (ไม่ใช่ fixed) */}
-            {/* ปรับให้ใช้ max-h-[vh] และ object-contain เพื่อให้ Responsive */}
-            <div className="flex justify-center overflow-hidden mb-10 animate-sizeUpdown w-full"> {/* ลบ absolute bottom-0 ออก */}
-                <img
-                    src="/image%2086.png"
-                    alt='Decor'
-                    // กำหนดความสูงสูงสุดเป็น 60% ของ viewport height และให้รูปภาพปรับขนาดแบบ contain
-                    className="w-auto max-h-[50vh] object-contain"
-                />
+                {/* ส่วนรูปภาพด้านล่าง (image_86.png) - อยู่ใน flow ของเนื้อหาหลัก */}
+                {/* จะถูกดันขึ้น/เล็กลง หากแป้นพิมพ์ขึ้นและพื้นที่ด้านบนขยายตัว */}
+                <div className="flex justify-center overflow-hidden mt-8 z-30 animate-sizeUpdown w-full"> {/* เพิ่ม mt-8 เพื่อเว้นระยะจาก Input/Error */}
+                    <img
+                        src="/image%2086.png"
+                        alt='Decor'
+                        // กำหนดความสูงสูงสุดเป็น 50% ของ viewport height และให้รูปภาพปรับขนาดแบบ contain
+                        className="w-auto max-h-[50vh] object-contain"
+                    />
+                </div>
             </div>
         </div>
     );
