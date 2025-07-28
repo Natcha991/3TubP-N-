@@ -16,7 +16,8 @@ interface MenuItem {
 export default function Home() {
   const router = useRouter();
   const searchParams = useSearchParams();
-  const userId = searchParams.get('id') || '';
+  const rawId = searchParams.get('id');
+  const userId = rawId && rawId !== 'undefined' ? rawId : null;
   const [menus, setMenus] = useState<MenuItem[]>([]);
   const [isLoadingMenus, setIsLoadingMenus] = useState(true);
   const [animatingMenuId, setAnimatingMenuId] = useState<string | null>(null);
@@ -148,7 +149,7 @@ export default function Home() {
 
   return (
     <div className='font-prompt'>
-      <HealthTip userId={userId} />
+      <HealthTip userId={userId ?? ''} />
       <div className="flex flex-col items-center">
         <h1 className="font-[600] mt-[2rem] text-[#333333] font-prompt mb-[2rem] mr-[9rem] text-[2rem]">
           เมนูแนะนำ

@@ -155,11 +155,10 @@ export default function IngredientPage() {
   }, [userLocation, isLoaded]);
 
   // Navigation functions
-  const gotoHome = (menuId: string | null) => {
+  const gotoHome = (menuId: string | null, userId: string | null) => {
     if (menuId) {
-      router.push(`/menu/${menuId}`);
+      router.push(`/menu/${menuId}${userId ? `?userId=${userId}` : ''}`);
     } else {
-      console.warn('No previous menu ID found. Navigating back in history.');
       router.back();
     }
   };
@@ -171,8 +170,12 @@ export default function IngredientPage() {
 
   const gotoIngredient = (ingredientName: string) => {
     const currentMenuId = searchParams.get('menuId');
-    const queryParams = currentMenuId ? `?menuId=${currentMenuId}` : '';
-    router.push(`/ingredient/${encodeURIComponent(ingredientName)}${queryParams}`);
+    const queryParams = new URLSearchParams();
+
+    if (currentMenuId) queryParams.set('menuId', currentMenuId);
+    if (currentUserId) queryParams.set('userId', currentUserId);
+
+    router.push(`/ingredient/${encodeURIComponent(ingredientName)}?${queryParams.toString()}`);
   };
 
   // Loading state
@@ -238,7 +241,7 @@ export default function IngredientPage() {
       {/* Header with Back Button */}
       <div className="absolute z-10 top-0 left-0 right-0 flex justify-between p-4 items-center w-full max-w-2xl mx-auto">
         <div
-          onClick={() => gotoHome(previousMenuId)}
+          onClick={() => gotoHome(previousMenuId, currentUserId)}
           className="bg-white h-[50px] flex justify-center cursor-pointer transform transition duration-300 hover:scale-103 items-center w-[50px] rounded-full shadow-grey shadow-xl"
         >
           <Image className="h-[15px] w-auto" src="/Group%2084.png" alt="back" width={15} height={15} />

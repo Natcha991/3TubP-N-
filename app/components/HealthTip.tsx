@@ -11,6 +11,7 @@ interface Tip {
 }
 
 export default function HealthTip({ userId }: { userId: string }) {
+  if (!userId) return null; // ✅ ป้องกัน error ถ้ายังไม่มี userId
   const router = useRouter();
 
   const tips: Tip[] = [
