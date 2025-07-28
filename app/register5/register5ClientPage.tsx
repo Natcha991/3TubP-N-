@@ -1,7 +1,7 @@
 'use client';
 
 import { useRouter, useSearchParams } from 'next/navigation';
-import { useState, useEffect, useCallback } from 'react'; // Added useEffect, useCallback
+import { useState, useEffect } from 'react'; // Added useEffect, useCallback
 
 export default function Register5() {
     const router = useRouter();

@@ -112,7 +112,7 @@ export default function Register3() {
             {/* ใช้ flex-grow เพื่อให้ส่วนนี้ขยายตัวและดันรูปภาพด้านล่างได้ */}
             {/* ปรับ padding-bottom แบบ dynamic เพื่อให้ Input field ไม่ถูกบังเมื่อ Date Picker เปิด */}
             <div className="flex flex-col items-center justify-between flex-grow pt-[5rem] px-4"
-                style={{ paddingBottom: isKeyboardOpen ? '1rem' : '5vh' }}> {/* Dynamic padding-bottom */}
+                style={{ paddingBottom: isKeyboardOpen ? '1rem' : '2rem' }}> {/* Dynamic padding-bottom */}
                 
                 <div className="w-full text-center">
                     <h1 className='w-[300px] inline-block text-[#333333] mt-2 font-prompt font-[500] text-3xl'>
