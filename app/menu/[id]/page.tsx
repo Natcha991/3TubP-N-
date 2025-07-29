@@ -40,11 +40,37 @@ export default function MenuPage() {
     const [isLoadingSimilarMenus, setIsLoadingSimilarMenus] = useState<boolean>(false);
     const [similarMenusError, setSimilarMenusError] = useState<string | null>(null);
 
-    // แก้ไข goto ให้ส่ง userId กลับไปด้วย เมื่อกลับไป home page
-    // จะใช้ ?id=userId ถ้า userId มีค่า ไม่เช่นนั้นก็แค่ /home
-    const goto = () => {
-        router.push(`/home?id=${userId}`);
-    };
+    // **เพิ่ม state สำหรับควบคุม animate-press ในแต่ละจุด**
+    const [isBackAnimating, setIsBackAnimating] = useState(false);
+    const [animatingIngredientIndex, setAnimatingIngredientIndex] = useState<number | null>(null);
+    const [isNextStepAnimating, setIsNextStepAnimating] = useState(false);
+    const [animatingSimilarMenuId, setAnimatingSimilarMenuId] = useState<string | null>(null);
+
+    const [appHeight, setAppHeight] = useState('100vh');
+
+    // Effect to calculate and set the actual viewport height for mobile browsers
+    useEffect(() => {
+        const updateAppHeight = () => {
+            setAppHeight(`${window.visualViewport?.height || window.innerHeight}px`);
+        };
+
+        if (typeof window !== 'undefined') {
+            updateAppHeight();
+            window.addEventListener('resize', updateAppHeight);
+            if (window.visualViewport) {
+                window.visualViewport.addEventListener('resize', updateAppHeight);
+            }
+        }
+
+        return () => {
+            if (typeof window !== 'undefined') {
+                window.removeEventListener('resize', updateAppHeight);
+                if (window.visualViewport) {
+                    window.visualViewport.removeEventListener('resize', updateAppHeight);
+                }
+            }
+        };
+    }, []);
 
     useEffect(() => {
         if (!menuId) return;
@@ -133,17 +159,47 @@ export default function MenuPage() {
     }, [displayedSteps]);
 
     const handleNextStep = () => {
+        setIsNextStepAnimating(true); // Start animation for next step button
         const instructions = Array.isArray(menu?.instructions)
             ? menu.instructions
             : (menu?.instructions ? [menu.instructions] : []);
         if (nextStepIndex < instructions.length) {
-            setDisplayedSteps((prev) => [...prev, instructions[nextStepIndex]]);
-            setNextStepIndex((prev) => prev + 1);
+            setTimeout(() => { // Add timeout for animation to play
+                setDisplayedSteps((prev) => [...prev, instructions[nextStepIndex]]);
+                setNextStepIndex((prev) => prev + 1);
+                setIsNextStepAnimating(false); // End animation after action
+            }, 300); // Match animate-press duration
+        } else {
+            setIsNextStepAnimating(false); // If no more steps, turn off animation
         }
     };
 
+    const handleGoBack = () => {
+        setIsBackAnimating(true); // Start animation for back button
+        setTimeout(() => {
+            router.push(`/home?id=${userId}`);
+            setIsBackAnimating(false); // End animation after navigation
+        }, 300); // Match animate-press duration
+    };
+
+    const handleIngredientClick = (ingName: string, index: number) => {
+        setAnimatingIngredientIndex(index); // Start animation for clicked ingredient
+        setTimeout(() => {
+            router.push(`/ingredient/${encodeURIComponent(ingName)}?menuId=${menuId}${userId ? `&userId=${userId}` : ''}`);
+            setAnimatingIngredientIndex(null); // End animation after navigation
+        }, 300); // Match animate-press duration
+    };
+
+    const handleSimilarMenuClick = (similarMenuId: string) => {
+        setAnimatingSimilarMenuId(similarMenuId); // Start animation for clicked similar menu
+        setTimeout(() => {
+            router.push(`/menu/${similarMenuId}${userId ? `?userId=${userId}` : ''}`);
+            setAnimatingSimilarMenuId(null); // End animation after navigation
+        }, 300); // Match animate-press duration
+    };
+
     const getStepImage = (step: string): string => {
-        const keywords = ["เตรียมวัตถุดิบ", "ต้ม", "ผัด", "นึ่ง", "ย่าง", "ปรุงรส", "เสิร์ฟ", "อบ", "ใส่", "แช่","เคี่ยว","ปั่น","คั่ว","ทอด","หมัก","เจียว","ทา","ซอย","ผสม","ห่อ","หัน","หุง","ชุบ","คลุก","ตี ","ตำ","ลวก"];
+        const keywords = ["เตรียมวัตถุดิบ", "ต้ม", "ผัด", "นึ่ง", "ย่าง", "ปรุงรส", "เสิร์ฟ", "อบ", "ใส่", "แช่", "เคี่ยว", "ปั่น", "คั่ว", "ทอด", "หมัก", "เจียว", "ทา", "ซอย", "ผสม", "ห่อ", "หัน", "หุง", "ชุบ", "คลุก", "ตี", "ตำ", "ลวก"];
         for (const key of keywords) {
             if (step.includes(key)) {
                 return `/methods/${encodeURIComponent(key)}.png`;
@@ -152,23 +208,25 @@ export default function MenuPage() {
         return "/methods/default.png";
     };
 
-    if (!menu) return <div className="relative h-[731px] w-screen overflow-hidden flex flex-col items-center justify-center
-                bg-gradient-to-br from-orange-300 to-orange-100 text-xl text-gray-700 font-prompt">
-      <div className="absolute left-0 top-0">
-        <img src="/Group%2099.png" alt="Decoration"></img>
-      </div>
-      <div className="absolute right-0 rotate-[180deg] top-[30rem]">
-        <img src="/Group%2099.png" alt="Decoration"></img>
-      </div>
-      <div className="absolute top-[34rem] left-[1.5rem] animate-shakeright">
-        <img className='' src="/image%2084.png" alt="Decoration"></img>
-      </div>
-      <div className="absolute top-[3rem] left-[19rem] rotate-[35deg] animate-shakeright2">
-        <img src="/image%2084.png" className='w-[140px]' alt="Decoration"></img>
-      </div>
-      {/* ส่วนสีพื้นหลัง */}
-      <img className='animate-sizeUpdown2 mb-[1.5rem]' src="/image%2069.png"></img>
-      <p className="z-10">กำลังโหลดข้อมูล...</p>
+    if (!menu) return <div
+        className="relative w-screen overflow-hidden flex flex-col items-center justify-center
+                                 bg-gradient-to-br from-orange-300 to-orange-100 text-xl text-gray-700 font-prompt"
+        style={{ height: appHeight }}
+    >
+        <div className="absolute left-0 top-0 w-[60vw] max-w-[250px]">
+            <img src="/Group%2099.png" alt="Decoration"></img>
+        </div>
+        <div className="absolute right-0 bottom-0 rotate-[180deg] top-[30vh] w-[60vw] max-w-[250px]">
+            <img src="/Group%2099.png" alt="Decoration"></img>
+        </div>
+        <div className="absolute top-[74vh] left-[3.5vw] animate-shakeright w-[30vw] max-w-[200px]">
+            <img className='' src="/image%2084.png" alt="Decoration"></img>
+        </div>
+        <div className="absolute top-[10vh] right-[5vw] rotate-[35deg] animate-shakeright2 w-[25vw] max-w-[120px]">
+            <img src="/image%2084.png" className='w-[140px]' alt="Decoration"></img>
+        </div>
+        <img className='animate-sizeUpdown2 mb-[1.5rem] w-auto max-h-[40vh] object-contain' src="/image%2069.png" alt="Background decoration"></img>
+        <p className="z-10">กำลังโหลดข้อมูล...</p>
     </div>
 
     const instructions = Array.isArray(menu.instructions)
@@ -178,12 +236,12 @@ export default function MenuPage() {
     return (
         <div className="relative flex flex-col items-center">
             <div className="absolute z-1 flex justify-between m-[2rem] items-center sm:w-[95%] w-[85%]">
-                {/* แก้ไข onClick ของปุ่มย้อนกลับ เพื่อส่ง userId กลับไปด้วย */}
-                <div onClick={goto} className="bg-white h-[50px] flex justify-center cursor-pointer transform hover:scale-103 items-center w-[50px] rounded-full shadow-2xl">
+                {/* 1. ปุ่มย้อนกลับ */}
+                <div
+                    onClick={handleGoBack}
+                    className={`bg-white h-[50px] flex justify-center cursor-pointer transform hover:scale-103 items-center w-[50px] rounded-full shadow-2xl ${isBackAnimating ? "animate-press" : ''}`}
+                >
                     <Image className="h-[15px]" src="/Group%2084.png" alt="back" width={15} height={15} />
-                </div>
-                <div className="transform hover:scale-103 items-center w-[50px] rounded-full cursor-pointer">
-                    <Image className="h-[40px]" src="/image%2065.png" alt="menu" width={40} height={40} />
                 </div>
             </div>
 
@@ -223,12 +281,9 @@ export default function MenuPage() {
                         {ingredientsData.map((ing, i) => (
                             <div
                                 key={i}
-                                // **จุดสำคัญที่แก้ไข: เพิ่ม userId เข้าไปใน URL เมื่อคลิกวัตถุดิบ**
-                                onClick={() => router.push(
-                                    // ใช้ template literal เพื่อรวม string และ optional userId
-                                    `/ingredient/${encodeURIComponent(ing.name)}?menuId=${menuId}${userId ? `&userId=${userId}` : ''}`
-                                )}
-                                className="bg-[#FFFAD2] flex justify-between px-[1rem] items-center border border-[#C9AF90] w-full h-[3rem] rounded-[8px] hover:scale-102 cursor-pointer"
+                                // 2. วัตถุดิบ
+                                onClick={() => handleIngredientClick(ing.name, i)}
+                                className={`bg-[#FFFAD2] flex justify-between px-[1rem] items-center border border-[#C9AF90] w-full h-[3rem] rounded-[8px] hover:scale-102 cursor-pointer ${animatingIngredientIndex === i ? "animate-press" : ''}`}
                             >
                                 <div className="flex items-center gap-2.5">
                                     <Image
@@ -266,10 +321,11 @@ export default function MenuPage() {
                     </div>
 
                     <div className="flex justify-center mt-4 mb-12">
+                        {/* 3. ปุ่มถัดไป */}
                         <button
                             onClick={handleNextStep}
                             disabled={nextStepIndex >= instructions.length}
-                            className="flex-none bg-[#FFF5DD] cursor-pointer flex justify-center items-center border-2 border-[#C9AF90] w-[6.5rem] h-[2.5rem] rounded-[8px] hover:scale-103 disabled:opacity-50 disabled:cursor-not-allowed"
+                            className={`flex-none bg-[#FFF5DD] cursor-pointer flex justify-center items-center border-2 border-[#C9AF90] w-[6.5rem] h-[2.5rem] rounded-[8px] hover:scale-103 disabled:opacity-50 disabled:cursor-not-allowed ${isNextStepAnimating ? "animate-press" : ''}`}
                         >
                             <div className="flex flex-col items-center text-[#333333]">
                                 <h1 className="text-[0.8rem] mb-[-0.2rem]">ถัดไป</h1>
@@ -292,11 +348,9 @@ export default function MenuPage() {
                                 similarMenus.map((similarMenu) => (
                                     <div
                                         key={similarMenu._id}
-                                        // **แก้ไข: ส่ง userId ไปยังหน้ารายละเอียดเมนูที่คล้ายกันด้วย**
-                                        onClick={() => router.push(
-                                            `/menu/${similarMenu._id}${userId ? `?userId=${userId}` : ''}`
-                                        )}
-                                        className="flex flex-col items-center w-[130px] bg-white border-2 border-[#C9AF90] rounded-t-full shadow-sm cursor-pointer transform transition duration-300 hover:scale-105"
+                                        // 4. เมนูใกล้เคียง
+                                        onClick={() => handleSimilarMenuClick(similarMenu._id)}
+                                        className={`flex flex-col items-center w-[130px] bg-white border-2 border-[#C9AF90] rounded-t-full shadow-sm cursor-pointer transform transition duration-300 hover:scale-105 ${animatingSimilarMenuId === similarMenu._id ? "animate-press" : ''}`}
                                     >
                                         <Image
                                             className="h-[110px] animate-sizeUpdown w-auto object-cover rounded-t-full"

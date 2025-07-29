@@ -20,8 +20,7 @@ export default function Home() {
     const userId = rawId && rawId !== 'undefined' ? rawId : null;
 
     const [menus, setMenus] = useState<MenuItem[]>([]);
-    const [specialMenu, setSpecialMenu] = useState<MenuItem | null>(null);
-    const [isLoadingMenus, setIsLoadingMenus] = useState(true);
+    const [specialMenu, setSpecialMenu] = useState<MenuItem | null>(null); 
     const [isAnimating, setIsAnimating] = useState(false);
     const [animatingMenuId, setAnimatingMenuId] = useState<string | null>(null);
     const [searchTerm, setSearchTerm] = useState('');
@@ -37,8 +36,7 @@ export default function Home() {
     const pagedMenus = menus.slice((currentPage - 1) * itemsPerPage, currentPage * itemsPerPage);
 
     const resetMenus = async () => {
-        setIsSearchMode(false);
-        setIsLoadingMenus(true);
+        setIsSearchMode(false); 
         const seed = Math.random().toString(36).substring(2);
         try {
             const res = await fetch(`/api/menu/nearby?userId=${userId}&seed=${seed}`);
@@ -49,8 +47,6 @@ export default function Home() {
             setCurrentPage(1);
         } catch (err) {
             console.error('Error loading menus:', err);
-        } finally {
-            setIsLoadingMenus(false);
         }
     };
 
