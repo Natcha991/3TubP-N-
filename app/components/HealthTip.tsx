@@ -65,7 +65,7 @@ export default function HealthTip({ userId }: { userId: string }) {
         <div className="absolute top-[2rem]">
           <img
             className="w-[60px] bg-white h-[60px] rounded-full object-cover"
-            src="/profile.jpeg"
+            src="/image%2075.png"
             alt="Mr. Rice"
           />
         </div>
