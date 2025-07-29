@@ -115,7 +115,7 @@ export default function Register6() {
   }, [selectedGoals, goals]); // เพิ่ม goals ใน dependency array ด้วย
 
   return (
-    <div className="relative h-[731px] w-screen cursor-pointer overflow-hidden font-prompt flex flex-col items-center bg-gradient-to-br from-orange-300 to-orange-100">
+    <div className="relative h-screen w-screen cursor-pointer overflow-hidden font-prompt flex flex-col items-center bg-gradient-to-br from-orange-300 to-orange-100">
       {/* Background Decorations - ปรับ z-index ให้ต่ำ เพื่อไม่ให้บัง content หลัก */}
       <div className="absolute left-0 top-0 z-0"> {/* เพิ่ม top-0 เพื่อให้เริ่มจากขอบบน */}
         <img src="/Group%2099.png" alt="Decoration"></img>
@@ -189,8 +189,8 @@ export default function Register6() {
 
       {/* Mr. Rice Character and Speech Bubble - ควรอยู่ในตำแหน่งที่ถูกต้องและ z-index สูงพอ */}
       {/* ปรับตำแหน่งและ z-index ให้เหมาะสม */}
-      <div className="absolute right-0 top-[30rem] z-1 -translate-y-55 transform translate-x-25 md:translate-x-12">
-        <div className="absolute animate-showUp z-25 left-[-2.5rem] top-[4rem] w-[140px] h-[100px]"> {/* ปรับ z-index */}
+      <div className="absolute right-0 top-[31rem] z-1 -translate-y-55 transform translate-x-25 md:translate-x-12">
+        <div className="absolute animate-showUp z-25 left-[-6.5rem] top-[4rem] w-[140px] h-[100px]"> {/* ปรับ z-index */}
           <div className="bg-[#f1c783a4] absolute top-[1.5rem] left-[-3.5rem] border-white border-2 inline-flex py-[0.5rem] px-[1rem] font-Unbounded text-[#333333] rounded-4xl z-30"> {/* ปรับ z-index */}
             Mr.Rice
           </div>
@@ -201,12 +201,12 @@ export default function Register6() {
         <img
           src="/image%20102.png"
           alt='Decor'
-          className="w-auto h-[430px] animate-sizeUpdown"
+          className="w-auto max-h-[50vh] object-contain animate-sizeUpdown"
         />
       </div>
 
       {/* Bottom section (Footer like) */}
-      <div className="absolute top-[591px] left-0 right-0 flex justify-center font-prompt"> {/* ปรับ z-index */}
+      <div className="absolute bottom-0 left-0 right-0 flex justify-center font-prompt"> {/* ปรับ z-index */}
         <div className="bg-white w-[500px] px-[4rem] py-[4.5rem] rounded-t-4xl shadow-lg flex justify-between">
           {/* สามารถเพิ่มเนื้อหาสำหรับส่วนล่างสุดได้ที่นี่ */}
         </div>

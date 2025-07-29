@@ -109,7 +109,7 @@ export default function Register8() { // เปลี่ยนชื่อ Compo
   }, [lifestyles, selectedLifestyles]);
 
   return (
-    <div className="relative h-[731px] w-screen overflow-hidden cursor-pointer font-prompt flex flex-col items-center bg-gradient-to-br from-orange-300 to-orange-100">
+    <div className="relative h-screen w-screen overflow-hidden cursor-pointer font-prompt flex flex-col items-center bg-gradient-to-br from-orange-300 to-orange-100">
       <div className="absolute left-0">
         <img src="/Group%2099.png" alt="Decoration"></img>
       </div>
@@ -176,8 +176,8 @@ export default function Register8() { // เปลี่ยนชื่อ Compo
 
           </div>
 
-          <div className="absolute right-0 top-[30rem] z-102 -translate-y-55 transform translate-x-25 md:translate-x-12">
-            <div className="absolute animate-showUp z-105 left-[-4rem] top-[2.5rem] w-[140px] h-[100px]">
+          <div className="absolute right-0 top-[31rem] z-102 -translate-y-55 transform translate-x-25 md:translate-x-12">
+            <div className="absolute animate-showUp z-105 left-[-6rem] top-[2.5rem] w-[140px] h-[100px]">
               <div className="bg-[#f1c783a4] absolute top-[1.5rem] left-[-3.5rem] border-white border-2 inline-flex py-[0.5rem] px-[1rem] font-Unbounded text-[#333333] rounded-4xl z-10">
                 Mr.Rice
               </div>
@@ -189,12 +189,12 @@ export default function Register8() { // เปลี่ยนชื่อ Compo
             <img
               src="/image%20102.png"
               alt='Decor'
-              className="w-auto h-[430px] animate-sizeUpdown"
+              className="w-auto max-h-[50vh] object-contain  animate-sizeUpdown"
             />
           </div>
 
           {/* ส่วนล่างสุด (เมนู/ต่อไป) */}
-          <div className="absolute top-[591px] left-0 right-0 flex justify-center font-prompt">
+          <div className="absolute bottom-0 left-0 right-0 flex justify-center font-prompt">
             <div className="bg-white w-[500px] px-[4rem] py-[4.5rem] rounded-t-4xl shadow-lg flex justify-between">
               {/* สามารถเพิ่มเนื้อหาสำหรับส่วนล่างสุดได้ที่นี่ */}
             </div>
