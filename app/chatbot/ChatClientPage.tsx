@@ -1,219 +1,229 @@
 'use client';
 
 import { useRouter, useSearchParams } from "next/navigation";
-import { useState, useRef, useEffect } from "react";
+import { useState, useRef, useEffect, useCallback } from "react"; // เพิ่ม useCallback
 import { GoogleGenerativeAI } from "@google/generative-ai";
 import menuData from '@/data/menu_image_mapping.json';
-import React, { useCallback } from 'react';
 
 interface ChatMessage {
-  from: string;
-  text: string;
-  timestamp: string;
+    from: string;
+    text: string;
+    timestamp: string;
 }
 
-export default function IngredientPage() {
-  const router = useRouter();
-  const searchParams = useSearchParams();
-  const chatContainerRef = useRef<HTMLDivElement>(null);
-  const isAutoSent = useRef(false);
+export default function ChatbotPage() { // เปลี่ยนชื่อ Component เป็น ChatbotPage
+    const router = useRouter();
+    const searchParams = useSearchParams();
+    const chatContainerRef = useRef<HTMLDivElement>(null);
+    const isAutoSent = useRef(false);
 
-  const [message, setMessage] = useState("");
-  const [chatLog, setChatLog] = useState<ChatMessage[]>([]);
-  const [isLoading, setIsLoading] = useState(false);
-  const [BgColor, setBgColor] = useState("")
-  const [GrassColor, setGrassColor] = useState("")
+    const [message, setMessage] = useState("");
+    const [chatLog, setChatLog] = useState<ChatMessage[]>([]);
+    const [isLoading, setIsLoading] = useState(false);
+    const [BgColor, setBgColor] = useState("");
+    const [GrassColor, setGrassColor] = useState("");
 
-  const topic = searchParams.get("topic");
-  const userId = searchParams.get("id") || "anonymous";
+    // State สำหรับควบคุม animate-press
+    const [isBackAnimating, setIsBackAnimating] = useState(false);
+    const [isSendAnimating, setIsSendAnimating] = useState(false);
 
-  const genAI = new GoogleGenerativeAI(
-    process.env.NEXT_PUBLIC_GEMINI_API_KEY as string
-  );
+    const topic = searchParams.get("topic");
+    const userId = searchParams.get("id") || "anonymous";
 
-  const topicMessages: Record<string, string> = {
-    water: "การดื่มน้ำในแต่ละวันสำคัญแค่ไหน และควรดื่มเท่าไหร่?",
-    sleep: "อยากนอนหลับลึกและตื่นสดชื่นขึ้น ควรปรับอะไรบ้าง?",
-    chew: "การเคี้ยวช้ากับการย่อยอาหารเกี่ยวกันไหมครับ?",
-  };
+    const genAI = new GoogleGenerativeAI(
+        process.env.NEXT_PUBLIC_GEMINI_API_KEY as string
+    );
 
-  const goto = () => router.push(`/home?id=${userId}`);
-
-  const handleSendAuto = useCallback(async (msg: string) => {
-    const userChat: ChatMessage = {
-      from: "user",
-      text: msg,
-      timestamp: getFormattedTime(),
+    const topicMessages: Record<string, string> = {
+        water: "การดื่มน้ำในแต่ละวันสำคัญแค่ไหน และควรดื่มเท่าไหร่?",
+        sleep: "อยากนอนหลับลึกและตื่นสดชื่นขึ้น ควรปรับอะไรบ้าง?",
+        chew: "การเคี้ยวช้ากับการย่อยอาหารเกี่ยวกันไหมครับ?",
     };
-    setChatLog((prev) => [...prev, userChat]);
-    setIsLoading(true);
-    try {
-      const model = genAI.getGenerativeModel({
-        model: "gemini-2.5-flash",
-        systemInstruction: "ตอบแบบสั้น กระชับ ไม่เกิน 4 บรรทัด",
-      });
 
-      // ใช้ chatLog เวอร์ชันล่าสุดด้วย callback
-      setChatLog((prevChatLog) => {
-        const historyText = [...prevChatLog, userChat]
-          .map((msg) => `${msg.from === "user" ? "ผู้ใช้" : "AI"}: ${msg.text}`)
-          .join("\n");
+    const gotoHome = () => router.push(`/home?id=${userId}`); // เปลี่ยนชื่อให้สื่อความหมายมากขึ้น
 
-        (async () => {
-          const result = await model.generateContent(historyText);
-          const aiText = await result.response.text();
-
-          const aiChat: ChatMessage = {
-            from: "ai",
-            text: aiText,
+    const handleSendAuto = useCallback(async (msg: string) => {
+        const userChat: ChatMessage = {
+            from: "user",
+            text: msg,
             timestamp: getFormattedTime(),
-          };
+        };
+        setChatLog((prev) => [...prev, userChat]);
+        setIsLoading(true);
+        try {
+            const model = genAI.getGenerativeModel({
+                model: "gemini-2.5-flash",
+                systemInstruction: "ตอบแบบสั้น กระชับ ไม่เกิน 4 บรรทัด",
+            });
 
-          setChatLog((latestChatLog) => [...latestChatLog, aiChat]);
+            setChatLog((prevChatLog) => {
+                const historyText = [...prevChatLog, userChat] // ใช้ prevChatLog เพื่อให้ได้ข้อมูลล่าสุด
+                    .map((msgItem) => `${msgItem.from === "user" ? "ผู้ใช้" : "AI"}: ${msgItem.text}`) // แก้ conflict ชื่อ msg
+                    .join("\n");
 
-          await fetch("/api/saveChat", {
-            method: "POST",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({ sessionId: userId, chatLog: [userChat, aiChat] }),
-          });
+                (async () => {
+                    const result = await model.generateContent(historyText);
+                    const aiText = await result.response.text();
 
-          setIsLoading(false);
-        })().catch(() => {
-          setChatLog((latestChatLog) => [
-            ...latestChatLog,
-            {
-              from: "ai",
-              text: "❌ ขออภัยครับ เกิดข้อผิดพลาดในการเชื่อมต่อกับ AI ลองใหม่อีกครั้งนะครับ",
-              timestamp: getFormattedTime(),
-            },
-          ]);
-          setIsLoading(false);
-        });
+                    const aiChat: ChatMessage = {
+                        from: "ai",
+                        text: aiText,
+                        timestamp: getFormattedTime(),
+                    };
 
-        return [...prevChatLog, userChat];
-      });
+                    setChatLog((latestChatLog) => [...latestChatLog, aiChat]);
 
-    } catch {
-      setChatLog((prev) => [
-        ...prev,
-        {
-          from: "ai",
-          text: "❌ ขออภัยครับ เกิดข้อผิดพลาดในการเชื่อมต่อกับ AI ลองใหม่อีกครั้งนะครับ",
-          timestamp: getFormattedTime(),
-        },
-      ]);
-      setIsLoading(false);
-    }
-  }, [userId, genAI]);
+                    await fetch("/api/saveChat", {
+                        method: "POST",
+                        headers: { "Content-Type": "application/json" },
+                        body: JSON.stringify({ sessionId: userId, chatLog: [userChat, aiChat] }),
+                    });
 
-  useEffect(() => {
-    const autoMessage = topic && topicMessages[topic];
-    if (autoMessage && !isAutoSent.current) {
-      isAutoSent.current = true;
-      handleSendAuto(autoMessage);
-    }
-  }, [topic, handleSendAuto]);
+                    setIsLoading(false);
+                })().catch((err) => { // Catch error จาก generateContent หรือ fetch
+                    console.error("Error in auto send AI response:", err);
+                    setChatLog((latestChatLog) => [
+                        ...latestChatLog,
+                        {
+                            from: "ai",
+                            text: "❌ ขออภัยครับ เกิดข้อผิดพลาดในการเชื่อมต่อกับ AI ลองใหม่อีกครั้งนะครับ",
+                            timestamp: getFormattedTime(),
+                        },
+                    ]);
+                    setIsLoading(false);
+                });
 
-  useEffect(() => {
-    const fetchHistory = async () => {
-      try {
-        const res = await fetch(`/api/saveChat/${userId}`);
-        if (!res.ok) throw new Error("Failed to fetch chat history");
-        const data = await res.json();
-        const combinedChatLog = data.flatMap((item: { chatLog: ChatMessage[] }) => item.chatLog);
-        setChatLog(combinedChatLog);
-      } catch (error) {
-        console.error("❌ Error fetching chat history:", error);
-      }
+                return [...prevChatLog, userChat];
+            });
+
+        } catch (err) { // Catch error จาก genAI.getGenerativeModel
+            console.error("Error setting up Gemini model:", err);
+            setChatLog((prev) => [
+                ...prev,
+                {
+                    from: "ai",
+                    text: "❌ ขออภัยครับ เกิดข้อผิดพลาดในการเชื่อมต่อกับ AI ลองใหม่อีกครั้งนะครับ",
+                    timestamp: getFormattedTime(),
+                },
+            ]);
+            setIsLoading(false);
+        }
+    }, [userId, genAI]);
+
+
+    useEffect(() => {
+        const autoMessage = topic && topicMessages[topic];
+        if (autoMessage && !isAutoSent.current) {
+            isAutoSent.current = true;
+            handleSendAuto(autoMessage);
+        }
+    }, [topic, handleSendAuto]);
+
+    useEffect(() => {
+        const fetchHistory = async () => {
+            try {
+                const res = await fetch(`/api/saveChat/${userId}`);
+                if (!res.ok) throw new Error("Failed to fetch chat history");
+                const data = await res.json();
+                const combinedChatLog = data.flatMap((item: { chatLog: ChatMessage[] }) => item.chatLog);
+                setChatLog(combinedChatLog);
+            } catch (error) {
+                console.error("❌ Error fetching chat history:", error);
+            }
+        };
+        fetchHistory();
+    }, [userId]); // เพิ่ม userId ใน dependency array
+
+    useEffect(() => {
+        if (chatContainerRef.current) {
+            chatContainerRef.current.scrollTop = chatContainerRef.current.scrollHeight;
+        }
+    }, [chatLog, isLoading]);
+
+    const getFormattedTime = (): string => {
+        const now = new Date();
+        const options: Intl.DateTimeFormatOptions = {
+            hour: "2-digit",
+            minute: "2-digit",
+            hour12: false,
+            timeZone: "Asia/Bangkok",
+        };
+
+        return new Intl.DateTimeFormat("th-TH", options).format(now);
     };
-    fetchHistory();
-  }, []);
 
-  useEffect(() => {
-    if (chatContainerRef.current) {
-      chatContainerRef.current.scrollTop = chatContainerRef.current.scrollHeight;
-    }
-  }, [chatLog, isLoading]);
+    const isNightTime = (): boolean => {
+        const now = new Date();
+        const options: Intl.DateTimeFormatOptions = {
+            hour: "2-digit",
+            hour12: false,
+            timeZone: "Asia/Bangkok",
+        };
+        const currentHourString = new Intl.DateTimeFormat("th-TH", options).format(now);
+        const currentHour = parseInt(currentHourString, 10);
 
-  const getFormattedTime = (): string => {
-    const now = new Date();
-    const options: Intl.DateTimeFormatOptions = {
-      hour: "2-digit",
-      minute: "2-digit",
-      hour12: false,
-      timeZone: "Asia/Bangkok",
+        if (currentHour >= 19 || currentHour < 6) {
+            return true;
+        } else {
+            return false;
+        }
     };
 
-    return new Intl.DateTimeFormat("th-TH", options).format(now);
-  };
+    useEffect(() => {
+        if (isNightTime()) {
+            console.log("ตอนนี้เป็นช่วงเวลาทุ่มถึงตีห้า");
+            setBgColor("bg-gradient-to-b from-purple-800 to-amber-200");
+            setGrassColor("bg-[#55673E]");
+        } else {
+            console.log("ตอนนี้เป็นช่วงเวลาเช้าถึงเย็น");
+            setBgColor("bg-gradient-to-b from-blue-400 to-orange-100");
+            setGrassColor("bg-[#AFD39A]");
+        }
+    }, []);
 
-  const isNightTime = (): boolean => {
-    const now = new Date();
-    // กำหนด TimeZone ให้เป็น Asia/Bangkok เพื่อให้แน่ใจว่าได้เวลาท้องถิ่นที่ถูกต้อง
-    const options: Intl.DateTimeFormatOptions = {
-      hour: "2-digit",
-      hour12: false,
-      timeZone: "Asia/Bangkok",
+
+    const getFontSizeClass = (text: string, isAI: boolean) => {
+        if (!isAI) return "text-base";
+        if (text.length > 250) return "text-xs";
+        if (text.length > 120) return "text-sm";
+        return "text-base";
     };
-    const currentHourString = new Intl.DateTimeFormat("th-TH", options).format(now);
-    const currentHour = parseInt(currentHourString, 10); // แปลง string เป็น number
 
-    // เวลาทุ่มถึงตีห้า: 19:00 (7 PM) ถึง 05:59 (5:59 AM)
-    if (currentHour >= 19 || currentHour < 6) {
-      return true; // กลางคืน
-    } else {
-      return false; // กลางวัน
-    }
-  };
-
-  useEffect(() => {
-    if (isNightTime()) {
-      console.log("ตอนนี้เป็นช่วงเวลาทุ่มถึงตีห้า");
-      // ทำสิ่งที่คุณต้องการสำหรับเวลากลางคืน
-      setBgColor("bg-gradient-to-b from-purple-800 to-amber-200");
-      setGrassColor("bg-[#55673E]") // ตัวอย่างการเปลี่ยนสีพื้นหลัง
-    } else {
-      console.log("ตอนนี้เป็นช่วงเวลาเช้าถึงเย็น");
-      // ทำสิ่งที่คุณต้องการสำหรับเวลากลางวัน
-      setBgColor("bg-gradient-to-b from-blue-400 to-orange-100");
-      setGrassColor("bg-[#AFD39A]") // สีพื้นหลังปกติ
-    }
-  }, []);
-
-
-  const getFontSizeClass = (text: string, isAI: boolean) => {
-    if (!isAI) return "text-base";
-    if (text.length > 250) return "text-xs";
-    if (text.length > 120) return "text-sm";
-    return "text-base";
-  };
-
-
-
-  const handleSend = async () => {
-    if (message.trim() === "") return;
-
-    const userChat: ChatMessage = {
-      from: "user",
-      text: message,
-      timestamp: getFormattedTime(),
+    // Handler สำหรับปุ่มย้อนกลับ (พร้อม animate-press)
+    const handleGoBackClick = () => {
+        setIsBackAnimating(true);
+        setTimeout(() => {
+            gotoHome();
+            setIsBackAnimating(false);
+        }, 300); // ระยะเวลาอนิเมชั่น
     };
-    const allowedMenuNames = menuData.map((m) => m.name);
-    setChatLog((prev) => [...prev, userChat]);
-    setMessage("");
-    setIsLoading(true);
 
-    try {
-      const model = genAI.getGenerativeModel({
-        model: "gemini-2.5-flash",
-        systemInstruction: `คุณเป็นนักโภชนาการผู้ชายที่ใจดี อ่อนโยน สุภาพ และให้คำแนะนำด้านอาหารอย่างเป็นธรรมชาติ เหมือนเพื่อนที่คุยกันสบาย ๆ นอกจากนี้คุณยังเป็นเชี่ยวชาญในเรื่องข้าวโดยเฉพาะข้าวกล้อง ที่อยากจะใช้ข้าวกล้องในการดูแลสุขภาพ
+    const handleSend = async () => {
+        if (message.trim() === "" || isLoading) return;
+
+        setIsSendAnimating(true); // เริ่มอนิเมชั่นปุ่มส่ง
+
+        const userChat: ChatMessage = {
+            from: "user",
+            text: message,
+            timestamp: getFormattedTime(),
+        };
+        const allowedMenuNames = menuData.map((m) => m.name);
+        setChatLog((prev) => [...prev, userChat]);
+        setMessage("");
+        setIsLoading(true);
+
+        try {
+            const model = genAI.getGenerativeModel({
+                model: "gemini-2.5-flash",
+                systemInstruction: `คุณเป็นนักโภชนาการผู้ชายที่ใจดี อ่อนโยน สุภาพ และให้คำแนะนำด้านอาหารอย่างเป็นธรรมชาติ เหมือนเพื่อนที่คุยกันสบาย ๆ นอกจากนี้คุณยังเป็นเชี่ยวชาญในเรื่องข้าวโดยเฉพาะข้าวกล้อง ที่อยากจะใช้ข้าวกล้องในการดูแลสุขภาพ
 
 📌 แนวทางการพูด:
 - ตอบสั้น กระชับ ไม่เกิน 4 บรรทัดทุกคำถามและคำตอบ
 - แบ่งย่อหน้าให้อ่านง่าย
 
 📋 รายการเมนูที่แนะนำ:
-คุณสามารถแนะนำเมนูใด ๆ ก็ได้ ทั้งในและนอกลิสต์นี้  
+คุณสามารถแนะนำเมนูใด ๆ ก็ได้ ทั้งในและนอกลิสต์นี้  
 รายการด้านล่างใช้เป็นตัวอย่างหรือแนวทางเบื้องต้น:
 ${allowedMenuNames.map((name, i) => `${i + 1}. ${name}`).join('\n')}
 
@@ -226,115 +236,120 @@ ${allowedMenuNames.map((name, i) => `${i + 1}. ${name}`).join('\n')}
 - หากผู้ใช้ไม่รู้จะกินอะไร → แนะนำเมนูที่ดีต่อสุขภาพ แล้วถามว่า “คุณชอบเมนูนี้มั้ยครับ?”
 - หากผู้ใช้พูดถึง “ปัญหาสุขภาพ” และต้องการคำแนะนำ → coach โดยถามย้อนกลับสั้น ๆ ให้ผู้ใช้คิดทบทวน
 -หากระหว่างการcoachมีเกี่ยวรายละเอียดเกี่ยวกับการกินคุณลองสอดแทรกข้าวกล้องตามความคิดของคุณเข้าไปด้วย
-- หากผู้ใช้ถามเกี่ยวกับผลกระทบต่อสุขภาพจากการไม่ดูแลตัวเองเช่นการอดนอนหรือการอดอาหาร  ให้คุณตอบจำนวนวันที่สามารถอดทนแบบคร่าวๆ และให้คุณอธิบายผลกระทบเบื้องต้นในแบบอ่อนโยน สุภาพ ไม่ชวนตกใจ 
+- หากผู้ใช้ถามเกี่ยวกับผลกระทบต่อสุขภาพจากการไม่ดูแลตัวเองเช่นการอดนอนหรือการอดอาหาร  ให้คุณตอบจำนวนวันที่สามารถอดทนแบบคร่าวๆ และให้คุณอธิบายผลกระทบเบื้องต้นในแบบอ่อนโยน สุภาพ ไม่ชวนตกใจ
 - หากผู้ใช้ถามเรื่องนอกเหนือจากอาหาร, สุขภาพ, การออกกำลังกาย การนอน การไม่ดูแลสุขภาพ ผลกระทบจากการไม่ดูแลสุขภาพ และการดูแลตนเอง → ตอบว่า:
 "ขออภัยครับ ผมสามารถตอบได้เฉพาะเรื่องอาหารและสุขภาพเท่านั้นนะครับ"`,
-      });
-      const historyText = [...chatLog, userChat]
-        .map((msg) => `${msg.from === "user" ? "ผู้ใช้" : "AI"}: ${msg.text}`)
-        .join("\n");
+            });
+            const historyText = [...chatLog, userChat] // ใช้ chatLog ล่าสุด (รวม userChat)
+                .map((msgItem) => `${msgItem.from === "user" ? "ผู้ใช้" : "AI"}: ${msgItem.text}`) // แก้ conflict ชื่อ msg
+                .join("\n");
 
-      const result = await model.generateContent(historyText);
-      const aiText = await result.response.text();
+            const result = await model.generateContent(historyText);
+            const aiText = await result.response.text();
 
-      const aiChat: ChatMessage = {
-        from: "ai",
-        text: aiText,
-        timestamp: getFormattedTime(),
-      };
+            const aiChat: ChatMessage = {
+                from: "ai",
+                text: aiText,
+                timestamp: getFormattedTime(),
+            };
 
-      setChatLog((prev) => [...prev, aiChat]);
+            setChatLog((prev) => [...prev, aiChat]);
 
-      await fetch("/api/saveChat", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ sessionId: userId, chatLog: [userChat, aiChat] }),
-      });
-    } catch {
-      setChatLog((prev) => [
-        ...prev,
-        {
-          from: "ai",
-          text: "❌ ขออภัยครับ เกิดข้อผิดพลาดในการเชื่อมต่อกับ AI ลองใหม่อีกครั้งนะครับ",
-          timestamp: getFormattedTime(),
-        },
-      ]);
-    } finally {
-      setIsLoading(false);
-    }
-  };
+            await fetch("/api/saveChat", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ sessionId: userId, chatLog: [userChat, aiChat] }),
+            });
+        } catch (error) {
+            console.error("Error sending message to AI:", error);
+            setChatLog((prev) => [
+                ...prev,
+                {
+                    from: "ai",
+                    text: "❌ ขออภัยครับ เกิดข้อผิดพลาดในการเชื่อมต่อกับ AI ลองใหม่อีกครั้งนะครับ",
+                    timestamp: getFormattedTime(),
+                },
+            ]);
+        } finally {
+            setIsLoading(false);
+            setIsSendAnimating(false); // จบอนิเมชั่นปุ่มส่ง
+        }
+    };
 
-  return (
-    <div className="relative font-prompt overflow-hidden min-h-screen flex flex-col">
-      {/* Background gradients */}
-      <div className={`absolute h-[450px] w-full z-[-2] ${BgColor}`}></div>
-      <div className={`absolute h-[500px] top-[28rem] w-full z-[-2] ${GrassColor}`}></div>
+    return (
+        <div className="relative font-prompt overflow-hidden min-h-screen flex flex-col">
+            {/* Background gradients */}
+            <div className={`absolute h-[450px] w-full z-[-2] ${BgColor}`}></div>
+            <div className={`absolute h-[500px] top-[28rem] w-full z-[-2] ${GrassColor}`}></div>
 
-      {/* Header */}
-      <div className="relative z-20 flex justify-between m-[2rem] items-center w-[calc(100%-4rem)]">
-        <div onClick={goto} className="bg-white h-[50px] flex justify-center cursor-pointer items-center w-[50px] rounded-full shadow-xl">
-          <img className="h-[15px]" src="/Group%2084.png" alt="Back" />
-        </div>
-        <h1 className="font-bold text-2xl text-white">3 TupP chat</h1>
-        <img src="/image%2075.png" alt="User avatar" />
-      </div>
-
-      {/*ผมต้องการให้ตรงนี้ในส่วนของ แชท จะเลื่อนลงมาล่างสุดหรือปัจจุบัน โดยอัตโนมัติ*/}
-      <div className="sm:flex flex-col items-center">
-        <div className="absolute top-[15rem] left-[-3.5rem] xl:left-[10rem] z-0">
-          <img className="w-[220px] animate-sizeUpdown" src="/image%2076.png" alt="Decorative icon" />
-        </div>
-        {/* ✅ ย้าย ref={chatContainerRef} มาไว้ที่ div ที่มี overflow-y-auto */}
-        <div ref={chatContainerRef} className="h-[450px] no-scrollbar xl:h-[500px] xl:w-[700px] overflow-y-auto pt-[4rem] relative z-10">
-          <div className="flex flex-col gap-[1rem] px-[1.5rem] ml-[4rem] pb-[2rem]">
-            {chatLog.map((msg, index) => (
-              <div key={index} className={`flex flex-col items-center gap-1 ${msg.from === "user" ? "self-end" : "self-start"}`}>
-                {msg.from === "user" && (
-                  <h1 className="text-white text-[0.7rem] self-center">{msg.timestamp}</h1>
-                )}
-                <div className={`flex items-start gap-2 ${msg.from === "user" ? "flex-row-reverse" : ""}`}>
-                  <img src="/image%2075.png" alt="avatar" className="w-[40px] h-[40px] rounded-full" />
-                  <div className={`break-words p-2 rounded-2xl shadow ${msg.from === "user" ? "bg-blue-500 text-white" : `bg-white text-gray-800 ${getFontSizeClass(msg.text, true)}`} max-w-[calc(100vw-150px)]`}>
-                    {msg.text}
-                  </div>
+            {/* Header */}
+            <div className="relative z-20 flex justify-between m-[2rem] items-center w-[calc(100%-4rem)]">
+                {/* 1. ปุ่มย้อนกลับ */}
+                <div
+                    onClick={handleGoBackClick}
+                    className={`bg-white h-[50px] flex justify-center cursor-pointer items-center w-[50px] rounded-full shadow-xl transform transition-transform duration-300 ${isBackAnimating ? "animate-press" : ""}`}
+                >
+                    <img className="h-[15px]" src="/Group%2084.png" alt="Back" />
                 </div>
-              </div>
-            ))}
-            {isLoading && (
-              <div className="flex items-start gap-2">
-                <img src="/image%2075.png" alt="AI avatar" className="w-[40px] h-[40px] rounded-full" />
-                <div className="max-w-[calc(100vw-120px)] break-words p-2 bg-gray-200 rounded-2xl shadow text-base">
-                  AI กำลังคิดคำตอบ...
-                </div>
-              </div>
-            )}
-          </div>
-        </div>
-      </div>
-      {/* ถึงตรงนี้ในส่วนของแชท */}
+                <h1 className="font-bold text-2xl text-white">3 TupP chat</h1>
+                <img src="/image%2075.png" alt="User avatar" />
+            </div>
 
-      {/* Input field */}
-      <div className="bg-white w-[90%] fixed max-w-[500px] mx-auto mb-[3.5rem] rounded-full h-[45px] px-4 flex items-center shadow-md bottom-0 left-1/2 -translate-x-1/2 z-20">
-        <input
-          className="flex-1 outline-none px-2"
-          type="text"
-          placeholder="พิมพ์ข้อความ..."
-          value={message}
-          onChange={(e) => setMessage(e.target.value)}
-          onKeyDown={(e) => e.key === "Enter" && handleSend()}
-          disabled={isLoading}
-        />
-        <img
-          className="w-[20px] h-[20px] cursor-pointer rotate-180"
-          src="/Group%2084.png"
-          alt="Send"
-          onClick={handleSend}
-          style={{
-            opacity: isLoading ? 0.5 : 1,
-            cursor: isLoading ? "not-allowed" : "pointer",
-          }}
-        />
-      </div>
-    </div>
-  );
+            <div className="sm:flex flex-col items-center">
+                <div className="absolute top-[15rem] left-[-3.5rem] xl:left-[10rem] z-0">
+                    <img className="w-[220px] animate-sizeUpdown" src="/image%2076.png" alt="Decorative icon" />
+                </div>
+                {/* ✅ ย้าย ref={chatContainerRef} มาไว้ที่ div ที่มี overflow-y-auto */}
+                <div ref={chatContainerRef} className="h-[450px] no-scrollbar xl:h-[500px] xl:w-[700px] overflow-y-auto pt-[4rem] relative z-10">
+                    <div className="flex flex-col gap-[1rem] px-[1.5rem] ml-[4rem] pb-[2rem]">
+                        {chatLog.map((msg, index) => (
+                            <div key={index} className={`flex flex-col items-center gap-1 ${msg.from === "user" ? "self-end" : "self-start"}`}>
+                                {msg.from === "user" && (
+                                    <h1 className="text-white text-[0.7rem] self-center">{msg.timestamp}</h1>
+                                )}
+                                <div className={`flex items-start gap-2 ${msg.from === "user" ? "flex-row-reverse" : ""}`}>
+                                    <img src="/image%2075.png" alt="avatar" className="w-[40px] h-[40px] rounded-full" />
+                                    <div className={`break-words p-2 rounded-2xl shadow ${msg.from === "user" ? "bg-blue-500 text-white" : `bg-white text-gray-800 ${getFontSizeClass(msg.text, true)}`} max-w-[calc(100vw-150px)]`}>
+                                        {msg.text}
+                                    </div>
+                                </div>
+                            </div>
+                        ))}
+                        {isLoading && (
+                            <div className="flex items-start gap-2">
+                                <img src="/image%2075.png" alt="AI avatar" className="w-[40px] h-[40px] rounded-full" />
+                                <div className="max-w-[calc(100vw-120px)] break-words p-2 bg-gray-200 rounded-2xl shadow text-base">
+                                    AI กำลังคิดคำตอบ...
+                                </div>
+                            </div>
+                        )}
+                    </div>
+                </div>
+            </div>
+
+            {/* Input field */}
+            <div className="bg-white w-[90%] fixed max-w-[500px] mx-auto mb-[3.5rem] rounded-full h-[45px] px-4 flex items-center shadow-md bottom-0 left-1/2 -translate-x-1/2 z-20">
+                <input
+                    className="flex-1 outline-none px-2"
+                    type="text"
+                    placeholder="พิมพ์ข้อความ..."
+                    value={message}
+                    onChange={(e) => setMessage(e.target.value)}
+                    onKeyDown={(e) => e.key === "Enter" && handleSend()}
+                    disabled={isLoading}
+                />
+                {/* 2. ปุ่มส่งข้อความ */}
+                <img
+                    className={`w-[20px] h-[20px] cursor-pointer rotate-180 transform transition-transform duration-300 ${isSendAnimating ? "animate-press" : ""}`}
+                    src="/Group%2084.png"
+                    alt="Send"
+                    onClick={handleSend}
+                    style={{
+                        opacity: isLoading ? 0.5 : 1,
+                        cursor: isLoading ? "not-allowed" : "pointer",
+                    }}
+                />
+            </div>
+        </div>
+    );
 }
