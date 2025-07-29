@@ -44,6 +44,26 @@ export default function HealthTip({ userId }: { userId: string }) {
       headline: 'เคี้ยว ช้า ๆ ช่วยให้ผอมได้ไหม?',
       imageHead: '/scum.jpg',
     },
+    {
+      id: 'GABA',
+      content: (
+        <>
+          <span className="text-orange-600 font-bold">ความเครียด</span> ข้าวกล้อง ช่วยได้ไหม?
+        </>
+      ),
+      headline: 'ข้าวกล้องสามารถลดความเครียดได้ไหม?',
+      imageHead: '/ข้าวกล้องลดเครียด.png',
+    },
+    {
+      id: 'Kee',
+      content: (
+        <>
+          <span className="text-orange-600 font-bold">ปัญหาขับถ่าย</span> ข้าวกล้อง ช่วยได้ไหม?
+        </>
+      ),
+      headline: 'ปัญหาขับถ่าย ข้าวกล้องช่วยได้ไหม?',
+      imageHead: '/ข้าวกล้องขับถ่าย.png',
+    }
   ];
 
   useEffect(() => {

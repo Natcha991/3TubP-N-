@@ -113,7 +113,7 @@ export default function Home() {
                 {/* ส่วนข้อความด้านบน */}
                 <div className=" text-start mr-20"> {/* เพิ่ม margin-bottom แทน max-h/overflow-hidden ที่อาจทำให้ข้อความถูกตัด */}
                     <h1 className='text-[#FF4545] font-prompt font-[600] text-7xl animate-dopdop'>ข้าวขาว</h1>
-                    <h1 className='w-full max-w-[200px] mx-auto text-[#333333] mt-2 font-prompt font-[500] text-2xl'>ศัตรูของคนไทย โดยไม่รู้ตัว</h1>
+                    <h1 className='w-full max-w-[200px] mx-auto text-[#333333] mt-2 font-prompt font-[500] text-2xl'>ความขาว ที่มาพร้อมกับอันตราย</h1>
                 </div>
 
                 {/* ส่วนรูปภาพที่ต้องการให้โดนจอกิน (จัดกลางแนวตั้ง, ชิดขวา, กินขอบ) */}
