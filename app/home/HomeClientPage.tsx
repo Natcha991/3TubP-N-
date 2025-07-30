@@ -185,8 +185,8 @@ export default function Home() {
                     )}
                     <img
                         onClick={gotoChatbot}
-                        className={`w-[60px] h-[60px] rotate-[-10deg] animate-pulse animate-sizeUpdown relative z-10 cursor-pointer transform hover:scale-105 duration-300 ${isAnimating ? "animate-press" : ''}`}
-                        src="/image%2075.png"
+                        className={`w-[60px] h-[70px] rotate-[-10deg] animate-pulse animate-sizeUpdown relative z-10 cursor-pointer transform hover:scale-105 duration-300 ${isAnimating ? "animate-press" : ''}`}
+                        src="/learn.png"
                         alt="Chatbot icon"
                     />
                 </div>

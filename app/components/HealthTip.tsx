@@ -52,7 +52,7 @@ export default function HealthTip({ userId }: { userId: string }) {
         </>
       ),
       headline: 'ข้าวกล้องสามารถลดความเครียดได้ไหม?',
-      imageHead: '/ข้าวกล้องลดเครียด.png',
+      imageHead: '/เคียด.png',
     },
     {
       id: 'Kee',
@@ -62,7 +62,7 @@ export default function HealthTip({ userId }: { userId: string }) {
         </>
       ),
       headline: 'ปัญหาขับถ่าย ข้าวกล้องช่วยได้ไหม?',
-      imageHead: '/ข้าวกล้องขับถ่าย.png',
+      imageHead: '/ถ่าย.png',
     }
   ];
 
