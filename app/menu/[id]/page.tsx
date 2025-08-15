@@ -6,6 +6,7 @@ import { useEffect, useState, useRef } from 'react';
 import Image from 'next/image';
 import MethodCard from "@/app/components/MethodCard";
 
+
 interface MenuItem {
     _id: string;
     name: string;
@@ -45,6 +46,7 @@ export default function MenuPage() {
     const [animatingIngredientIndex, setAnimatingIngredientIndex] = useState<number | null>(null);
     const [isNextStepAnimating, setIsNextStepAnimating] = useState(false);
     const [animatingSimilarMenuId, setAnimatingSimilarMenuId] = useState<string | null>(null);
+    const [animatingCalAnimatIndex, setAnimatingCalIndex] = useState<number | null>(null);
 
     const [appHeight, setAppHeight] = useState('100vh');
 
@@ -182,6 +184,15 @@ export default function MenuPage() {
         }, 300); // Match animate-press duration
     };
 
+    // ปุ่มไปหน้า /app/cal
+    const handleCalButtonClick = () => {
+        setTimeout(() => {
+            router.push(`/cal`); // เปลี่ยนหน้า 
+            setAnimatingIngredientIndex(null);
+        }, 300);
+    };
+
+
     const handleIngredientClick = (ingName: string, index: number) => {
         setAnimatingIngredientIndex(index); // Start animation for clicked ingredient
         setTimeout(() => {
@@ -235,6 +246,7 @@ export default function MenuPage() {
 
     return (
         <div className="relative flex flex-col items-center">
+
             <div className="absolute z-1 flex justify-between m-[2rem] items-center sm:w-[95%] w-[85%]">
                 {/* 1. ปุ่มย้อนกลับ */}
                 <div
@@ -245,7 +257,7 @@ export default function MenuPage() {
                 </div>
             </div>
 
-            <div>
+            <div className="relative">
                 <Image
                     className="h-[330px] object-cover mb-[2rem] [mask-image:linear-gradient(to_bottom,black_60%,transparent)]"
                     src={menu.image ? `/menus/${encodeURIComponent(menu.image)}` : "/default.png"}
@@ -259,118 +271,132 @@ export default function MenuPage() {
                     }}
                     priority
                 />
+
+                <div
+                    onClick={handleCalButtonClick}
+                    className={`bg-[#FE5D35] opacity-100 h-[70px] w-[70px] flex justify-center items-center cursor-pointer rounded-full shadow-2xl transform hover:scale-105 ml-85 -mt-15 ${animatingCalAnimatIndex !== null ? "animate-press" : ""
+                        }`}
+                >
+                    <Image className="h-[70px]" src="/cal.png" alt="back" width={70} height={70} />
+                </div>
             </div>
 
             <div className="mx-[1.5rem] w-[350px]">
                 <h1 className="text-3xl font-prompt text-[#611E1E] font-[600]">{menu.name}</h1>
-                <h1 className="text-[0.7rem] w-[250px] mt-[0.5rem] text-[#953333] font-prompt">{menu.description}</h1>
+
+                <h1 className="text-[0.7rem] w-[250px] mt-[0.5rem] text-[#953333] font-prompt">
+                    {menu.description}
+                </h1>
 
                 {Array.isArray(menu.tags) && menu.tags.length > 0 && (
                     <div className="flex flex-wrap gap-2 mt-[0.8rem]">
                         {menu.tags.map((tag, index) => (
-                            <div key={index} className="bg-[#ff770041] inline-block px-[1rem] py-[0.2rem] rounded-2xl">
+                            <div
+                                key={index}
+                                className="bg-[#ff770041] inline-block px-[1rem] py-[0.2rem] rounded-2xl"
+                            >
                                 <h1 className="font-[600] text-[0.8rem] text-[#953333] font-prompt">{tag}</h1>
                             </div>
                         ))}
                     </div>
                 )}
+            </div>
 
-                <div className="font-prompt mt-[3rem]">
-                    <h1 className="text-[1.6rem] text-[#333333] mb-[1.5rem] font-[600]">วัตถุดิบ</h1>
-                    <div className="flex flex-col items-center gap-4 animate-OpenScene2">
-                        {ingredientsData.map((ing, i) => (
-                            <div
-                                key={i}
-                                // 2. วัตถุดิบ
-                                onClick={() => handleIngredientClick(ing.name, i)}
-                                className={`bg-[#FFFAD2] flex justify-between px-[1rem] items-center border border-[#C9AF90] w-full h-[3rem] rounded-[8px] hover:scale-102 cursor-pointer ${animatingIngredientIndex === i ? "animate-press" : ''}`}
-                            >
-                                <div className="flex items-center gap-2.5">
+            <div className="font-prompt mt-[3rem]">
+                <h1 className="text-[1.6rem] text-[#333333] mb-[1.5rem] font-[600]">วัตถุดิบ</h1>
+                <div className="flex flex-col items-center gap-4 animate-OpenScene2">
+                    {ingredientsData.map((ing, i) => (
+                        <div
+                            key={i}
+                            // 2. วัตถุดิบ
+                            onClick={() => handleIngredientClick(ing.name, i)}
+                            className={`bg-[#FFFAD2] flex justify-between px-[1rem] items-center border border-[#C9AF90] w-full h-[3rem] rounded-[8px] hover:scale-102 cursor-pointer ${animatingIngredientIndex === i ? "animate-press" : ''}`}
+                        >
+                            <div className="flex items-center gap-2.5">
+                                <Image
+                                    className="h-[40px] w-[40px] object-cover rounded-full"
+                                    src={ing.image ? `/ingredients/${encodeURIComponent(ing.image)}` : "/default.png"}
+                                    alt={ing.name}
+                                    width={40}
+                                    height={40}
+                                    onError={(e) => {
+                                        const target = e.target as HTMLImageElement;
+                                        target.onerror = null;
+                                        target.src = "/default.png";
+                                    }}
+                                />
+                                <h1>{ing.name}</h1>
+                            </div>
+                            <h1 className="text-[0.8rem] text-[#777]">฿ {ing.price}</h1>
+                        </div>
+                    ))}
+                </div>
+            </div>
+
+            <div className="font-prompt mt-[3rem]">
+                <h1 className="text-[1.6rem] text-[#333333] mb-[1.5rem] font-[600]">วิธีการทำ</h1>
+                <div ref={methodCardsContainerRef} className="flex flex-col items-center gap-4 overflow-y-auto pb-4 max-h-full scrollbar-thin scrollbar-thumb-rounded scrollbar-thumb-rounded-md scrollbar-thumb-[#C9AF90]">
+                    {displayedSteps.map((step, index) => (
+                        <MethodCard
+                            key={index}
+                            num={index + 1}
+                            title={`ขั้นตอนที่ ${index + 1}`}
+                            detail={step}
+                            imageUrl={getStepImage(step)}
+                        />
+                    ))}
+                </div>
+
+                <div className="flex justify-center mt-4 mb-12">
+                    {/* 3. ปุ่มถัดไป */}
+                    <button
+                        onClick={handleNextStep}
+                        disabled={nextStepIndex >= instructions.length}
+                        className={`flex-none bg-[#FFF5DD] cursor-pointer flex justify-center items-center border-2 border-[#C9AF90] w-[6.5rem] h-[2.5rem] rounded-[8px] hover:scale-103 disabled:opacity-50 disabled:cursor-not-allowed ${isNextStepAnimating ? "animate-press" : ''}`}
+                    >
+                        <div className="flex flex-col items-center text-[#333333]">
+                            <h1 className="text-[0.8rem] mb-[-0.2rem]">ถัดไป</h1>
+                            <h1 className="text-[0.4rem]">(กดเพื่อดูวิธีต่อไป)</h1>
+                        </div>
+                    </button>
+                </div>
+
+                {/* ส่วน "เมนูใกล้เคียง" ที่ดึงข้อมูลจาก API */}
+                <div className="relative w-full max-w-[450px] mt-[3rem] mb-[3rem]">
+                    <h1 className="font-[600] text-[#333333] mb-[2rem] text-[1.6rem]">เมนูใกล้เคียง</h1>
+                    <div className="flex gap-2 justify-center">
+                        {isLoadingSimilarMenus ? (
+                            <p className="text-gray-600">กำลังโหลดเมนูใกล้เคียง...</p>
+                        ) : similarMenusError ? (
+                            <p className="text-red-500">{similarMenusError}</p>
+                        ) : similarMenus.length === 0 ? (
+                            <p className="text-gray-600">ไม่พบเมนูใกล้เคียง</p>
+                        ) : (
+                            similarMenus.map((similarMenu) => (
+                                <div
+                                    key={similarMenu._id}
+                                    // 4. เมนูใกล้เคียง
+                                    onClick={() => handleSimilarMenuClick(similarMenu._id)}
+                                    className={`flex flex-col items-center w-[130px] bg-white border-2 border-[#C9AF90] rounded-t-full shadow-sm cursor-pointer transform transition duration-300 hover:scale-105 ${animatingSimilarMenuId === similarMenu._id ? "animate-press" : ''}`}
+                                >
                                     <Image
-                                        className="h-[40px] w-[40px] object-cover rounded-full"
-                                        src={ing.image ? `/ingredients/${encodeURIComponent(ing.image)}` : "/default.png"}
-                                        alt={ing.name}
-                                        width={40}
-                                        height={40}
+                                        className="h-[110px] animate-sizeUpdown w-auto object-cover rounded-t-full"
+                                        src={similarMenu.image ? `/menus/${encodeURIComponent(similarMenu.image)}` : "/default.png"}
+                                        alt={similarMenu.name}
+                                        width={90}
+                                        height={90}
                                         onError={(e) => {
                                             const target = e.target as HTMLImageElement;
                                             target.onerror = null;
                                             target.src = "/default.png";
                                         }}
                                     />
-                                    <h1>{ing.name}</h1>
+                                    <h1 className="text-[0.8rem] my-[0.4rem] text-[#953333] text-center px-1">
+                                        {similarMenu.name}
+                                    </h1>
                                 </div>
-                                <h1 className="text-[0.8rem] text-[#777]">฿ {ing.price}</h1>
-                            </div>
-                        ))}
-                    </div>
-                </div>
-
-                <div className="font-prompt mt-[3rem]">
-                    <h1 className="text-[1.6rem] text-[#333333] mb-[1.5rem] font-[600]">วิธีการทำ</h1>
-                    <div ref={methodCardsContainerRef} className="flex flex-col items-center gap-4 overflow-y-auto pb-4 max-h-full scrollbar-thin scrollbar-thumb-rounded scrollbar-thumb-rounded-md scrollbar-thumb-[#C9AF90]">
-                        {displayedSteps.map((step, index) => (
-                            <MethodCard
-                                key={index}
-                                num={index + 1}
-                                title={`ขั้นตอนที่ ${index + 1}`}
-                                detail={step}
-                                imageUrl={getStepImage(step)}
-                            />
-                        ))}
-                    </div>
-
-                    <div className="flex justify-center mt-4 mb-12">
-                        {/* 3. ปุ่มถัดไป */}
-                        <button
-                            onClick={handleNextStep}
-                            disabled={nextStepIndex >= instructions.length}
-                            className={`flex-none bg-[#FFF5DD] cursor-pointer flex justify-center items-center border-2 border-[#C9AF90] w-[6.5rem] h-[2.5rem] rounded-[8px] hover:scale-103 disabled:opacity-50 disabled:cursor-not-allowed ${isNextStepAnimating ? "animate-press" : ''}`}
-                        >
-                            <div className="flex flex-col items-center text-[#333333]">
-                                <h1 className="text-[0.8rem] mb-[-0.2rem]">ถัดไป</h1>
-                                <h1 className="text-[0.4rem]">(กดเพื่อดูวิธีต่อไป)</h1>
-                            </div>
-                        </button>
-                    </div>
-
-                    {/* ส่วน "เมนูใกล้เคียง" ที่ดึงข้อมูลจาก API */}
-                    <div className="relative w-full max-w-[450px] mt-[3rem] mb-[3rem]">
-                        <h1 className="font-[600] text-[#333333] mb-[2rem] text-[1.6rem]">เมนูใกล้เคียง</h1>
-                        <div className="flex gap-2 justify-center">
-                            {isLoadingSimilarMenus ? (
-                                <p className="text-gray-600">กำลังโหลดเมนูใกล้เคียง...</p>
-                            ) : similarMenusError ? (
-                                <p className="text-red-500">{similarMenusError}</p>
-                            ) : similarMenus.length === 0 ? (
-                                <p className="text-gray-600">ไม่พบเมนูใกล้เคียง</p>
-                            ) : (
-                                similarMenus.map((similarMenu) => (
-                                    <div
-                                        key={similarMenu._id}
-                                        // 4. เมนูใกล้เคียง
-                                        onClick={() => handleSimilarMenuClick(similarMenu._id)}
-                                        className={`flex flex-col items-center w-[130px] bg-white border-2 border-[#C9AF90] rounded-t-full shadow-sm cursor-pointer transform transition duration-300 hover:scale-105 ${animatingSimilarMenuId === similarMenu._id ? "animate-press" : ''}`}
-                                    >
-                                        <Image
-                                            className="h-[110px] animate-sizeUpdown w-auto object-cover rounded-t-full"
-                                            src={similarMenu.image ? `/menus/${encodeURIComponent(similarMenu.image)}` : "/default.png"}
-                                            alt={similarMenu.name}
-                                            width={90}
-                                            height={90}
-                                            onError={(e) => {
-                                                const target = e.target as HTMLImageElement;
-                                                target.onerror = null;
-                                                target.src = "/default.png";
-                                            }}
-                                        />
-                                        <h1 className="text-[0.8rem] my-[0.4rem] text-[#953333] text-center px-1">
-                                            {similarMenu.name}
-                                        </h1>
-                                    </div>
-                                ))
-                            )}
-                        </div>
+                            ))
+                        )}
                     </div>
                 </div>
             </div>
