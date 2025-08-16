@@ -1,7 +1,6 @@
 'use client';
 
 import Image from 'next/image';
-import { Calendar } from 'lucide-react';
 import BackgroundDecor from '../../components/BackgroundDecor';
 import { Prompt } from 'next/font/google';
 import { useRouter, useParams, useSearchParams } from 'next/navigation';
@@ -18,8 +17,10 @@ interface UserData {
 }
 
 interface Nutrient {
-    label: string;
-    value: string;
+    protein?: number;      // g
+    carbohydrate?: number; // g
+    fat?: number;          // g
+    fiber?: number;        // g
 }
 
 interface MenuItem {
@@ -27,7 +28,7 @@ interface MenuItem {
     name: string;
     image: string;
     kcal: number;
-    nutrients: Nutrient[];
+    nutrient: Nutrient;
 }
 
 export default function CalPage() {
@@ -113,8 +114,13 @@ export default function CalPage() {
                     id: data.id,
                     name: data.name,
                     image: data.image,
-                    kcal: data.kcal,
-                    nutrients: data.nutrients,
+                    kcal: Number(data.kcal),
+                    nutrient: {
+                        protein: parseFloat(String(data.nutrient.protein).replace(/[^\d.]/g, "")) || 0,
+    carbohydrate: parseFloat(String(data.nutrient.carbohydrate).replace(/[^\d.]/g, "")) || 0,
+    fat: parseFloat(String(data.nutrient.fat).replace(/[^\d.]/g, "")) || 0,
+    fiber: parseFloat(String(data.nutrient.fiber).replace(/[^\d.]/g, "")) || 0,
+                    }
                 });
             } catch (error) {
                 console.error('Error loading menu:', error);
@@ -123,6 +129,23 @@ export default function CalPage() {
 
         fetchMenu();
     }, [menuId]);
+
+    // ปรับความสูง app
+    useEffect(() => {
+        const updateAppHeight = () => {
+            setAppHeight(`${window.visualViewport?.height || window.innerHeight}px`);
+        };
+
+        window.addEventListener('resize', updateAppHeight);
+        window.visualViewport?.addEventListener('resize', updateAppHeight);
+
+        updateAppHeight();
+
+        return () => {
+            window.removeEventListener('resize', updateAppHeight);
+            window.visualViewport?.removeEventListener('resize', updateAppHeight);
+        };
+    }, []);
 
     useEffect(() => {
         const register4Str = localStorage.getItem('register4');
@@ -222,7 +245,7 @@ export default function CalPage() {
                                     {menu.kcal}
                                 </div>
                                 <div className="mt-2 text-[16px] sm:text-[18px] lg:text-[20px] font-extrabold text-[#FF7A1A]">
-                                    {mealCalories !== null ? mealCalories.toFixed(0) : 0} cal
+                                    {mealCalories !== null ? Number(mealCalories).toFixed(0) : 0} cal
                                 </div>
                             </div>
                         </div>
@@ -240,21 +263,27 @@ export default function CalPage() {
                                     </span>
                                 </div>
                                 <ul className="mt-3 divide-y divide-[#E8EDF3] rounded-[12px] overflow-hidden">
-                                    {menu.nutrients.map((n) => (
-                                        <li
-                                            key={n.label}
-                                            className="flex items-center justify-between px-3 py-2 bg-[#FAFCFF]"
-                                        >
-                                            <span className="text-[13px] sm:text-[14px] font-medium text-[#3A3A3A]">
-                                                {n.label}
-                                            </span>
-                                            <span className="text-[12px] sm:text-[13px] text-[#9CA3AF] tabular-nums">
-                                                {n.value}
-                                            </span>
-                                        </li>
-                                    ))}
+                                    <li className="flex items-center justify-between px-3 py-2 bg-[#FAFCFF]">
+                                        <span className="text-[13px] sm:text-[14px] font-medium text-[#3A3A3A]">โปรตีน</span>
+                                        <span className="text-[12px] sm:text-[13px] text-[#9CA3AF] tabular-nums">{menu.nutrient.protein ?? 0} g</span>
+                                    </li>
+                                    <li className="flex items-center justify-between px-3 py-2 bg-[#FAFCFF]">
+                                        <span className="text-[13px] sm:text-[14px] font-medium text-[#3A3A3A]">คาร์โบไฮเดรต</span>
+                                        <span className="text-[12px] sm:text-[13px] text-[#9CA3AF] tabular-nums">{menu.nutrient.carbohydrate ?? 0} g</span>
+                                    </li>
+                                    <li className="flex items-center justify-between px-3 py-2 bg-[#FAFCFF]">
+                                        <span className="text-[13px] sm:text-[14px] font-medium text-[#3A3A3A]">ไขมัน</span>
+                                        <span className="text-[12px] sm:text-[13px] text-[#9CA3AF] tabular-nums">{menu.nutrient.fat ?? 0} g</span>
+                                    </li>
+                                    <li className="flex items-center justify-between px-3 py-2 bg-[#FAFCFF]">
+                                        <span className="text-[13px] sm:text-[14px] font-medium text-[#3A3A3A]">ใยอาหาร</span>
+                                        <span className="text-[12px] sm:text-[13px] text-[#9CA3AF] tabular-nums">{menu.nutrient.fiber ?? 0} g</span>
+                                    </li>
                                 </ul>
                             </div>
+
+
+
 
                             {/* cal/day + weekly */}
                             <div className="flex flex-col gap-3 sm:gap-4">
@@ -297,7 +326,7 @@ export default function CalPage() {
                                 </div>
 
                                 {/* weekly log */}
-                                <button
+                                {/* <button
                                     type="button"
                                     onClick={() => alert('เปิด weekly log')}
                                     className="text-left rounded-[16px] bg-white p-4 shadow-[0_14px_40px_rgba(0,0,0,0.08)] active:scale-[0.98] transition-transform"
@@ -311,7 +340,7 @@ export default function CalPage() {
                                             <Calendar className="size-5 text-[#FF7A1A]" strokeWidth={2.6} />
                                         </div>
                                     </div>
-                                </button>
+                                </button> */}
 
                             </div>
                         </div>
