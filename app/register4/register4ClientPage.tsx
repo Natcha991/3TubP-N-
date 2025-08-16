@@ -38,25 +38,18 @@ export default function Register4() {
         };
     }, []); // Run only once on component mount
 
-    const handleSubmit = async (selectedGender: string) => {
-        if (!userId) {
-            alert('ไม่พบรหัสผู้ใช้'); // Consider using an in-component error state instead of alert
-            return;
-        }
-
-        // setGender(selectedGender); // This state update is not strictly necessary before fetch if only used for UI highlight
+    const handleSubmit = async (selectedGender: 'male' | 'female') => {
+        if (!userId) return;
 
         const res = await fetch(`/api/user/${userId}`, {
             method: 'PATCH',
             headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ gender: selectedGender }), // Use selectedGender directly
+            body: JSON.stringify({ gender: selectedGender }),
         });
 
         if (res.ok) {
-            setGender(selectedGender); // Update state here to show immediate feedback if needed
-            router.push(`/register5?id=${userId}`); // ✅ Go to next page (weight/height)
-        } else {
-            alert('❌ เกิดข้อผิดพลาดในการบันทึกเพศ'); // Consider using an in-component error state instead of alert
+            setGender(selectedGender);
+            router.push(`/register5?id=${userId}`);
         }
     };
 
@@ -98,15 +91,15 @@ export default function Register4() {
                 <div className="font-prompt gap-2 flex items-center mt-[1rem] cursor-pointer z-20">
                     <button
                         type='button'
-                        onClick={() => handleSubmit('ชาย')}
-                        className={`bg-[#ACE5FF] border-2 ${gender === 'ชาย' ? 'border-[#FF6600]' : 'border-[#333333]'} flex text-[1rem] rounded-2xl px-[3rem] py-[1.5rem] transition duration-200`}
+                        onClick={() => handleSubmit('male')}
+                        className={`bg-[#ACE5FF] border-2 ${gender === 'male' ? 'border-[#FF6600]' : 'border-[#333333]'} flex text-[1rem] rounded-2xl px-[3rem] py-[1.5rem] transition duration-200`}
                     >
                         ผู้ชาย
                     </button>
                     <button
                         type='button'
-                        onClick={() => handleSubmit('หญิง')}
-                        className={`bg-[#FF9BCD] border-2 ${gender === 'หญิง' ? 'border-[#FF6600]' : 'border-[#333333]'} flex text-[1rem] rounded-2xl px-[3rem] py-[1.5rem] transition duration-200`}
+                        onClick={() => handleSubmit('female')}
+                        className={`bg-[#FF9BCD] border-2 ${gender === 'female' ? 'border-[#FF6600]' : 'border-[#333333]'} flex text-[1rem] rounded-2xl px-[3rem] py-[1.5rem] transition duration-200`}
                     >
                         ผู้หญิง
                     </button>

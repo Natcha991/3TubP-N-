@@ -91,7 +91,7 @@ export default function Register2() {
             }
 
             localStorage.setItem('userId', user._id);
-            router.push(`/register2.5?id=${user._id}`);
+            router.push(`/register3?id=${user._id}`);
         } catch (err: unknown) {
             const error = err as Error;
             console.error('Registration error:', error);

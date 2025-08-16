@@ -187,8 +187,8 @@ export default function MenuPage() {
     // ปุ่มไปหน้า /app/cal
     const handleCalButtonClick = () => {
         setTimeout(() => {
-            router.push(`/cal`); // เปลี่ยนหน้า 
-            setAnimatingIngredientIndex(null);
+            router.push(`/cal/${menuId}?userId=${userId}`); // ส่ง menuId ไปหน้า cal/[id]
+            setAnimatingCalIndex(null);
         }, 300);
     };
 

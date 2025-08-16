@@ -1,7 +1,6 @@
 import { NextResponse } from 'next/server';
 import { connectToDatabase } from '@/lib/mongodb';
-
-import Menu from '@/models/Menu'; // สร้าง Mongoose model ให้เรียบร้อย
+import Menu from '@/models/Menu';
 
 export async function GET(req: Request, context: { params: { id: string } }) {
   try {
@@ -14,9 +13,26 @@ export async function GET(req: Request, context: { params: { id: string } }) {
       return NextResponse.json({ error: 'ไม่พบเมนู' }, { status: 404 });
     }
 
-    return NextResponse.json(menu);
+    const nutrientsArray = menu.nutrient
+      ? Object.entries(menu.nutrient).map(([label, value]) => ({ label, value }))
+      : [];
+
+    return NextResponse.json({
+      id: menu._id,
+      name: menu.name,
+      image: menu.image || '/default.png', // รูปจาก public
+      description: menu.description || '',
+      tags: menu.tags || [],
+      ingredients: menu.ingredients || [],
+      instructions: menu.instructions || [],
+      kcal: menu.calories ?? 0,
+      nutrients: nutrientsArray,
+    });
   } catch (error) {
     console.error('API Error:', error);
-    return NextResponse.json({ error: 'เกิดข้อผิดพลาดในการดึงข้อมูลเมนู' }, { status: 500 });
+    return NextResponse.json(
+      { error: 'เกิดข้อผิดพลาดในการดึงข้อมูลเมนู' },
+      { status: 500 }
+    );
   }
 }

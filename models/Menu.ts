@@ -10,6 +10,12 @@ export interface IMenu extends Document {
   ingredients: string[];
   instructions: string[];
   image: string;
+  nutrient?: {
+    carbohydrate?: string;
+    protein?: string;
+    fat?: string;
+    fiber?: string;
+  };
 }
 
 const MenuSchema = new Schema<IMenu>({
@@ -22,6 +28,7 @@ const MenuSchema = new Schema<IMenu>({
   ingredients: [String],
   instructions: [String],
   image: String,
+  nutrient: String,
 }, { timestamps: true });
 
 const Menu: Model<IMenu> = mongoose.models.Menu || mongoose.model<IMenu>('Menu', MenuSchema, 'menus');
