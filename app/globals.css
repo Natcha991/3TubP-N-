@@ -494,3 +494,27 @@ body {
   background-size: 400px 100%;
   animation: skeleton-loading 1.4s ease-in-out infinite;
 }
+
+/* Glassmorphism card */
+.glass-morphism {
+  background: rgba(255, 255, 255, 0.8);
+  backdrop-filter: blur(20px);
+  border-radius: 1rem;
+  box-shadow: 0 8px 30px rgba(0,0,0,0.08);
+  transition: all 0.3s ease;
+}
+
+/* Card hover animation */
+.card-hover:hover {
+  transform: translateY(-6px) scale(1.02);
+  box-shadow: 0 12px 40px rgba(0,0,0,0.12);
+}
+
+/* Pulse soft for loading badges */
+@keyframes pulse-soft {
+  0%, 100% { transform: scale(1); opacity: 0.8; }
+  50% { transform: scale(1.05); opacity: 1; }
+}
+.animate-pulse-soft {
+  animation: pulse-soft 1.5s infinite;
+}
