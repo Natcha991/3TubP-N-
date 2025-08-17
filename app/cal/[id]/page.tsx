@@ -142,7 +142,6 @@ export default function CalPage() {
         return (
             <div className={`${prompt.className} min-h-screen bg-gradient-to-br from-orange-50 via-amber-50 to-orange-100 flex items-center justify-center`}>
                 <div className="text-center space-y-6">
-                    {/* Enhanced loading animation */}
                     <div className="relative">
                         <div className="w-20 h-20 mx-auto">
                             <div className="absolute inset-0 border-4 border-orange-200 rounded-full"></div>
@@ -167,17 +166,16 @@ export default function CalPage() {
 
     return (
         <main className={`${prompt.className} min-h-screen bg-gradient-to-br from-orange-50 via-amber-50 to-orange-100`}>
-            {/* Enhanced Background */}
             <div className="fixed inset-0 pointer-events-none">
-                <div className="absolute inset-0 bg-[url('data:image/svg+xml,%3Csvg width="60" height="60" viewBox="0 0 60 60" xmlns="http://www.w3.org/2000/svg"%3E%3Cg fill="none" fill-rule="evenodd"%3E%3Cg fill="%23f97316" fill-opacity="0.03"%3E%3Ccircle cx="30" cy="30" r="1"/%3E%3C/g%3E%3C/g%3E%3C/svg%3E')]"></div>
+                <div className="absolute inset-0 opacity-30">
+                    <div className="w-full h-full bg-gradient-to-br from-orange-100/20 to-amber-100/20"></div>
+                </div>
                 <BackgroundDecor />
             </div>
 
             <div className="relative z-10">
-                {/* Hero Section with Food Image */}
                 <section className="relative">
                     <div className="relative h-[450px] lg:h-[500px] overflow-hidden bg-white shadow-2xl">
-                        {/* Food Image */}
                         <div className="absolute inset-0">
                             <Image
                                 src={menu.image ? `/menus/${encodeURIComponent(menu.image)}` : '/default.png'}
@@ -187,11 +185,9 @@ export default function CalPage() {
                                 className="object-cover"
                                 priority
                             />
-                            {/* Gradient Overlay */}
-                            <div className="absolute inset-0 bg-gradient-to-t from-black/20 via-transparent to-black/10"></div>
+                            <div className="absolute inset-0 bg-gradient-to-t from-black/30 via-transparent to-black/20"></div>
                         </div>
 
-                        {/* Back Button */}
                         <button
                             onClick={handleGoBack}
                             className={`absolute top-6 left-6 z-30 group ${
@@ -203,7 +199,6 @@ export default function CalPage() {
                             </div>
                         </button>
 
-                        {/* Food Title & Time */}
                         <div className="absolute inset-x-0 bottom-6 px-6 z-20">
                             <div className="text-center space-y-3">
                                 <h1 className="text-3xl lg:text-4xl font-bold text-white drop-shadow-2xl">
@@ -220,11 +215,9 @@ export default function CalPage() {
                     </div>
                 </section>
 
-                {/* Content Cards */}
                 <div className="px-4 lg:px-8 py-8 max-w-7xl mx-auto">
                     <div className="grid lg:grid-cols-2 gap-8 lg:gap-12">
                         
-                        {/* Calories Card */}
                         <div className="order-1">
                             <div className="bg-white rounded-3xl shadow-xl p-8 text-center hover:shadow-2xl transition-shadow duration-300">
                                 <div className="mb-6">
@@ -244,7 +237,6 @@ export default function CalPage() {
                                         แคลอรี่
                                     </div>
                                     
-                                    {/* Recommended daily calories */}
                                     <div className="mt-6 pt-6 border-t border-gray-100">
                                         <div className="text-sm text-gray-600 mb-2">แนะนำต่อมื้อ</div>
                                         <div className="text-2xl font-bold text-gray-800">
@@ -255,10 +247,8 @@ export default function CalPage() {
                             </div>
                         </div>
 
-                        {/* Nutrition & Progress Cards */}
                         <div className="order-2 space-y-6">
                             
-                            {/* Nutrition Card */}
                             <div className="bg-white rounded-3xl shadow-xl p-6 hover:shadow-2xl transition-shadow duration-300">
                                 <div className="flex items-center justify-between mb-6">
                                     <h3 className="text-xl font-bold text-gray-900">สารอาหาร</h3>
@@ -290,17 +280,15 @@ export default function CalPage() {
                                 </div>
                             </div>
 
-                            {/* Daily Progress Card */}
                             <div className="bg-white rounded-3xl shadow-xl p-6 hover:shadow-2xl transition-shadow duration-300">
                                 <div className="text-center space-y-4">
                                     <div className="inline-flex items-center px-4 py-2 bg-gradient-to-r from-emerald-500 to-teal-500 text-white rounded-full font-medium text-sm shadow-lg">
                                         <svg className="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" />
                                         </svg>
-                                        ความคืบหนา้วันนี้
+                                        ความคืบหน้าวันนี้
                                     </div>
 
-                                    {/* Circular Progress */}
                                     <div className="relative inline-flex items-center justify-center">
                                         <svg className="w-32 h-32 transform -rotate-90" viewBox="0 0 144 144">
                                             <circle
@@ -352,23 +340,6 @@ export default function CalPage() {
                     </div>
                 </div>
             </div>
-
-            <style jsx>{`
-                @keyframes fadeInUp {
-                    from {
-                        opacity: 0;
-                        transform: translateY(30px);
-                    }
-                    to {
-                        opacity: 1;
-                        transform: translateY(0);
-                    }
-                }
-                
-                .animate-fadeInUp {
-                    animation: fadeInUp 0.6s ease-out forwards;
-                }
-            `}</style>
         </main>
     );
 }
