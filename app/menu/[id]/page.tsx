@@ -263,18 +263,18 @@ export default function MenuPage() {
 
   return (
     <div className="relative flex flex-col items-center min-h-screen">
-      {/* Top bar - Enhanced mobile positioning */}
-      <div className="absolute z-20 flex justify-between items-center w-full px-3 sm:px-4 md:px-6 lg:px-8 pt-3 sm:pt-4">
+      {/* Top bar - Smaller for mobile */}
+      <div className="absolute z-20 flex justify-between items-center w-full px-2 sm:px-4 md:px-6 lg:px-8 pt-2 sm:pt-4">
         <button
           aria-label="ย้อนกลับ"
           onClick={handleGoBack}
-          className={`bg-white h-10 w-10 sm:h-12 sm:w-12 flex justify-center items-center rounded-full shadow-lg sm:shadow-2xl transform hover:scale-105 active:scale-95 transition-all duration-200 ${isBackAnimating ? "animate-press" : ""}`}
+          className={`bg-white h-8 w-8 sm:h-10 sm:w-10 md:h-12 md:w-12 flex justify-center items-center rounded-full shadow-md sm:shadow-lg transform hover:scale-105 active:scale-95 transition-all duration-200 ${isBackAnimating ? "animate-press" : ""}`}
         >
           <Image 
             src="/Group%2084.png" 
             alt="back" 
-            width={screenSize === 'xs' ? 14 : 16} 
-            height={screenSize === 'xs' ? 14 : 16} 
+            width={screenSize === 'xs' ? 12 : 14} 
+            height={screenSize === 'xs' ? 12 : 14} 
           />
         </button>
       </div>
@@ -283,8 +283,8 @@ export default function MenuPage() {
       <div className="relative w-full">
         <div className="w-full mx-auto max-w-screen-lg">
           <Image
-            className={`w-full h-auto object-cover mb-4 sm:mb-6 md:mb-8 [mask-image:linear-gradient(to_bottom,black_65%,transparent)] 
-                      max-h-[280px] xs:max-h-[320px] sm:max-h-[380px] md:max-h-[420px]`}
+            className={`w-full h-auto object-cover mb-3 sm:mb-4 md:mb-6 [mask-image:linear-gradient(to_bottom,black_65%,transparent)] 
+                      max-h-[240px] xs:max-h-[260px] sm:max-h-[300px] md:max-h-[380px] lg:max-h-[420px]`}
             src={menu.image ? `/menus/${encodeURIComponent(menu.image)}` : "/default.png"}
             alt={menu.name}
             width={imageDimensions.width}
@@ -301,81 +301,81 @@ export default function MenuPage() {
         <button
           onClick={handleCalButtonClick}
           aria-label="คำนวณแคลอรี่"
-          className={`bg-[#FE5D35] text-white ${getCalButtonSize()} flex justify-center items-center rounded-full shadow-lg sm:shadow-2xl transform hover:scale-105 active:scale-95 transition-all duration-200 absolute right-3 sm:right-4 md:right-6 -top-4 sm:-top-6 md:-top-8 ${animatingCalAnimatIndex !== null ? "animate-press" : ""}`}
+          className={`bg-[#FE5D35] text-white h-12 w-12 sm:h-14 sm:w-14 md:h-16 md:w-16 flex justify-center items-center rounded-full shadow-md sm:shadow-lg transform hover:scale-105 active:scale-95 transition-all duration-200 absolute right-2 sm:right-3 md:right-6 -top-3 sm:-top-4 md:-top-8 ${animatingCalAnimatIndex !== null ? "animate-press" : ""}`}
         >
           <Image 
             src="/cal.png" 
             alt="cal" 
-            width={screenSize === 'xs' ? 48 : 64} 
-            height={screenSize === 'xs' ? 48 : 64} 
+            width={screenSize === 'xs' ? 36 : screenSize === 'sm' ? 48 : 64} 
+            height={screenSize === 'xs' ? 36 : screenSize === 'sm' ? 48 : 64} 
           />
         </button>
       </div>
 
-      {/* Title + Desc + Tags - Enhanced mobile typography */}
-      <div className="w-full max-w-screen-md px-3 sm:px-4 md:px-6 lg:px-8">
-        <h1 className="text-xl sm:text-2xl md:text-3xl font-prompt text-[#611E1E] font-semibold leading-tight">
+      {/* Title + Desc + Tags - Compact mobile typography */}
+      <div className="w-full max-w-screen-md px-2 sm:px-4 md:px-6 lg:px-8">
+        <h1 className="text-lg sm:text-xl md:text-2xl lg:text-3xl font-prompt text-[#611E1E] font-semibold leading-tight">
           {menu.name}
         </h1>
 
-        <p className="text-xs sm:text-sm md:text-base mt-2 text-[#953333] font-prompt max-w-prose leading-relaxed">
+        <p className="text-[11px] sm:text-xs md:text-sm mt-1.5 sm:mt-2 text-[#953333] font-prompt max-w-prose leading-relaxed">
           {menu.description}
         </p>
 
         {Array.isArray(menu.tags) && menu.tags.length > 0 && (
-          <div className="flex flex-wrap gap-1.5 sm:gap-2 mt-3">
+          <div className="flex flex-wrap gap-1 sm:gap-1.5 mt-2 sm:mt-3">
             {menu.tags.map((tag, index) => (
               <span
                 key={index}
-                className="bg-[#ff770041] inline-block px-2.5 sm:px-3 py-1 rounded-xl sm:rounded-2xl"
+                className="bg-[#ff770041] inline-block px-2 sm:px-2.5 py-0.5 sm:py-1 rounded-lg sm:rounded-xl"
               >
-                <span className="font-semibold text-xs sm:text-sm text-[#953333] font-prompt">{tag}</span>
+                <span className="font-semibold text-[10px] sm:text-xs md:text-sm text-[#953333] font-prompt">{tag}</span>
               </span>
             ))}
           </div>
         )}
       </div>
 
-      {/* Ingredients - Enhanced mobile grid */}
-      <section className="w-full max-w-screen-md px-3 sm:px-4 md:px-6 lg:px-8 mt-8 sm:mt-10">
-        <h2 className="text-lg sm:text-xl md:text-2xl text-[#333333] mb-3 sm:mb-4 md:mb-6 font-[600] font-prompt">วัตถุดิบ</h2>
+      {/* Ingredients - Compact mobile grid */}
+      <section className="w-full max-w-screen-md px-2 sm:px-4 md:px-6 lg:px-8 mt-6 sm:mt-8 md:mt-10">
+        <h2 className="text-base sm:text-lg md:text-xl lg:text-2xl text-[#333333] mb-2 sm:mb-3 md:mb-6 font-[600] font-prompt">วัตถุดิบ</h2>
 
-        <div className="grid grid-cols-1 sm:grid-cols-1 md:grid-cols-2 gap-2.5 sm:gap-3 md:gap-4 animate-OpenScene2">
+        <div className="grid grid-cols-1 sm:grid-cols-1 md:grid-cols-2 gap-1.5 sm:gap-2.5 md:gap-4 animate-OpenScene2">
           {ingredientsData.map((ing, i) => (
             <button
               key={i}
               onClick={() => handleIngredientClick(ing.name, i)}
-              className={`bg-[#FFFAD2] text-left flex justify-between px-3 sm:px-4 items-center border border-[#C9AF90] w-full h-12 sm:h-14 rounded-lg hover:scale-[1.02] active:scale-[0.98] transition-all duration-200 cursor-pointer ${animatingIngredientIndex === i ? "animate-press" : ""}`}
+              className={`bg-[#FFFAD2] text-left flex justify-between px-2.5 sm:px-3 items-center border border-[#C9AF90] w-full h-10 sm:h-12 md:h-14 rounded-md sm:rounded-lg hover:scale-[1.02] active:scale-[0.98] transition-all duration-200 cursor-pointer ${animatingIngredientIndex === i ? "animate-press" : ""}`}
             >
-              <div className="flex items-center gap-2.5 sm:gap-3 min-w-0 flex-1">
+              <div className="flex items-center gap-2 sm:gap-2.5 min-w-0 flex-1">
                 <Image
                   className="rounded-full object-cover flex-shrink-0"
                   src={ing.image ? `/ingredients/${encodeURIComponent(ing.image)}` : "/default.png"}
                   alt={ing.name}
-                  width={screenSize === 'xs' ? 36 : 44}
-                  height={screenSize === 'xs' ? 36 : 44}
+                  width={screenSize === 'xs' ? 28 : 36}
+                  height={screenSize === 'xs' ? 28 : 36}
                   onError={(e) => {
                     const target = e.target as HTMLImageElement;
                     (target as any).onerror = null;
                     target.src = "/default.png";
                   }}
                 />
-                <span className="text-sm sm:text-base truncate font-prompt">{ing.name}</span>
+                <span className="text-xs sm:text-sm md:text-base truncate font-prompt">{ing.name}</span>
               </div>
-              <span className="text-xs sm:text-sm text-[#777] font-prompt flex-shrink-0 ml-2">฿ {ing.price}</span>
+              <span className="text-[10px] sm:text-xs md:text-sm text-[#777] font-prompt flex-shrink-0 ml-1.5">฿ {ing.price}</span>
             </button>
           ))}
         </div>
       </section>
 
-      {/* Methods - Enhanced mobile scrolling */}
-      <section className="w-full max-w-screen-md px-3 sm:px-4 md:px-6 lg:px-8 mt-8 sm:mt-10">
-        <h2 className="text-lg sm:text-xl md:text-2xl text-[#333333] mb-3 sm:mb-4 md:mb-6 font-[600] font-prompt">วิธีการทำ</h2>
+      {/* Methods - Compact mobile scrolling */}
+      <section className="w-full max-w-screen-md px-2 sm:px-4 md:px-6 lg:px-8 mt-6 sm:mt-8 md:mt-10">
+        <h2 className="text-base sm:text-lg md:text-xl lg:text-2xl text-[#333333] mb-2 sm:mb-3 md:mb-6 font-[600] font-prompt">วิธีการทำ</h2>
 
         <div
           ref={methodCardsContainerRef}
-          className={`flex flex-col items-stretch gap-2.5 sm:gap-3 overflow-y-auto pb-3 sm:pb-4 scrollbar-thin scrollbar-thumb-rounded-md scrollbar-thumb-[#C9AF90]
-                     ${screenSize === 'xs' ? 'max-h-[50vh]' : 'max-h-[55vh] sm:max-h-[60vh] md:max-h-[62vh]'}`}
+          className={`flex flex-col items-stretch gap-1.5 sm:gap-2.5 overflow-y-auto pb-2 sm:pb-4 scrollbar-thin scrollbar-thumb-rounded-md scrollbar-thumb-[#C9AF90]
+                     max-h-[45vh] sm:max-h-[50vh] md:max-h-[55vh] lg:max-h-[60vh]`}
         >
           {displayedSteps.map((step, index) => (
             <MethodCard
@@ -388,46 +388,46 @@ export default function MenuPage() {
           ))}
         </div>
 
-        {/* Next step button - Enhanced mobile sizing */}
-        <div className="flex justify-center mt-3 sm:mt-4 mb-8 sm:mb-10">
+        {/* Next step button - Smaller mobile sizing */}
+        <div className="flex justify-center mt-2 sm:mt-3 mb-6 sm:mb-8">
           <button
             onClick={handleNextStep}
             disabled={nextStepIndex >= instructions.length}
-            className={`bg-[#FFF5DD] border-2 border-[#C9AF90] w-24 h-9 sm:w-28 sm:h-10 rounded-lg hover:scale-105 active:scale-95 transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed ${isNextStepAnimating ? "animate-press" : ""}`}
+            className={`bg-[#FFF5DD] border-2 border-[#C9AF90] w-20 h-8 sm:w-24 sm:h-9 md:w-28 md:h-10 rounded-lg hover:scale-105 active:scale-95 transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed ${isNextStepAnimating ? "animate-press" : ""}`}
           >
             <div className="flex flex-col items-center text-[#333333] leading-tight font-prompt">
-              <span className="text-xs sm:text-sm">ถัดไป</span>
-              <span className="text-[9px] sm:text-[10px]">(กดเพื่อดูวิธีต่อไป)</span>
+              <span className="text-[10px] sm:text-xs md:text-sm">ถัดไป</span>
+              <span className="text-[8px] sm:text-[9px] md:text-[10px]">(กดเพื่อดูวิธีต่อไป)</span>
             </div>
           </button>
         </div>
       </section>
 
-      {/* Similar menus - Enhanced mobile grid */}
-      <section className="w-full max-w-screen-lg px-3 sm:px-4 md:px-6 lg:px-8 mt-2 sm:mt-4 mb-12 sm:mb-16">
-        <h2 className="font-[600] text-[#333333] mb-4 sm:mb-6 text-lg sm:text-xl md:text-2xl font-prompt">เมนูใกล้เคียง</h2>
+      {/* Similar menus - Compact mobile grid */}
+      <section className="w-full max-w-screen-lg px-2 sm:px-4 md:px-6 lg:px-8 mt-1 sm:mt-2 mb-8 sm:mb-12">
+        <h2 className="font-[600] text-[#333333] mb-3 sm:mb-4 text-base sm:text-lg md:text-xl lg:text-2xl font-prompt">เมนูใกล้เคียง</h2>
 
         {isLoadingSimilarMenus ? (
-          <p className="text-gray-600 text-sm sm:text-base font-prompt">กำลังโหลดเมนูใกล้เคียง...</p>
+          <p className="text-gray-600 text-xs sm:text-sm font-prompt">กำลังโหลดเมนูใกล้เคียง...</p>
         ) : similarMenusError ? (
-          <p className="text-red-500 text-sm sm:text-base font-prompt">{similarMenusError}</p>
+          <p className="text-red-500 text-xs sm:text-sm font-prompt">{similarMenusError}</p>
         ) : similarMenus.length === 0 ? (
-          <p className="text-gray-600 text-sm sm:text-base font-prompt">ไม่พบเมนูใกล้เคียง</p>
+          <p className="text-gray-600 text-xs sm:text-sm font-prompt">ไม่พบเมนูใกล้เคียง</p>
         ) : (
-          <div className="grid grid-cols-2 xs:grid-cols-3 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-2.5 sm:gap-3 md:gap-4 lg:gap-5 place-items-stretch">
+          <div className="grid grid-cols-3 xs:grid-cols-3 sm:grid-cols-4 md:grid-cols-4 lg:grid-cols-5 gap-1.5 sm:gap-2.5 md:gap-4 place-items-stretch">
             {similarMenus.map((similarMenu) => (
               <button
                 key={similarMenu._id}
                 onClick={() => handleSimilarMenuClick(similarMenu._id)}
                 className={`flex flex-col items-center bg-white border-2 border-[#C9AF90] rounded-t-[999px] shadow-sm cursor-pointer transform transition-all duration-200 hover:scale-[1.03] active:scale-[0.97] ${animatingSimilarMenuId === similarMenu._id ? "animate-press" : ""}`}
               >
-                <div className="w-full flex justify-center pt-1.5 sm:pt-2">
+                <div className="w-full flex justify-center pt-1 sm:pt-1.5">
                   <Image
                     className="animate-sizeUpdown object-cover rounded-t-[999px]"
                     src={similarMenu.image ? `/menus/${encodeURIComponent(similarMenu.image)}` : "/default.png"}
                     alt={similarMenu.name}
-                    width={screenSize === 'xs' ? 100 : 140}
-                    height={screenSize === 'xs' ? 85 : 120}
+                    width={screenSize === 'xs' ? 80 : 100}
+                    height={screenSize === 'xs' ? 70 : 85}
                     onError={(e) => {
                       const target = e.target as HTMLImageElement;
                       (target as any).onerror = null;
@@ -435,8 +435,8 @@ export default function MenuPage() {
                     }}
                   />
                 </div>
-                <div className="px-1.5 sm:px-2 pb-2 sm:pb-3 w-full">
-                  <p className="text-[11px] sm:text-[12px] md:text-sm text-[#953333] text-center line-clamp-2 font-prompt leading-tight">
+                <div className="px-1 sm:px-1.5 pb-1.5 sm:pb-2 w-full">
+                  <p className="text-[9px] sm:text-[10px] md:text-[11px] text-[#953333] text-center line-clamp-2 font-prompt leading-tight">
                     {similarMenu.name}
                   </p>
                 </div>
@@ -447,7 +447,7 @@ export default function MenuPage() {
       </section>
 
       {/* Safe area for mobile navigation */}
-      <div className="h-4 sm:h-0"></div>
+      <div className="h-2 sm:h-4"></div>
     </div>
   );
 }
