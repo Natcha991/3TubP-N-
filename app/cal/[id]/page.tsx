@@ -7,7 +7,7 @@ import { useRouter, useParams, useSearchParams } from 'next/navigation';
 import { useEffect, useState } from 'react';
 
 const prompt = Prompt({
-    weight: ['400', '700', '800', '900'],
+    weight: ['300', '400', '500', '600', '700', '800'],
     subsets: ['latin', 'thai'],
 });
 
@@ -17,10 +17,10 @@ interface UserData {
 }
 
 interface Nutrient {
-    protein?: number;      // g
-    carbohydrate?: number; // g
-    fat?: number;          // g
-    fiber?: number;        // g
+    protein?: number;      
+    carbohydrate?: number; 
+    fat?: number;          
+    fiber?: number;        
 }
 
 interface MenuItem {
@@ -37,16 +37,21 @@ export default function CalPage() {
 
     const router = useRouter();
     const searchParams = useSearchParams();
-    const userId = searchParams.get('userId'); // ดึง userId จาก URL
+    const userId = searchParams.get('userId');
     const { id: menuId } = useParams() as { id: string };
 
-    const time = new Date().toLocaleTimeString('th-TH', { hour: '2-digit', minute: '2-digit' });
+    const time = new Date().toLocaleTimeString('th-TH', { 
+        hour: '2-digit', 
+        minute: '2-digit',
+        hour12: false 
+    });
 
     const [menu, setMenu] = useState<MenuItem | null>(null);
     const [isBackAnimating, setIsBackAnimating] = useState(false);
-    const [appHeight, setAppHeight] = useState('100vh');
+    const [isLoading, setIsLoading] = useState(true);
 
     const progress = menu && dayCalories ? Math.min(menu.kcal / dayCalories, 1) : 0;
+    const progressPercentage = Math.round(progress * 100);
 
     useEffect(() => {
         if (!userId) return;
@@ -57,7 +62,6 @@ export default function CalPage() {
                 if (!res.ok) throw new Error('ไม่พบผู้ใช้');
                 const user: UserData = await res.json();
 
-                // 👉 2. คำนวณ dayCalories
                 const calculated =
                     user.gender === 'female'
                         ? (user.height - 110) * 26
@@ -72,40 +76,17 @@ export default function CalPage() {
         fetchUser();
     }, [userId]);
 
-    // useEffect คำนวณเมื่อ dayCalories มีค่า
     useEffect(() => {
         if (dayCalories) {
-            setMealCalories(dayCalories / 3); // แต่ละมื้อ 1/3 ของวัน
+            setMealCalories(dayCalories / 3);
         }
     }, [dayCalories]);
-
-    useEffect(() => {
-        const updateAppHeight = () => {
-            setAppHeight(`${window.visualViewport?.height || window.innerHeight}px`);
-        };
-
-        if (typeof window !== 'undefined') {
-            updateAppHeight();
-            window.addEventListener('resize', updateAppHeight);
-            if (window.visualViewport) {
-                window.visualViewport.addEventListener('resize', updateAppHeight);
-            }
-        }
-
-        return () => {
-            if (typeof window !== 'undefined') {
-                window.removeEventListener('resize', updateAppHeight);
-                if (window.visualViewport) {
-                    window.visualViewport.removeEventListener('resize', updateAppHeight);
-                }
-            }
-        };
-    }, []);
 
     useEffect(() => {
         if (!menuId) return;
 
         const fetchMenu = async () => {
+            setIsLoading(true);
             try {
                 const res = await fetch(`/api/menu/${menuId}`);
                 if (!res.ok) throw new Error('Menu not found');
@@ -117,35 +98,20 @@ export default function CalPage() {
                     kcal: Number(data.kcal),
                     nutrient: {
                         protein: parseFloat(String(data.nutrient.protein).replace(/[^\d.]/g, "")) || 0,
-    carbohydrate: parseFloat(String(data.nutrient.carbohydrate).replace(/[^\d.]/g, "")) || 0,
-    fat: parseFloat(String(data.nutrient.fat).replace(/[^\d.]/g, "")) || 0,
-    fiber: parseFloat(String(data.nutrient.fiber).replace(/[^\d.]/g, "")) || 0,
+                        carbohydrate: parseFloat(String(data.nutrient.carbohydrate).replace(/[^\d.]/g, "")) || 0,
+                        fat: parseFloat(String(data.nutrient.fat).replace(/[^\d.]/g, "")) || 0,
+                        fiber: parseFloat(String(data.nutrient.fiber).replace(/[^\d.]/g, "")) || 0,
                     }
                 });
             } catch (error) {
                 console.error('Error loading menu:', error);
+            } finally {
+                setIsLoading(false);
             }
         };
 
         fetchMenu();
     }, [menuId]);
-
-    // ปรับความสูง app
-    useEffect(() => {
-        const updateAppHeight = () => {
-            setAppHeight(`${window.visualViewport?.height || window.innerHeight}px`);
-        };
-
-        window.addEventListener('resize', updateAppHeight);
-        window.visualViewport?.addEventListener('resize', updateAppHeight);
-
-        updateAppHeight();
-
-        return () => {
-            window.removeEventListener('resize', updateAppHeight);
-            window.visualViewport?.removeEventListener('resize', updateAppHeight);
-        };
-    }, []);
 
     useEffect(() => {
         const register4Str = localStorage.getItem('register4');
@@ -169,185 +135,240 @@ export default function CalPage() {
         setTimeout(() => {
             router.push(`/home?id=${userId}`);
             setIsBackAnimating(false);
-        }, 300);
+        }, 150);
     };
 
-
-    if (!menu)
+    if (isLoading || !menu) {
         return (
-            <div
-                className="relative w-screen overflow-hidden flex flex-col items-center justify-center
-                                 bg-gradient-to-br from-orange-300 to-orange-100 text-xl text-gray-700 font-prompt"
-                style={{ height: appHeight }}
-            >
-                <div className="absolute left-0 top-0 w-[60vw] max-w-[250px]">
-                    <img src="/Group%2099.png" alt="Decoration"></img>
+            <div className={`${prompt.className} min-h-screen bg-gradient-to-br from-orange-50 via-amber-50 to-orange-100 flex items-center justify-center`}>
+                <div className="text-center space-y-6">
+                    {/* Enhanced loading animation */}
+                    <div className="relative">
+                        <div className="w-20 h-20 mx-auto">
+                            <div className="absolute inset-0 border-4 border-orange-200 rounded-full"></div>
+                            <div className="absolute inset-0 border-4 border-orange-500 rounded-full border-t-transparent animate-spin"></div>
+                        </div>
+                        <div className="absolute -inset-4">
+                            <div className="w-28 h-28 border border-orange-300 rounded-full opacity-30 animate-ping"></div>
+                        </div>
+                    </div>
+                    <div className="space-y-2">
+                        <p className="text-lg font-medium text-gray-700">กำลังโหลดข้อมูล</p>
+                        <div className="flex justify-center space-x-1">
+                            <div className="w-2 h-2 bg-orange-400 rounded-full animate-bounce"></div>
+                            <div className="w-2 h-2 bg-orange-400 rounded-full animate-bounce" style={{ animationDelay: '0.1s' }}></div>
+                            <div className="w-2 h-2 bg-orange-400 rounded-full animate-bounce" style={{ animationDelay: '0.2s' }}></div>
+                        </div>
+                    </div>
                 </div>
-                <div className="absolute right-0 bottom-0 rotate-[180deg] top-[30vh] w-[60vw] max-w-[250px]">
-                    <img src="/Group%2099.png" alt="Decoration"></img>
-                </div>
-                <div className="absolute top-[74vh] left-[3.5vw] animate-shakeright w-[30vw] max-w-[200px]">
-                    <img className='' src="/image%2084.png" alt="Decoration"></img>
-                </div>
-                <div className="absolute top-[10vh] right-[5vw] rotate-[35deg] animate-shakeright2 w-[25vw] max-w-[120px]">
-                    <img src="/image%2084.png" className='w-[140px]' alt="Decoration"></img>
-                </div>
-                <img className='animate-sizeUpdown2 mb-[1.5rem] w-auto max-h-[40vh] object-contain' src="/image%2069.png" alt="Background decoration"></img>
-                <p className="z-10">กำลังโหลดข้อมูล...</p>
             </div>
         );
+    }
 
     return (
-        <main className={`${prompt.className} relative min-h-screen overflow-x-hidden`}>
-            {/* พื้นหลัง */}
-            <div className="pointer-events-none fixed inset-0 z-0">
+        <main className={`${prompt.className} min-h-screen bg-gradient-to-br from-orange-50 via-amber-50 to-orange-100`}>
+            {/* Enhanced Background */}
+            <div className="fixed inset-0 pointer-events-none">
+                <div className="absolute inset-0 bg-[url('data:image/svg+xml,%3Csvg width="60" height="60" viewBox="0 0 60 60" xmlns="http://www.w3.org/2000/svg"%3E%3Cg fill="none" fill-rule="evenodd"%3E%3Cg fill="%23f97316" fill-opacity="0.03"%3E%3Ccircle cx="30" cy="30" r="1"/%3E%3C/g%3E%3C/g%3E%3C/svg%3E')]"></div>
                 <BackgroundDecor />
             </div>
 
-            <div className="relative z-10 mx-auto max-w-[1100px] lg:px-6 py-6 lg:py-10">
-                {/* รูปอาหาร */}
-                <section>
-                    <div className="relative h-[410px] overflow-hidden rounded-none bg-[#FFF3E0] shadow-[0_24px_60px_rgba(0,0,0,0.25)]">
-                        <Image
-                            src={menu.image ? `/menus/${encodeURIComponent(menu.image)}` : '/default.png'}
-                            alt={menu.name}
-                            fill
-                            sizes="100vw"
-                            className="object-cover"
-                            priority
-                        />
-
-                        <div
-                            onClick={handleGoBack}
-                            className={`absolute z-20 bg-white h-[50px] w-[50px] flex justify-center items-center cursor-pointer rounded-full shadow-2xl ${isBackAnimating ? 'animate-press' : ''}`}
-                        >
-                            <Image src="/Group%2084.png" alt="back" width={15} height={15} />
+            <div className="relative z-10">
+                {/* Hero Section with Food Image */}
+                <section className="relative">
+                    <div className="relative h-[450px] lg:h-[500px] overflow-hidden bg-white shadow-2xl">
+                        {/* Food Image */}
+                        <div className="absolute inset-0">
+                            <Image
+                                src={menu.image ? `/menus/${encodeURIComponent(menu.image)}` : '/default.png'}
+                                alt={menu.name}
+                                fill
+                                sizes="100vw"
+                                className="object-cover"
+                                priority
+                            />
+                            {/* Gradient Overlay */}
+                            <div className="absolute inset-0 bg-gradient-to-t from-black/20 via-transparent to-black/10"></div>
                         </div>
 
-                        <div className="absolute inset-x-0 top-6 text-center z-10">
-                            <h1 className="text-[32px] sm:text-[34px] lg:text-[46px] font-extrabold text-[#1F1F1F]">
-                                {menu.name}
-                            </h1>
-                            <span className="mt-2 inline-block text-[13px] sm:text-[14px] font-semibold text-[#1F1F1F] bg-white/75 px-2 py-[2px] rounded-full">
-                                {time}
-                            </span>
+                        {/* Back Button */}
+                        <button
+                            onClick={handleGoBack}
+                            className={`absolute top-6 left-6 z-30 group ${
+                                isBackAnimating ? 'scale-95' : 'hover:scale-105'
+                            } transition-all duration-200`}
+                        >
+                            <div className="w-12 h-12 bg-white/95 backdrop-blur-sm rounded-2xl shadow-lg flex items-center justify-center group-hover:bg-white group-hover:shadow-xl">
+                                <Image src="/Group%2084.png" alt="back" width={16} height={16} />
+                            </div>
+                        </button>
+
+                        {/* Food Title & Time */}
+                        <div className="absolute inset-x-0 bottom-6 px-6 z-20">
+                            <div className="text-center space-y-3">
+                                <h1 className="text-3xl lg:text-4xl font-bold text-white drop-shadow-2xl">
+                                    {menu.name}
+                                </h1>
+                                <div className="inline-flex items-center px-4 py-2 bg-white/90 backdrop-blur-sm rounded-full shadow-lg">
+                                    <svg className="w-4 h-4 mr-2 text-orange-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+                                    </svg>
+                                    <span className="text-sm font-medium text-gray-800">{time} น.</span>
+                                </div>
+                            </div>
                         </div>
                     </div>
                 </section>
 
-                {/* กล่องล่าง */}
-                <div className="grid lg:grid-cols-2 gap-6 lg:gap-8 items-start justify-items-center mt-0">
-                    {/* การ์ด kcal */}
-                    <section className="w-full">
-                        <div className="relative left-1/2 -mx-[50vw] w-screen sm:static sm:mx-0 sm:w-auto rounded-none sm:rounded-[20px] overflow-hidden bg-[#f2ede4] shadow-[0_16px_36px_rgba(0,0,0,0.12)] -mt-px">
-                            <div className="py-1 sm:py-7 text-center">
-                                <div className="text-[96px] sm:text-[100px] lg:text-[120px] font-black text-[#2B2B2B]">
-                                    {menu.kcal}
-                                </div>
-                                <div className="mt-2 text-[16px] sm:text-[18px] lg:text-[20px] font-extrabold text-[#FF7A1A]">
-                                    {mealCalories !== null ? Number(mealCalories).toFixed(0) : 0} cal
-                                </div>
-                            </div>
-                        </div>
-                    </section>
-
-                    {/* ขวาล่าง */}
-                    <section className="w-full max-w-[373px] lg:max-w-none flex flex-col gap-5 sm:gap-6">
-                        <div className="grid grid-cols-2 gap-3 sm:gap-4">
-
-                            {/* สารอาหาร */}
-                            <div className="rounded-[16px] bg-white p-3.5 sm:p-4 shadow-[0_14px_40px_rgba(0,0,0,0.08)]">
-                                <div className="inline-flex">
-                                    <span className="rounded-full bg-[#FF6B2C] text-white text-[15px] sm:text-[16px] font-extrabold px-3 py-1 shadow-[0_6px_18px_rgba(255,107,44,0.45)]">
-                                        สารอาหาร
-                                    </span>
-                                </div>
-                                <ul className="mt-3 divide-y divide-[#E8EDF3] rounded-[12px] overflow-hidden">
-                                    <li className="flex items-center justify-between px-3 py-2 bg-[#FAFCFF]">
-                                        <span className="text-[13px] sm:text-[14px] font-medium text-[#3A3A3A]">โปรตีน</span>
-                                        <span className="text-[12px] sm:text-[13px] text-[#9CA3AF] tabular-nums">{menu.nutrient.protein ?? 0} g</span>
-                                    </li>
-                                    <li className="flex items-center justify-between px-3 py-2 bg-[#FAFCFF]">
-                                        <span className="text-[13px] sm:text-[14px] font-medium text-[#3A3A3A]">คาร์โบไฮเดรต</span>
-                                        <span className="text-[12px] sm:text-[13px] text-[#9CA3AF] tabular-nums">{menu.nutrient.carbohydrate ?? 0} g</span>
-                                    </li>
-                                    <li className="flex items-center justify-between px-3 py-2 bg-[#FAFCFF]">
-                                        <span className="text-[13px] sm:text-[14px] font-medium text-[#3A3A3A]">ไขมัน</span>
-                                        <span className="text-[12px] sm:text-[13px] text-[#9CA3AF] tabular-nums">{menu.nutrient.fat ?? 0} g</span>
-                                    </li>
-                                    <li className="flex items-center justify-between px-3 py-2 bg-[#FAFCFF]">
-                                        <span className="text-[13px] sm:text-[14px] font-medium text-[#3A3A3A]">ใยอาหาร</span>
-                                        <span className="text-[12px] sm:text-[13px] text-[#9CA3AF] tabular-nums">{menu.nutrient.fiber ?? 0} g</span>
-                                    </li>
-                                </ul>
-                            </div>
-
-
-
-
-                            {/* cal/day + weekly */}
-                            <div className="flex flex-col gap-3 sm:gap-4">
-
-                                {/* เกจ */}
-                                <div className="rounded-[16px] bg-white px-3.5 py-3.5 sm:p-4 shadow-[0_14px_40px_rgba(0,0,0,0.08)]">
-                                    <div className="w-fit mx-auto -mt-6 mb-1.5">
-                                        <div className="rounded-full px-3 py-1 text-[12px] font-bold text-white bg-[#FF7A1A] shadow-[0_8px_20px_rgba(255,122,26,0.35)]">
-                                            cal / day
-                                        </div>
-                                    </div>
-                                    <div className="mt-2 flex flex-col items-center">
-                                        <svg viewBox="0 0 100 60" className="w-[140px] h-[84px]" aria-hidden="true">
-                                            <path
-                                                d="M10 50 A40 40 0 0 1 90 50"
-                                                fill="none"
-                                                stroke="#D7DCE4"
-                                                strokeWidth="10"
-                                                strokeLinecap="round"
-                                                pathLength={100}
-                                            />
-                                            <path
-                                                d="M10 50 A40 40 0 0 1 90 50"
-                                                fill="none"
-                                                stroke="#37C871"
-                                                strokeWidth="10"
-                                                strokeLinecap="round"
-                                                pathLength={100}
-                                                style={{ strokeDasharray: `${progress * 100} 100` }}
-                                            />
+                {/* Content Cards */}
+                <div className="px-4 lg:px-8 py-8 max-w-7xl mx-auto">
+                    <div className="grid lg:grid-cols-2 gap-8 lg:gap-12">
+                        
+                        {/* Calories Card */}
+                        <div className="order-1">
+                            <div className="bg-white rounded-3xl shadow-xl p-8 text-center hover:shadow-2xl transition-shadow duration-300">
+                                <div className="mb-6">
+                                    <div className="inline-flex items-center px-4 py-2 bg-gradient-to-r from-orange-500 to-amber-500 text-white rounded-full font-medium text-sm shadow-lg">
+                                        <svg className="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 10V3L4 14h7v7l9-11h-7z" />
                                         </svg>
-                                        <div className="mt-1 text-center">
-                                            <div className="text-[22px] sm:text-[24px] font-extrabold text-[#222] leading-none">
-                                                {menu.kcal}
-                                            </div>
-                                            <div className="text-[11px] sm:text-[12px] text-[#FF7A1A]">{dayCalories} cal</div>
-                                        </div>
+                                        พลังงาน
                                     </div>
-                                    <div className="mt-3 h-[12px] rounded-[10px] bg-[#00A862]/90" />
                                 </div>
-
-                                {/* weekly log */}
-                                {/* <button
-                                    type="button"
-                                    onClick={() => alert('เปิด weekly log')}
-                                    className="text-left rounded-[16px] bg-white p-4 shadow-[0_14px_40px_rgba(0,0,0,0.08)] active:scale-[0.98] transition-transform"
-                                >
-                                    <div className="flex items-center justify-between">
-                                        <div className="text-[16px] sm:text-[18px] font-semibold text-[#2F2F2F]">
-                                            weekly
-                                            <div className="text-[12px] text-[#8C8C8C] leading-none">log</div>
-                                        </div>
-                                        <div className="rounded-[12px] bg-[#FFF2E7] p-2 shadow-[inset_0_-2px_0_rgba(0,0,0,0.06)]">
-                                            <Calendar className="size-5 text-[#FF7A1A]" strokeWidth={2.6} />
+                                
+                                <div className="space-y-4">
+                                    <div className="text-7xl lg:text-8xl font-black text-gray-900 leading-none">
+                                        {menu.kcal}
+                                    </div>
+                                    <div className="text-lg font-semibold text-orange-500">
+                                        แคลอรี่
+                                    </div>
+                                    
+                                    {/* Recommended daily calories */}
+                                    <div className="mt-6 pt-6 border-t border-gray-100">
+                                        <div className="text-sm text-gray-600 mb-2">แนะนำต่อมื้อ</div>
+                                        <div className="text-2xl font-bold text-gray-800">
+                                            {mealCalories !== null ? Math.round(mealCalories) : 0} <span className="text-lg text-gray-500">kcal</span>
                                         </div>
                                     </div>
-                                </button> */}
-
+                                </div>
                             </div>
                         </div>
-                    </section>
 
+                        {/* Nutrition & Progress Cards */}
+                        <div className="order-2 space-y-6">
+                            
+                            {/* Nutrition Card */}
+                            <div className="bg-white rounded-3xl shadow-xl p-6 hover:shadow-2xl transition-shadow duration-300">
+                                <div className="flex items-center justify-between mb-6">
+                                    <h3 className="text-xl font-bold text-gray-900">สารอาหาร</h3>
+                                    <div className="p-2 bg-gradient-to-br from-orange-100 to-amber-100 rounded-xl">
+                                        <svg className="w-5 h-5 text-orange-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 19V6l7 7-7 7z" />
+                                        </svg>
+                                    </div>
+                                </div>
+                                
+                                <div className="space-y-4">
+                                    {[
+                                        { name: 'โปรตีน', value: menu.nutrient.protein ?? 0, color: 'bg-blue-500', icon: '🥩' },
+                                        { name: 'คาร์โบไฮเดรต', value: menu.nutrient.carbohydrate ?? 0, color: 'bg-amber-500', icon: '🍞' },
+                                        { name: 'ไขมัน', value: menu.nutrient.fat ?? 0, color: 'bg-yellow-500', icon: '🥑' },
+                                        { name: 'ใยอาหาร', value: menu.nutrient.fiber ?? 0, color: 'bg-green-500', icon: '🥬' },
+                                    ].map((nutrient) => (
+                                        <div key={nutrient.name} className="flex items-center justify-between p-4 bg-gray-50 rounded-2xl hover:bg-gray-100 transition-colors">
+                                            <div className="flex items-center space-x-3">
+                                                <span className="text-lg">{nutrient.icon}</span>
+                                                <span className="font-medium text-gray-800">{nutrient.name}</span>
+                                            </div>
+                                            <div className="flex items-center space-x-3">
+                                                <div className={`w-2 h-2 rounded-full ${nutrient.color}`}></div>
+                                                <span className="font-bold text-gray-900 tabular-nums">{nutrient.value} g</span>
+                                            </div>
+                                        </div>
+                                    ))}
+                                </div>
+                            </div>
+
+                            {/* Daily Progress Card */}
+                            <div className="bg-white rounded-3xl shadow-xl p-6 hover:shadow-2xl transition-shadow duration-300">
+                                <div className="text-center space-y-4">
+                                    <div className="inline-flex items-center px-4 py-2 bg-gradient-to-r from-emerald-500 to-teal-500 text-white rounded-full font-medium text-sm shadow-lg">
+                                        <svg className="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" />
+                                        </svg>
+                                        ความคืบหนา้วันนี้
+                                    </div>
+
+                                    {/* Circular Progress */}
+                                    <div className="relative inline-flex items-center justify-center">
+                                        <svg className="w-32 h-32 transform -rotate-90" viewBox="0 0 144 144">
+                                            <circle
+                                                cx="72"
+                                                cy="72"
+                                                r="64"
+                                                fill="none"
+                                                stroke="#e5e7eb"
+                                                strokeWidth="8"
+                                            />
+                                            <circle
+                                                cx="72"
+                                                cy="72"
+                                                r="64"
+                                                fill="none"
+                                                stroke="url(#gradient)"
+                                                strokeWidth="8"
+                                                strokeLinecap="round"
+                                                strokeDasharray={`${progress * 402.1} 402.1`}
+                                                className="transition-all duration-1000 ease-out"
+                                            />
+                                            <defs>
+                                                <linearGradient id="gradient" x1="0%" y1="0%" x2="100%" y2="0%">
+                                                    <stop offset="0%" stopColor="#10b981" />
+                                                    <stop offset="100%" stopColor="#059669" />
+                                                </linearGradient>
+                                            </defs>
+                                        </svg>
+                                        <div className="absolute inset-0 flex flex-col items-center justify-center">
+                                            <div className="text-2xl font-black text-gray-900">{progressPercentage}%</div>
+                                            <div className="text-xs text-gray-500">ของวันนี้</div>
+                                        </div>
+                                    </div>
+
+                                    <div className="flex justify-between items-center pt-4 border-t border-gray-100">
+                                        <div className="text-center">
+                                            <div className="text-lg font-bold text-gray-900">{menu.kcal}</div>
+                                            <div className="text-xs text-gray-500">บริโภค</div>
+                                        </div>
+                                        <div className="w-px h-8 bg-gray-200"></div>
+                                        <div className="text-center">
+                                            <div className="text-lg font-bold text-gray-900">{dayCalories}</div>
+                                            <div className="text-xs text-gray-500">เป้าหมาย</div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
                 </div>
             </div>
+
+            <style jsx>{`
+                @keyframes fadeInUp {
+                    from {
+                        opacity: 0;
+                        transform: translateY(30px);
+                    }
+                    to {
+                        opacity: 1;
+                        transform: translateY(0);
+                    }
+                }
+                
+                .animate-fadeInUp {
+                    animation: fadeInUp 0.6s ease-out forwards;
+                }
+            `}</style>
         </main>
     );
 }
