@@ -221,23 +221,23 @@ export default function MenuPage() {
 
     if (!menu) return <div
         className="relative w-screen overflow-hidden flex flex-col items-center justify-center
-                                 bg-gradient-to-br from-orange-300 to-orange-100 text-xl text-gray-700 font-prompt"
+                   bg-gradient-to-br from-orange-300 to-orange-100 text-base sm:text-xl lg:text-2xl text-gray-700 font-prompt"
         style={{ height: appHeight }}
     >
-        <div className="absolute left-0 top-0 w-[60vw] max-w-[250px]">
+        <div className="absolute left-0 top-0 w-[40vw] sm:w-[35vw] md:w-[30vw] lg:w-[25vw] xl:w-[20vw] max-w-[250px]">
             <img src="/Group%2099.png" alt="Decoration"></img>
         </div>
-        <div className="absolute right-0 bottom-0 rotate-[180deg] top-[30vh] w-[60vw] max-w-[250px]">
+        <div className="absolute right-0 bottom-0 rotate-[180deg] top-[20vh] sm:top-[25vh] md:top-[30vh] w-[40vw] sm:w-[35vw] md:w-[30vw] lg:w-[25vw] xl:w-[20vw] max-w-[250px]">
             <img src="/Group%2099.png" alt="Decoration"></img>
         </div>
-        <div className="absolute top-[74vh] left-[3.5vw] animate-shakeright w-[30vw] max-w-[200px]">
+        <div className="absolute top-[65vh] sm:top-[70vh] md:top-[74vh] left-[3vw] sm:left-[3.5vw] animate-shakeright w-[25vw] sm:w-[20vw] md:w-[18vw] lg:w-[15vw] max-w-[200px]">
             <img className='' src="/image%2084.png" alt="Decoration"></img>
         </div>
-        <div className="absolute top-[10vh] right-[5vw] rotate-[35deg] animate-shakeright2 w-[25vw] max-w-[120px]">
-            <img src="/image%2084.png" className='w-[140px]' alt="Decoration"></img>
+        <div className="absolute top-[8vh] sm:top-[10vh] right-[4vw] sm:right-[5vw] rotate-[35deg] animate-shakeright2 w-[20vw] sm:w-[18vw] md:w-[15vw] lg:w-[12vw] max-w-[120px]">
+            <img src="/image%2084.png" className='w-[80px] sm:w-[100px] md:w-[120px] lg:w-[140px]' alt="Decoration"></img>
         </div>
-        <img className='animate-sizeUpdown2 mb-[1.5rem] w-auto max-h-[40vh] object-contain' src="/image%2069.png" alt="Background decoration"></img>
-        <p className="z-10">กำลังโหลดข้อมูล...</p>
+        <img className='animate-sizeUpdown2 mb-6 w-auto h-[25vh] sm:h-[30vh] md:h-[35vh] lg:h-[40vh] object-contain' src="/image%2069.png" alt="Background decoration"></img>
+        <p className="z-10 px-4 text-center">กำลังโหลดข้อมูล...</p>
     </div>
 
     const instructions = Array.isArray(menu.instructions)
@@ -245,25 +245,32 @@ export default function MenuPage() {
         : [menu.instructions];
 
     return (
-        <div className="relative flex flex-col items-center">
-
-            <div className="absolute z-1 flex justify-between m-[2rem] items-center sm:w-[95%] w-[85%]">
-                {/* 1. ปุ่มย้อนกลับ */}
+        <div className="relative flex flex-col items-center min-h-screen">
+            {/* Navigation Header - Responsive */}
+            <div className="absolute z-10 flex justify-between items-center top-4 sm:top-6 md:top-8 left-4 right-4 sm:left-6 sm:right-6 md:left-8 md:right-8 lg:left-12 lg:right-12">
+                {/* 1. ปุ่มย้อนกลับ - Responsive */}
                 <div
                     onClick={handleGoBack}
-                    className={`bg-white h-[50px] flex justify-center cursor-pointer transform hover:scale-103 items-center w-[50px] rounded-full shadow-2xl ${isBackAnimating ? "animate-press" : ''}`}
+                    className={`bg-white h-10 w-10 sm:h-12 sm:w-12 md:h-14 md:w-14 flex justify-center cursor-pointer transform hover:scale-105 items-center rounded-full shadow-2xl ${isBackAnimating ? "animate-press" : ''}`}
                 >
-                    <Image className="h-[15px]" src="/Group%2084.png" alt="back" width={15} height={15} />
+                    <Image 
+                        className="h-3 w-3 sm:h-4 sm:w-4 md:h-5 md:w-5" 
+                        src="/Group%2084.png" 
+                        alt="back" 
+                        width={20} 
+                        height={20} 
+                    />
                 </div>
             </div>
 
-            <div className="relative">
+            {/* Hero Image Section - Responsive */}
+            <div className="relative w-full flex flex-col items-center">
                 <Image
-                    className="h-[330px] object-cover mb-[2rem] [mask-image:linear-gradient(to_bottom,black_60%,transparent)]"
+                    className="h-[250px] sm:h-[300px] md:h-[350px] lg:h-[400px] xl:h-[450px] w-full max-w-4xl object-cover mb-4 sm:mb-6 md:mb-8 [mask-image:linear-gradient(to_bottom,black_60%,transparent)]"
                     src={menu.image ? `/menus/${encodeURIComponent(menu.image)}` : "/default.png"}
                     alt={menu.name}
-                    width={500}
-                    height={330}
+                    width={800}
+                    height={450}
                     onError={(e) => {
                         const target = e.target as HTMLImageElement;
                         target.onerror = null;
@@ -272,128 +279,168 @@ export default function MenuPage() {
                     priority
                 />
 
+                {/* Cal Button - Responsive Position */}
                 <div
                     onClick={handleCalButtonClick}
-                    className={`bg-[#FE5D35] opacity-100 h-[70px] w-[70px] flex justify-center items-center cursor-pointer rounded-full shadow-2xl transform hover:scale-105 ml-85 -mt-15 ${animatingCalAnimatIndex !== null ? "animate-press" : ""
-                        }`}
+                    className={`absolute bottom-2 sm:bottom-4 md:bottom-6 right-4 sm:right-8 md:right-12 lg:right-16 bg-[#FE5D35] opacity-100 h-12 w-12 sm:h-16 sm:w-16 md:h-18 md:w-18 lg:h-20 lg:w-20 flex justify-center items-center cursor-pointer rounded-full shadow-2xl transform hover:scale-105 ${animatingCalAnimatIndex !== null ? "animate-press" : ""}`}
                 >
-                    <Image className="h-[70px]" src="/cal.png" alt="back" width={70} height={70} />
+                    <Image 
+                        className="h-12 w-12 sm:h-16 sm:w-16 md:h-18 md:w-18 lg:h-20 lg:w-20" 
+                        src="/cal.png" 
+                        alt="calories" 
+                        width={80} 
+                        height={80} 
+                    />
                 </div>
             </div>
 
-            <div className="mx-[1.5rem] w-[350px]">
-                <h1 className="text-3xl font-prompt text-[#611E1E] font-[600]">{menu.name}</h1>
+            {/* Content Container - Responsive */}
+            <div className="w-full max-w-md sm:max-w-lg md:max-w-xl lg:max-w-2xl xl:max-w-4xl px-4 sm:px-6 md:px-8">
+                {/* Menu Title and Description - Responsive */}
+                <div className="mb-6 sm:mb-8 md:mb-10">
+                    <h1 className="text-xl sm:text-2xl md:text-3xl lg:text-4xl font-prompt text-[#611E1E] font-semibold mb-2 sm:mb-3">
+                        {menu.name}
+                    </h1>
 
-                <h1 className="text-[0.7rem] w-[250px] mt-[0.5rem] text-[#953333] font-prompt">
-                    {menu.description}
-                </h1>
+                    <p className="text-xs sm:text-sm md:text-base text-[#953333] font-prompt leading-relaxed max-w-full sm:max-w-md md:max-w-lg">
+                        {menu.description}
+                    </p>
 
-                {Array.isArray(menu.tags) && menu.tags.length > 0 && (
-                    <div className="flex flex-wrap gap-2 mt-[0.8rem]">
-                        {menu.tags.map((tag, index) => (
-                            <div
-                                key={index}
-                                className="bg-[#ff770041] inline-block px-[1rem] py-[0.2rem] rounded-2xl"
-                            >
-                                <h1 className="font-[600] text-[0.8rem] text-[#953333] font-prompt">{tag}</h1>
-                            </div>
-                        ))}
-                    </div>
-                )}
-            </div>
-
-            <div className="font-prompt mt-[3rem]">
-                <h1 className="text-[1.6rem] text-[#333333] mb-[1.5rem] font-[600]">วัตถุดิบ</h1>
-                <div className="flex flex-col items-center gap-4 animate-OpenScene2">
-                    {ingredientsData.map((ing, i) => (
-                        <div
-                            key={i}
-                            // 2. วัตถุดิบ
-                            onClick={() => handleIngredientClick(ing.name, i)}
-                            className={`bg-[#FFFAD2] flex justify-between px-[1rem] items-center border border-[#C9AF90] w-full h-[3rem] rounded-[8px] hover:scale-102 cursor-pointer ${animatingIngredientIndex === i ? "animate-press" : ''}`}
-                        >
-                            <div className="flex items-center gap-2.5">
-                                <Image
-                                    className="h-[40px] w-[40px] object-cover rounded-full"
-                                    src={ing.image ? `/ingredients/${encodeURIComponent(ing.image)}` : "/default.png"}
-                                    alt={ing.name}
-                                    width={40}
-                                    height={40}
-                                    onError={(e) => {
-                                        const target = e.target as HTMLImageElement;
-                                        target.onerror = null;
-                                        target.src = "/default.png";
-                                    }}
-                                />
-                                <h1>{ing.name}</h1>
-                            </div>
-                            <h1 className="text-[0.8rem] text-[#777]">฿ {ing.price}</h1>
-                        </div>
-                    ))}
-                </div>
-            </div>
-
-            <div className="font-prompt mt-[3rem]">
-                <h1 className="text-[1.6rem] text-[#333333] mb-[1.5rem] font-[600]">วิธีการทำ</h1>
-                <div ref={methodCardsContainerRef} className="flex flex-col items-center gap-4 overflow-y-auto pb-4 max-h-full scrollbar-thin scrollbar-thumb-rounded scrollbar-thumb-rounded-md scrollbar-thumb-[#C9AF90]">
-                    {displayedSteps.map((step, index) => (
-                        <MethodCard
-                            key={index}
-                            num={index + 1}
-                            title={`ขั้นตอนที่ ${index + 1}`}
-                            detail={step}
-                            imageUrl={getStepImage(step)}
-                        />
-                    ))}
-                </div>
-
-                <div className="flex justify-center mt-4 mb-12">
-                    {/* 3. ปุ่มถัดไป */}
-                    <button
-                        onClick={handleNextStep}
-                        disabled={nextStepIndex >= instructions.length}
-                        className={`flex-none bg-[#FFF5DD] cursor-pointer flex justify-center items-center border-2 border-[#C9AF90] w-[6.5rem] h-[2.5rem] rounded-[8px] hover:scale-103 disabled:opacity-50 disabled:cursor-not-allowed ${isNextStepAnimating ? "animate-press" : ''}`}
-                    >
-                        <div className="flex flex-col items-center text-[#333333]">
-                            <h1 className="text-[0.8rem] mb-[-0.2rem]">ถัดไป</h1>
-                            <h1 className="text-[0.4rem]">(กดเพื่อดูวิธีต่อไป)</h1>
-                        </div>
-                    </button>
-                </div>
-
-                {/* ส่วน "เมนูใกล้เคียง" ที่ดึงข้อมูลจาก API */}
-                <div className="relative w-full max-w-[450px] mt-[3rem] mb-[3rem]">
-                    <h1 className="font-[600] text-[#333333] mb-[2rem] text-[1.6rem]">เมนูใกล้เคียง</h1>
-                    <div className="flex gap-2 justify-center">
-                        {isLoadingSimilarMenus ? (
-                            <p className="text-gray-600">กำลังโหลดเมนูใกล้เคียง...</p>
-                        ) : similarMenusError ? (
-                            <p className="text-red-500">{similarMenusError}</p>
-                        ) : similarMenus.length === 0 ? (
-                            <p className="text-gray-600">ไม่พบเมนูใกล้เคียง</p>
-                        ) : (
-                            similarMenus.map((similarMenu) => (
+                    {/* Tags - Responsive */}
+                    {Array.isArray(menu.tags) && menu.tags.length > 0 && (
+                        <div className="flex flex-wrap gap-2 mt-3 sm:mt-4">
+                            {menu.tags.map((tag, index) => (
                                 <div
-                                    key={similarMenu._id}
-                                    // 4. เมนูใกล้เคียง
-                                    onClick={() => handleSimilarMenuClick(similarMenu._id)}
-                                    className={`flex flex-col items-center w-[130px] bg-white border-2 border-[#C9AF90] rounded-t-full shadow-sm cursor-pointer transform transition duration-300 hover:scale-105 ${animatingSimilarMenuId === similarMenu._id ? "animate-press" : ''}`}
+                                    key={index}
+                                    className="bg-[#ff770041] inline-block px-3 sm:px-4 py-1 sm:py-1.5 rounded-2xl"
                                 >
+                                    <span className="font-semibold text-xs sm:text-sm md:text-base text-[#953333] font-prompt">
+                                        {tag}
+                                    </span>
+                                </div>
+                            ))}
+                        </div>
+                    )}
+                </div>
+
+                {/* Ingredients Section - Responsive */}
+                <div className="font-prompt mb-8 sm:mb-10 md:mb-12">
+                    <h2 className="text-lg sm:text-xl md:text-2xl lg:text-3xl text-[#333333] mb-4 sm:mb-6 font-semibold">
+                        วัตถุดิบ
+                    </h2>
+                    <div className="flex flex-col items-center gap-3 sm:gap-4 animate-OpenScene2">
+                        {ingredientsData.map((ing, i) => (
+                            <div
+                                key={i}
+                                // 2. วัตถุดิบ - Responsive
+                                onClick={() => handleIngredientClick(ing.name, i)}
+                                className={`bg-[#FFFAD2] flex justify-between px-3 sm:px-4 md:px-6 items-center border border-[#C9AF90] w-full h-12 sm:h-14 md:h-16 rounded-lg hover:scale-102 cursor-pointer transition-all duration-200 ${animatingIngredientIndex === i ? "animate-press" : ''}`}
+                            >
+                                <div className="flex items-center gap-2 sm:gap-3 md:gap-4">
                                     <Image
-                                        className="h-[110px] animate-sizeUpdown w-auto object-cover rounded-t-full"
-                                        src={similarMenu.image ? `/menus/${encodeURIComponent(similarMenu.image)}` : "/default.png"}
-                                        alt={similarMenu.name}
-                                        width={90}
-                                        height={90}
+                                        className="h-8 w-8 sm:h-10 sm:w-10 md:h-12 md:w-12 object-cover rounded-full"
+                                        src={ing.image ? `/ingredients/${encodeURIComponent(ing.image)}` : "/default.png"}
+                                        alt={ing.name}
+                                        width={48}
+                                        height={48}
                                         onError={(e) => {
                                             const target = e.target as HTMLImageElement;
                                             target.onerror = null;
                                             target.src = "/default.png";
                                         }}
                                     />
-                                    <h1 className="text-[0.8rem] my-[0.4rem] text-[#953333] text-center px-1">
-                                        {similarMenu.name}
-                                    </h1>
+                                    <span className="text-sm sm:text-base md:text-lg font-medium">
+                                        {ing.name}
+                                    </span>
+                                </div>
+                                <span className="text-xs sm:text-sm md:text-base text-[#777] font-medium">
+                                    ฿ {ing.price}
+                                </span>
+                            </div>
+                        ))}
+                    </div>
+                </div>
+
+                {/* Instructions Section - Responsive */}
+                <div className="font-prompt mb-8 sm:mb-10 md:mb-12">
+                    <h2 className="text-lg sm:text-xl md:text-2xl lg:text-3xl text-[#333333] mb-4 sm:mb-6 font-semibold">
+                        วิธีการทำ
+                    </h2>
+                    <div 
+                        ref={methodCardsContainerRef} 
+                        className="flex flex-col items-center gap-3 sm:gap-4 md:gap-6 overflow-y-auto pb-4 max-h-[50vh] sm:max-h-[60vh] scrollbar-thin scrollbar-thumb-rounded scrollbar-thumb-rounded-md scrollbar-thumb-[#C9AF90]"
+                    >
+                        {displayedSteps.map((step, index) => (
+                            <MethodCard
+                                key={index}
+                                num={index + 1}
+                                title={`ขั้นตอนที่ ${index + 1}`}
+                                detail={step}
+                                imageUrl={getStepImage(step)}
+                            />
+                        ))}
+                    </div>
+
+                    {/* Next Step Button - Responsive */}
+                    <div className="flex justify-center mt-4 sm:mt-6 mb-8 sm:mb-12">
+                        <button
+                            onClick={handleNextStep}
+                            disabled={nextStepIndex >= instructions.length}
+                            className={`flex-none bg-[#FFF5DD] cursor-pointer flex justify-center items-center border-2 border-[#C9AF90] w-24 sm:w-28 md:w-32 h-10 sm:h-12 md:h-14 rounded-lg hover:scale-105 disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-200 ${isNextStepAnimating ? "animate-press" : ''}`}
+                        >
+                            <div className="flex flex-col items-center text-[#333333]">
+                                <span className="text-xs sm:text-sm md:text-base mb-[-0.2rem] font-medium">
+                                    ถัดไป
+                                </span>
+                                <span className="text-[0.3rem] sm:text-[0.4rem] md:text-[0.5rem]">
+                                    (กดเพื่อดูวิธีต่อไป)
+                                </span>
+                            </div>
+                        </button>
+                    </div>
+                </div>
+
+                {/* Similar Menus Section - Responsive */}
+                <div className="relative w-full mb-8 sm:mb-12 md:mb-16">
+                    <h2 className="font-semibold text-[#333333] mb-4 sm:mb-6 md:mb-8 text-lg sm:text-xl md:text-2xl lg:text-3xl">
+                        เมนูใกล้เคียง
+                    </h2>
+                    <div className="flex gap-2 sm:gap-3 md:gap-4 justify-center flex-wrap">
+                        {isLoadingSimilarMenus ? (
+                            <p className="text-gray-600 text-sm sm:text-base md:text-lg">
+                                กำลังโหลดเมนูใกล้เคียง...
+                            </p>
+                        ) : similarMenusError ? (
+                            <p className="text-red-500 text-sm sm:text-base md:text-lg px-4 text-center">
+                                {similarMenusError}
+                            </p>
+                        ) : similarMenus.length === 0 ? (
+                            <p className="text-gray-600 text-sm sm:text-base md:text-lg">
+                                ไม่พบเมนูใกล้เคียง
+                            </p>
+                        ) : (
+                            similarMenus.slice(0, window.innerWidth < 640 ? 2 : window.innerWidth < 768 ? 3 : 4).map((similarMenu) => (
+                                <div
+                                    key={similarMenu._id}
+                                    // 4. เมนูใกล้เคียง - Responsive
+                                    onClick={() => handleSimilarMenuClick(similarMenu._id)}
+                                    className={`flex flex-col items-center w-24 sm:w-28 md:w-32 lg:w-36 xl:w-40 bg-white border-2 border-[#C9AF90] rounded-t-full shadow-sm cursor-pointer transform transition duration-300 hover:scale-105 ${animatingSimilarMenuId === similarMenu._id ? "animate-press" : ''}`}
+                                >
+                                    <Image
+                                        className="h-16 w-16 sm:h-20 sm:w-20 md:h-24 md:w-24 lg:h-28 lg:w-28 xl:h-32 xl:w-32 animate-sizeUpdown object-cover rounded-t-full"
+                                        src={similarMenu.image ? `/menus/${encodeURIComponent(similarMenu.image)}` : "/default.png"}
+                                        alt={similarMenu.name}
+                                        width={128}
+                                        height={128}
+                                        onError={(e) => {
+                                            const target = e.target as HTMLImageElement;
+                                            target.onerror = null;
+                                            target.src = "/default.png";
+                                        }}
+                                    />
+                                    <h3 className="text-[0.6rem] sm:text-xs md:text-sm lg:text-base my-2 sm:my-3 text-[#953333] text-center px-1 sm:px-2 leading-tight">
+                                        {similarMenu.name.length > 15 ? `${similarMenu.name.substring(0, 15)}...` : similarMenu.name}
+                                    </h3>
                                 </div>
                             ))
                         )}
