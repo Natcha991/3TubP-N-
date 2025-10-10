@@ -1,7 +1,7 @@
 // app/api/line/route.ts
 import { NextRequest, NextResponse } from "next/server";
 import crypto from "crypto";
-import { Client } from "@line/bot-sdk";
+import { Client, WebhookEvent } from "@line/bot-sdk"; // ✅ เพิ่ม WebhookEvent เพื่อลดการใช้ any
 
 const lineConfig = {
   channelAccessToken: process.env.LINE_CHANNEL_ACCESS_TOKEN!,
@@ -28,7 +28,7 @@ export async function POST(req: NextRequest) {
   let body;
   try {
     body = JSON.parse(bodyText);
-  } catch (e) {
+  } catch (_err) { // ✅ เปลี่ยน e → _err เพื่อไม่ให้ ESLint เตือนว่า "ไม่ได้ใช้"
     return NextResponse.json({ error: "Invalid JSON" }, { status: 400 });
   }
 
@@ -39,38 +39,32 @@ export async function POST(req: NextRequest) {
   return NextResponse.json({ status: "ok" });
 }
 
-async function handleEvent(event: any) {
+// ✅ แก้ type จาก any → WebhookEvent (ของ LINE SDK)
+async function handleEvent(event: WebhookEvent) {
   try {
     if (event.type === "message" && event.message.type === "text") {
       const userText: string = event.message.text;
 
-      // ตัวอย่าง: ถามข้อมูลจากเว็บแอปของคุณ (เชื่อม API ภายใน)
-      // สมมติเว็บแอปมี endpoint /api/shared-data?key=...
       const sharedApiUrl = `${process.env.INTERNAL_API_BASE}/api/shared-data?query=${encodeURIComponent(userText)}`;
-      // ถ้าเว็บและ webhook อยู่ในโปรเจคเดียวกัน สามารถเรียก relative path หรือเรียกฟังก์ชันภายในแทนได้
       const resp = await fetch(sharedApiUrl);
       const info = resp.ok ? await resp.json() : { text: "ขออภัย ไม่พบข้อมูล" };
 
-      // ตอบกลับผู้ใช้
       const replyText = info.text || `รับข้อความ: ${userText}`;
       await client.replyMessage(event.replyToken, {
         type: "text",
         text: replyText,
       });
     } else if (event.type === "follow") {
-      // user added your bot -> welcome
       await client.replyMessage(event.replyToken, {
         type: "text",
         text: "สวัสดี! ยินดีต้อนรับครับ/ค่ะ 😊",
       });
     } else if (event.type === "postback") {
-      // handle postback
       await client.replyMessage(event.replyToken, {
         type: "text",
         text: `คุณกด: ${JSON.stringify(event.postback)}`,
       });
     }
-    // เพิ่ม event อื่น ๆ ตามต้องการ
   } catch (err) {
     console.error("handleEvent error:", err);
   }
