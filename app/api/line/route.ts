@@ -65,7 +65,7 @@ async function handleEvent(event: WebhookEvent) {
         text: `คุณกด: ${JSON.stringify(event.postback)}`,
       });
     }
-  } catch (err) {
-    console.error("handleEvent error:", err);
+    } catch {
+    return NextResponse.json({ error: "Invalid JSON" }, { status: 400 });
   }
 }
