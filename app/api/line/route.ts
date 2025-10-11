@@ -1,78 +1,56 @@
-// // app/api/line/route.ts
-// import { NextRequest, NextResponse } from "next/server";
-// import crypto from "crypto";
-// import { Client, WebhookEvent } from "@line/bot-sdk"; // ✅ เพิ่ม WebhookEvent เพื่อลดการใช้ any
+// src/app/api/line/route.ts
+import { NextRequest, NextResponse } from "next/server";
+import crypto from "crypto";
+import { Client, WebhookEvent } from "@line/bot-sdk";
 
-// console.log("LINE_CHANNEL_ACCESS_TOKEN", process.env.LINE_CHANNEL_ACCESS_TOKEN);
+const lineConfig = {
+  channelAccessToken: process.env.LINE_CHANNEL_ACCESS_TOKEN!,
+  channelSecret: process.env.LINE_CHANNEL_SECRET!,
+};
 
-// const lineConfig = {
-//     channelAccessToken: process.env.LINE_CHANNEL_ACCESS_TOKEN!,
-//     channelSecret: process.env.LINE_CHANNEL_SECRET!,
-// };
+const client = new Client(lineConfig);
 
-// const client = new Client({
-//   channelAccessToken: process.env.LINE_CHANNEL_ACCESS_TOKEN!,
-//   channelSecret: process.env.LINE_CHANNEL_SECRET!,
-// });
+export async function POST(req: NextRequest) {
+  const body = await req.text();
+  const signature = req.headers.get("x-line-signature") || "";
 
+  // ตรวจสอบ signature
+  const hash = crypto.createHmac("sha256", lineConfig.channelSecret)
+                     .update(body)
+                     .digest("base64");
 
-// // verify signature helper
-// function verifySignature(body: string, signature: string | null) {
-//     if (!signature) return false;
-//     const hash = crypto.createHmac("sha256", lineConfig.channelSecret).update(body).digest("base64");
-//     return hash === signature;
-// }
+  if (hash !== signature) {
+    return new NextResponse("Invalid signature", { status: 401 });
+  }
 
-// export async function POST(req: NextRequest) {
-//     const bodyText = await req.text();
-//     const signature = req.headers.get("x-line-signature");
+  const events: WebhookEvent[] = JSON.parse(body).events;
 
-//     if (!verifySignature(bodyText, signature)) {
-//         return NextResponse.json({ error: "Invalid signature" }, { status: 401 });
-//     }
+  for (const event of events) {
+    if (event.type === "message" && event.message.type === "text") {
+      const userMessage = event.message.text;
 
-//     let body;
-//     try {
-//         body = JSON.parse(bodyText);
-//     } catch {
-//         return NextResponse.json({ error: "Invalid JSON" }, { status: 400 });
-//     }
+      // เรียก Google Gemini API
+      const res = await fetch(
+        `https://generativelanguage.googleapis.com/v1beta/models/gemini-pro:generateContent?key=${process.env.NEXT_PUBLIC_GEMINI_API_KEY}`,
+        {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            contents: [{ parts: [{ text: userMessage }] }],
+          }),
+        }
+      );
 
+      const data = await res.json();
+      const replyText = data?.candidates?.[0]?.content?.parts?.[0]?.text || "❌ ไม่สามารถตอบได้";
 
-//     // handle each event (message, follow, postback, etc.)
-//     const events = body.events || [];
-//     await Promise.all(events.map(handleEvent));
+      // ส่งข้อความกลับไปยังผู้ใช้
+      await client.replyMessage(event.replyToken, {
+        type: "text",
+        text: replyText,
+      });
+    }
+  }
 
-//     return NextResponse.json({ status: "ok" });
-// }
-
-// // ✅ แก้ type จาก any → WebhookEvent (ของ LINE SDK)
-// async function handleEvent(event: WebhookEvent) {
-//     try {
-//         if (event.type === "message" && event.message.type === "text") {
-//             const userText: string = event.message.text;
-
-//             const sharedApiUrl = `${process.env.INTERNAL_API_BASE}/api/shared-data?query=${encodeURIComponent(userText)}`;
-//             const resp = await fetch(sharedApiUrl);
-//             const info = resp.ok ? await resp.json() : { text: "ขออภัย ไม่พบข้อมูล" };
-
-//             const replyText = info.text || `รับข้อความ: ${userText}`;
-//             await client.replyMessage(event.replyToken, {
-//                 type: "text",
-//                 text: replyText,
-//             });
-//         } else if (event.type === "follow") {
-//             await client.replyMessage(event.replyToken, {
-//                 type: "text",
-//                 text: "สวัสดี! ยินดีต้อนรับครับ/ค่ะ 😊",
-//             });
-//         } else if (event.type === "postback") {
-//             await client.replyMessage(event.replyToken, {
-//                 type: "text",
-//                 text: `คุณกด: ${JSON.stringify(event.postback)}`,
-//             });
-//         }
-//     } catch {
-//         return NextResponse.json({ error: "Invalid JSON" }, { status: 400 });
-//     }
-// }
+  return NextResponse.json({ status: "ok" });
+}
