@@ -8,7 +8,10 @@ const lineConfig = {
     channelSecret: process.env.LINE_CHANNEL_SECRET!,
 };
 
-const client = new Client({ channelAccessToken: lineConfig.channelAccessToken });
+const client = new Client({
+  channelAccessToken: process.env.LINE_CHANNEL_ACCESS_TOKEN!,
+  channelSecret: process.env.LINE_CHANNEL_SECRET!,
+});
 
 // verify signature helper
 function verifySignature(body: string, signature: string | null) {
