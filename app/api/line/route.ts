@@ -71,8 +71,8 @@ export async function POST(req: NextRequest) {
     if (event.type === "message" && event.message.type === "text") {
       const userMessage = event.message.text;
 
-      // 1. เรียก API ของ AI ที่คุณมีอยู่แล้ว
-      const aiRes = await fetch(`${process.env.INTERNAL_API_BASE}api/chat`, {
+      // เรียก API ของเรา
+      const aiRes = await fetch(`${process.env.INTERNAL_API_BASE}/api/chat`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ message: userMessage }),
@@ -81,7 +81,7 @@ export async function POST(req: NextRequest) {
       const data = await aiRes.json();
       const replyText = data.reply || "❌ ไม่สามารถตอบได้ตอนนี้";
 
-      // 2. ส่งข้อความตอบกลับผู้ใช้
+      // ส่งข้อความกลับ LINE
       await client.replyMessage(event.replyToken, {
         type: "text",
         text: replyText,
