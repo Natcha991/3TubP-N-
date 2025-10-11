@@ -29,20 +29,19 @@ export async function POST(req: NextRequest) {
     if (event.type === "message" && event.message.type === "text") {
       const userMessage = event.message.text;
 
-      // เรียก Google Gemini API
-      const res = await fetch(
-        `https://generativelanguage.googleapis.com/v1beta/models/gemini-pro:generateContent?key=${process.env.NEXT_PUBLIC_GEMINI_API_KEY}`,
-        {
+      // เรียก AI ของตัวเองแทน Gemini API
+      let replyText = "❌ ไม่สามารถตอบได้";
+      try {
+        const res = await fetch(`${process.env.INTERNAL_API_BASE}/api/chatbot`, {
           method: "POST",
           headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({
-            contents: [{ parts: [{ text: userMessage }] }],
-          }),
-        }
-      );
-
-      const data = await res.json();
-      const replyText = data?.candidates?.[0]?.content?.parts?.[0]?.text || "❌ ไม่สามารถตอบได้";
+          body: JSON.stringify({ message: userMessage }),
+        });
+        const data = await res.json();
+        replyText = data.reply || replyText;
+      } catch (err) {
+        console.error("Error calling chatbot API:", err);
+      }
 
       // ส่งข้อความกลับไปยังผู้ใช้
       await client.replyMessage(event.replyToken, {
