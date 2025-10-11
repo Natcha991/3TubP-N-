@@ -14,7 +14,7 @@ export async function POST(req: NextRequest) {
   const body = await req.text();
   const signature = req.headers.get("x-line-signature") || "";
 
-  // ตรวจสอบ signature
+  // ตรวจสอบ signature ของ LINE
   const hash = crypto.createHmac("sha256", lineConfig.channelSecret)
                      .update(body)
                      .digest("base64");
@@ -29,25 +29,34 @@ export async function POST(req: NextRequest) {
     if (event.type === "message" && event.message.type === "text") {
       const userMessage = event.message.text;
 
-      // เรียก AI ของตัวเองแทน Gemini API
-      let replyText = "❌ โยว์";
       try {
-        const res = await fetch(`${process.env.INTERNAL_API_BASE}app/chatbot`, {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ message: userMessage }),
-        });
-        const data = await res.json();
-        replyText = data.reply || replyText;
-      } catch (err) {
-        console.error("Error calling chatbot API:", err);
-      }
+        // เรียก AI (Google Gemini) เหมือน /api/chat/route.ts
+        const res = await fetch(
+          `https://generativelanguage.googleapis.com/v1beta/models/gemini-pro:generateContent?key=${process.env.GEMINI_API_KEY}`,
+          {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({
+              contents: [{ parts: [{ text: userMessage }] }],
+            }),
+          }
+        );
 
-      // ส่งข้อความกลับไปยังผู้ใช้
-      await client.replyMessage(event.replyToken, {
-        type: "text",
-        text: replyText,
-      });
+        const data = await res.json();
+        const replyText = data?.candidates?.[0]?.content?.parts?.[0]?.text || "❌ ไม่สามารถตอบได้";
+
+        // ส่งข้อความกลับ LINE
+        await client.replyMessage(event.replyToken, {
+          type: "text",
+          text: replyText,
+        });
+      } catch (err) {
+        console.error("Error calling AI:", err);
+        await client.replyMessage(event.replyToken, {
+          type: "text",
+          text: "❌ เกิดข้อผิดพลาด ลองใหม่อีกครั้ง",
+        });
+      }
     }
   }
 
