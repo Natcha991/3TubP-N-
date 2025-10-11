@@ -5,29 +5,29 @@ export async function POST(req: NextRequest) {
   try {
     const { message } = await req.json();
 
-    // เรียก Gemini API (text-bison-001)
-    const res = await fetch(
-      `https://generativelanguage.googleapis.com/v1beta/models/text-bison-001:generateText?key=${process.env.NEXT_PUBLIC_GEMINI_API_KEY}`,
+    // ✅ ใช้โมเดล Gemini รุ่นใหม่
+    const response = await fetch(
+      "https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=" +
+        process.env.NEXT_PUBLIC_GEMINI_API_KEY,
       {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
-          prompt: message,
-          temperature: 0.7,
-          max_output_tokens: 500
+          contents: [{ parts: [{ text: message }] }],
         }),
       }
     );
 
-    const data = await res.json();
-    console.log("Gemini API response:", data); // ดูโครงสร้างจริง
+    const data = await response.json();
 
-    // อ่านข้อความตอบกลับ
-    const text = data?.candidates?.[0]?.output || "❌ ไม่สามารถตอบได้";
+    // ✅ ดึงข้อความที่ตอบกลับได้อย่างปลอดภัย
+    const text =
+      data?.candidates?.[0]?.content?.parts?.[0]?.text ||
+      "❌ ไม่สามารถตอบได้ตอนนี้1";
 
-    return NextResponse.json({ reply: text });
+    return NextResponse.json({ text });
   } catch (error) {
     console.error("Error from Gemini API:", error);
-    return NextResponse.json({ reply: "❌ เกิดข้อผิดพลาดในการเรียก AI" });
+    return NextResponse.json({ text: "❌ ไม่สามารถตอบได้ตอนนี้2" });
   }
 }
