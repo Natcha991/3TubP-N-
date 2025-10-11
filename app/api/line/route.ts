@@ -30,7 +30,7 @@ export async function POST(req: NextRequest) {
       const userMessage = event.message.text;
 
       // เรียก AI ของตัวเองแทน Gemini API
-      let replyText = "❌ ไม่สามารถตอบได้";
+      let replyText = "❌ โยว์";
       try {
         const res = await fetch(`${process.env.INTERNAL_API_BASE}app/api/chatbot`, {
           method: "POST",
