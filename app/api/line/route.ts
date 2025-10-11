@@ -28,9 +28,10 @@ export async function POST(req: NextRequest) {
     let body;
     try {
         body = JSON.parse(bodyText);
-    } catch (_err) { // ✅ เปลี่ยน e → _err เพื่อไม่ให้ ESLint เตือนว่า "ไม่ได้ใช้"
+    } catch {
         return NextResponse.json({ error: "Invalid JSON" }, { status: 400 });
     }
+
 
     // handle each event (message, follow, postback, etc.)
     const events = body.events || [];
