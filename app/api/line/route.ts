@@ -29,7 +29,7 @@ export async function POST(req: NextRequest) {
 
       try {
         // ✅ เรียก Gemini chatbot API ที่มีอยู่แล้ว
-        const response = await fetch(`${process.env.INTERNAL_API_BASE}/api/chat`, {
+        const response = await fetch(`${process.env.INTERNAL_API_BASE}api/chat`, {
           method: "POST",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({ message: userMessage }),
