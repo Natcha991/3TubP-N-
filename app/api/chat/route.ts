@@ -15,6 +15,7 @@ export async function POST(req: NextRequest) {
     }
   );
 
+
   const data = await res.json();
   const text = data?.candidates?.[0]?.content?.parts?.[0]?.text || '❌ ไม่สามารถตอบได้';
 
