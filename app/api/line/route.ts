@@ -68,7 +68,7 @@ export async function POST(req: NextRequest) {
       const aiText =
         data?.candidates?.[0]?.content?.parts
           ?.map((p: any) => p.text)
-          ?.join("") || "❌ ไม่เข้าใจ";
+          ?.join("") || "ขอโทษค่ะ ฉันไม่เข้าใจ";
 
       // ✅ ตอบกลับผู้ใช้ใน LINE
       await client.replyMessage(event.replyToken, {
