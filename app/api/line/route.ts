@@ -1,111 +1,66 @@
-// import { NextRequest, NextResponse } from "next/server";
-// import crypto from "crypto";
-// import { Client, WebhookEvent } from "@line/bot-sdk";
-
-// const lineConfig = {
-//   channelAccessToken: process.env.LINE_CHANNEL_ACCESS_TOKEN!,
-//   channelSecret: process.env.LINE_CHANNEL_SECRET!,
-// };
-
-// const client = new Client(lineConfig);
-
-// export async function POST(req: NextRequest) {
-//   const body = await req.text();
-//   const signature = req.headers.get("x-line-signature")!;
-//   const hash = crypto
-//     .createHmac("sha256", lineConfig.channelSecret)
-//     .update(body)
-//     .digest("base64");
-
-//   if (hash !== signature) {
-//     return NextResponse.json({ error: "Invalid signature" }, { status: 401 });
-//   }
-
-//   const events = JSON.parse(body).events as WebhookEvent[];
-
-//   for (const event of events) {
-//     if (event.type === "message" && event.message.type === "text") {
-//       const userMessage = event.message.text;
-
-//       try {
-//         // ✅ เรียก Gemini chatbot API ที่มีอยู่แล้ว
-//         const response = await fetch(`${process.env.INTERNAL_API_BASE}api/chat`, {
-//           method: "POST",
-//           headers: { "Content-Type": "application/json" },
-//           body: JSON.stringify({ message: userMessage }),
-//         });
-
-
-//         const data = await response.json();
-//         const replyText = data.reply || "ขอโทษนะ ฉันตอบไม่ได้ตอนนี้ 😅";
-
-//         await client.replyMessage(event.replyToken, {
-//           type: "text",
-//           text: replyText,
-//         });
-//       } catch (err) {
-//         console.error("Gemini error:", err);
-//         await client.replyMessage(event.replyToken, {
-//           type: "text",
-//           text: "❌ มีปัญหาในการเรียก Gemini API",
-//         });
-//       }
-//     }
-//   }
-
-//   return NextResponse.json({ ok: true });
-// }
 // src/app/api/line/route.ts
 import { NextRequest, NextResponse } from "next/server";
 import crypto from "crypto";
-import { Client, WebhookEvent } from "@line/bot-sdk";
+import { Client } from "@line/bot-sdk";
 
-const lineConfig = {
+const client = new Client({
   channelAccessToken: process.env.LINE_CHANNEL_ACCESS_TOKEN!,
   channelSecret: process.env.LINE_CHANNEL_SECRET!,
-};
-
-const client = new Client(lineConfig);
+});
 
 export async function POST(req: NextRequest) {
   const body = await req.text();
-  const signature = crypto
-    .createHmac("sha256", lineConfig.channelSecret)
+  const signature = req.headers.get("x-line-signature")!;
+
+  // ✅ ตรวจสอบความถูกต้องของ Webhook
+  const hash = crypto
+    .createHmac("SHA256", process.env.LINE_CHANNEL_SECRET!)
     .update(body)
     .digest("base64");
 
-  const checkHeader = req.headers.get("x-line-signature");
-  if (signature !== checkHeader) {
-    return NextResponse.json({ message: "Invalid signature" }, { status: 401 });
-  }
+  if (hash !== signature) return NextResponse.json({ status: "invalid signature" }, { status: 401 });
 
-  const events = JSON.parse(body).events as WebhookEvent[];
+  const events = JSON.parse(body).events;
 
   for (const event of events) {
     if (event.type === "message" && event.message.type === "text") {
       const userMessage = event.message.text;
 
-      // ✅ ส่งข้อความไปให้ API chat เพื่อให้ Gemini ตอบ
-      const chatRes = await fetch(
-        `${process.env.INTERNAL_API_BASE}/api/chat`,
+      // ✅ กำหนดลักษณะการตอบของ AI (prompt)
+      const systemPrompt = `
+        คุณเป็นนักโภชนาการผู้ชายที่ใจดี อ่อนโยน สุภาพ และให้คำแนะนำด้านอาหารอย่างเป็นธรรมชาติ เหมือนเพื่อนที่คุยกันสบาย ๆ นอกจากนี้คุณยังเป็นเชี่ยวชาญในเรื่องข้าวโดยเฉพาะข้าวกล้อง ที่อยากจะใช้ข้าวกล้องในการดูแลสุขภาพ
+
+📌 แนวทางการพูด:
+- ตอบสั้น กระชับ ไม่เกิน 4 บรรทัดทุกคำถามและคำตอบ
+- แบ่งย่อหน้าให้อ่านง่าย
+
+📋 รายการเมนูที่แนะนำ:
+คุณสามารถแนะนำเมนูใด ๆ ก็ได้ ทั้งในและนอกลิสต์นี้  
+รายการด้านล่างใช้เป็นตัวอย่างหรือแนวทางเบื้องต้น:
+      `;
+
+      const geminiResponse = await fetch(
+        `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${process.env.NEXT_PUBLIC_GEMINI_API_KEY}`,
         {
           method: "POST",
           headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ message: userMessage }),
+          body: JSON.stringify({
+            contents: [
+              { role: "user", parts: [{ text: `${systemPrompt}\n\nผู้ใช้: ${userMessage}` }] },
+            ],
+          }),
         }
       );
 
-      const chatData = await chatRes.json();
-      const replyMessage = chatData.text || "❌ ไม่สามารถตอบได้ตอนนี้3";
+      const data = await geminiResponse.json();
+      const aiText = data?.candidates?.[0]?.content?.parts?.[0]?.text || "ขอโทษค่ะ ฉันไม่เข้าใจ";
 
-      // ✅ ส่งข้อความตอบกลับผู้ใช้ใน LINE
       await client.replyMessage(event.replyToken, {
         type: "text",
-        text: replyMessage,
+        text: aiText,
       });
     }
   }
 
-  return NextResponse.json({ message: "ok" });
+  return NextResponse.json({ status: "ok" });
 }
-
