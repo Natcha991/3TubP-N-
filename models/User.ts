@@ -1,8 +1,7 @@
-// models/User.ts
 import mongoose, { Schema, Document } from 'mongoose';
 
 export interface IUser extends Document {
-  name: string;
+  name?: string;
   birthday?: Date;
   gender?: string;
   weight?: number;
@@ -12,8 +11,6 @@ export interface IUser extends Document {
   lifestyle?: string;
   lineId?: string;
   awaitingName?: boolean;
-  createdAt?: Date;
-  updatedAt?: Date;
 }
 
 const UserSchema = new Schema<IUser>({
