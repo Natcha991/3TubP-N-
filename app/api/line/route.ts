@@ -3,7 +3,7 @@ import { NextRequest, NextResponse } from "next/server";
 import crypto from "crypto";
 import { Client, TextMessage } from "@line/bot-sdk";
 import { connectToDatabase } from "@/lib/mongodb";
-import User, { IUser } from '@/models/User';
+import User, { IUser } from "@/models/User";
 
 // ✅ สร้าง LINE client
 const client = new Client({
@@ -32,6 +32,21 @@ interface ChatUser {
   goal?: string;
   condition?: string;
   awaitingName?: boolean;
+}
+
+// ✅ Type สำหรับ LINE Event
+interface LineMessageEvent {
+  type: "message";
+  replyToken: string;
+  source: { userId: string };
+  message: { type: "text"; text: string };
+}
+
+interface LineEvent {
+  type: string;
+  replyToken: string;
+  source: { userId: string };
+  message?: { type: string; text: string };
 }
 
 // ✅ ฟังก์ชันเรียก Gemini AI
@@ -78,14 +93,17 @@ export async function POST(req: NextRequest) {
   if (hash !== signature)
     return NextResponse.json({ status: "invalid signature" }, { status: 401 });
 
-  const parsedBody: { events: any[] } = JSON.parse(body);
+  // ✅ Parse JSON เป็น type-safe
+  const parsedBody: { events: LineEvent[] } = JSON.parse(body);
   const events = parsedBody.events;
 
   for (const event of events) {
-    if (event.type !== "message" || event.message.type !== "text") continue;
+    // ✅ เช็คเฉพาะข้อความ
+    if (event.type !== "message" || event.message?.type !== "text") continue;
 
-    const userId: string = event.source.userId!;
-    const userMessage: string = event.message.text.trim();
+    const messageEvent = event as LineMessageEvent;
+    const userId = messageEvent.source.userId;
+    const userMessage = messageEvent.message.text.trim();
 
     // ✅ ดึง user จาก DB
     const userDoc = await User.findOne({ lineId: userId }).lean<IUser>();
