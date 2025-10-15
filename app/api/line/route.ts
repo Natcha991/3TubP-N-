@@ -1,126 +1,197 @@
 import { NextRequest, NextResponse } from "next/server";
 import crypto from "crypto";
-import { Client, WebhookEvent, TextMessage } from "@line/bot-sdk";
+import { Client, WebhookEvent } from "@line/bot-sdk";
+import mongoose from "mongoose";
+import dotenv from "dotenv";
 import { connectToDatabase } from "@/lib/mongodb";
 import User from "@/models/User";
 
-// ✅ ตั้งค่า LINE Client
-const client = new Client({
+dotenv.config();
+
+const lineConfig = {
   channelAccessToken: process.env.LINE_CHANNEL_ACCESS_TOKEN!,
   channelSecret: process.env.LINE_CHANNEL_SECRET!,
-});
+};
 
-// ✅ ประเภทข้อมูลของผู้ใช้
-interface ChatUser {
-  name?: string;
-  lifestyle?: string;
-  goal?: string;
-  condition?: string;
-  awaitingName?: boolean;
+const client = new Client(lineConfig);
+
+interface GeminiPart {
+  text: string;
 }
 
-// ✅ ฟังก์ชันเรียก Gemini
-async function handleGeminiResponse(user: ChatUser, message: string): Promise<string> {
-  const systemPrompt = `
-คุณเป็นนักโภชนาการผู้ชายที่ใจดี อ่อนโยน สุภาพ และให้คำแนะนำด้านอาหารอย่างเป็นธรรมชาติ เหมือนเพื่อนที่คุยกันสบาย ๆ
-ผู้ใช้ชื่อ: "${user.name ?? "ไม่ทราบชื่อ"}"
-ข้อความจากผู้ใช้: "${message}"
-🧠 แนวทางการตอบคำถาม:
-- หากผู้ใช้พูดถึง “สถานการณ์” เช่น ตอนเช้า, หลังออกกำลังกาย → แนะนำเมนูที่เหมาะสม
-- หากผู้ใช้พิมพ์ “ชื่อเมนู” → อธิบายรายละเอียดเมนู
-- หากผู้ใช้ขอ “ตารางอาหาร” → จัดเมนู 3 มื้อ/วัน
-- หากผู้ใช้เสนอ “วัตถุดิบ” → แนะนำเมนูอิสระ
-- หากผู้ใช้ถามเรื่องนอกเหนือจากอาหารและสุขภาพ → ตอบว่า: "ขออภัยครับ ผมสามารถตอบได้เฉพาะเรื่องอาหารและสุขภาพเท่านั้นนะครับ"
-`;
+interface GeminiContent {
+  role: string;
+  parts: GeminiPart[];
+}
 
-  const res = await fetch(
-    `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=${process.env.NEXT_PUBLIC_GEMINI_API_KEY}`,
-    {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({
-        contents: [
-          { role: "system", parts: [{ text: systemPrompt }] },
-          { role: "user", parts: [{ text: message }] },
-        ],
-      }),
-    }
-  );
-
-  const data = await res.json();
-  return (
-    data?.candidates?.[0]?.content?.parts?.[0]?.text ||
-    "ขอโทษครับ ผมไม่เข้าใจคำถามครับ"
-  );
+interface GeminiResponse {
+  candidates?: { content: GeminiContent }[];
 }
 
 export async function POST(req: NextRequest) {
-  await connectToDatabase();
+  try {
+    const body = await req.text();
+    const signature = req.headers.get("x-line-signature")!;
+    const hash = crypto
+      .createHmac("sha256", lineConfig.channelSecret)
+      .update(body)
+      .digest("base64");
 
-  const body = await req.text();
-  const signature = req.headers.get("x-line-signature")!;
-  const hash = crypto
-    .createHmac("SHA256", process.env.LINE_CHANNEL_SECRET!)
-    .update(body)
-    .digest("base64");
-
-  if (hash !== signature)
-    return NextResponse.json({ status: "invalid signature" }, { status: 401 });
-
-  const events: WebhookEvent[] = JSON.parse(body).events;
-
-  for (const event of events) {
-    if (event.type !== "message" || event.message.type !== "text") continue;
-
-    const userId = event.source.userId!;
-    const userMessage = event.message.text.trim();
-
-    // ✅ ค้นหาผู้ใช้ในฐานข้อมูล
-    const userDoc = await User.findOne({ lineId: userId });
-
-    // ✅ ถ้าไม่พบ user → สร้างใหม่และให้พิมพ์ชื่อ
-    if (!userDoc) {
-      await User.create({ lineId: userId, awaitingName: true });
-      await client.replyMessage(event.replyToken, {
-        type: "text",
-        text: "สวัสดีครับ 😊 กรุณากรอกชื่อของคุณ หรือพิมพ์ 'ไม่มี' ถ้าไม่มีชื่อครับ",
-      });
-      continue;
+    if (signature !== hash) {
+      return new NextResponse("Invalid signature", { status: 401 });
     }
 
-    // ✅ ถ้ายังไม่ได้กรอกชื่อ
-    if (userDoc.awaitingName) {
-      const name = userMessage === "ไม่มี" ? "ไม่มี" : userMessage;
+    const events: WebhookEvent[] = JSON.parse(body).events;
+    await connectToDatabase();
 
-      // ถ้าข้อความสั้นเกินไป (เช่น 1 ตัวอักษร) ให้ถือว่าไม่ใช่ชื่อ
-      if (name.length < 2 && name !== "ไม่มี") {
+    for (const event of events) {
+      if (event.type === "message" && event.message.type === "text") {
+        const userMessage = event.message.text.trim();
+        const userId = event.source.userId;
+
+        let user = await User.findOne({ lineId: userId });
+
+        // 🧩 ถ้ายังไม่มี user → สร้างใหม่ + ถามชื่อ
+        if (!user) {
+          // ตรวจว่าข้อความนี้ “อาจเป็นชื่อ” ไหม
+          const looksLikeName =
+            /^[ก-๙a-zA-Z]{2,20}$/.test(userMessage) && !userMessage.includes(" ");
+
+          if (looksLikeName) {
+            user = new User({ lineId: userId, name: userMessage });
+            await user.save();
+
+            await client.replyMessage(event.replyToken, {
+              type: "text",
+              text: `ยินดีที่ได้รู้จักครับ คุณ${userMessage} 😊 วันนี้อยากให้ผมช่วยแนะนำเรื่องอะไรดีครับ?`,
+            });
+            continue;
+          } else {
+            await client.replyMessage(event.replyToken, {
+              type: "text",
+              text: "สวัสดีครับ ผมขอทราบชื่อของคุณก่อนนะครับ (พิมพ์ชื่อเล่นได้เลยครับ 😊)",
+            });
+            continue;
+          }
+        }
+
+        // 🧠 ถ้ามีชื่อแล้ว → ส่งข้อความต่อให้ Gemini
+        const geminiResponse = await fetch(
+          `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=${process.env.NEXT_PUBLIC_GEMINI_API_KEY}`,
+          {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({
+              contents: [
+                {
+                  role: "user",
+                  parts: [
+                    {
+                      text: `
+คุณเป็นนักโภชนาการผู้ชายที่ใจดี อ่อนโยน สุภาพ และให้คำแนะนำด้านอาหารอย่างเป็นธรรมชาติ
+ผู้ใช้ชื่อ: ${user.name}
+ข้อความจากผู้ใช้: "${userMessage}"
+แนวทางการตอบ:
+- ตอบสุภาพ กระชับ ไม่เกิน 4 บรรทัด
+- ใช้ภาษาที่เข้าใจง่าย
+- ถามกลับได้บ้างเล็กน้อยเพื่อให้ผู้ใช้รู้สึกเป็นกันเอง
+                      `,
+                    },
+                  ],
+                },
+              ],
+            }),
+          }
+        );
+
+        const data: GeminiResponse = await geminiResponse.json();
+
+        const replyText =
+          data.candidates?.[0]?.content.parts?.[0]?.text ||
+          "ขอโทษครับ ผมไม่แน่ใจว่าคุณหมายถึงอะไรครับ";
+
         await client.replyMessage(event.replyToken, {
           type: "text",
-          text: "ชื่อของคุณควรมีอย่างน้อย 2 ตัวอักษรครับ 😊",
+          text: replyText,
         });
-        continue;
       }
-
-      await User.updateOne({ lineId: userId }, { name, awaitingName: false });
-      await client.replyMessage(event.replyToken, {
-        type: "text",
-        text: `ยินดีที่ได้รู้จักครับคุณ ${name}! ตอนนี้คุณสามารถคุยเรื่องอาหารและสุขภาพได้เลยครับ 🍚`,
-      });
-      continue;
     }
 
-    // ✅ ถ้ามีชื่อแล้ว → ให้ Gemini ตอบกลับ
-    const user: ChatUser = {
-      name: userDoc.name,
-      lifestyle: userDoc.lifestyle,
-      goal: userDoc.goal,
-      condition: userDoc.condition,
-    };
-
-    const replyText = await handleGeminiResponse(user, userMessage);
-    const reply: TextMessage = { type: "text", text: replyText };
-    await client.replyMessage(event.replyToken, reply);
+    return NextResponse.json({ message: "OK" });
+  } catch (error) {
+    console.error("❌ Error:", error);
+    return NextResponse.json({ error: String(error) }, { status: 500 });
   }
-
-  return NextResponse.json({ status: "ok" });
 }
+
+
+
+// src/app/api/line/route.ts
+// import { NextRequest, NextResponse } from "next/server";
+// import crypto from "crypto";
+// import { Client } from "@line/bot-sdk";
+// import { connectToDatabase } from "@/lib/connectToDatabase";
+// import User from "@/models/User";
+
+// const client = new Client({
+//   channelAccessToken: process.env.LINE_CHANNEL_ACCESS_TOKEN!,
+//   channelSecret: process.env.LINE_CHANNEL_SECRET!,
+// });
+
+// export async function POST(req: NextRequest) {
+//   await connectToDatabase(); // ✅ ใช้ฟังก์ชันที่คุณเขียนไว้
+
+//   const body = await req.text();
+//   const signature = req.headers.get("x-line-signature")!;
+//   const hash = crypto
+//     .createHmac("SHA256", process.env.LINE_CHANNEL_SECRET!)
+//     .update(body)
+//     .digest("base64");
+
+//   if (hash !== signature)
+//     return NextResponse.json({ status: "invalid signature" }, { status: 401 });
+
+//   const events = JSON.parse(body).events;
+
+//   for (const event of events) {
+//     if (event.type === "message" && event.message.type === "text") {
+//       const userMessage = event.message.text.trim();
+//       const userId = event.source.userId;
+
+//       let user = await User.findOne({ lineId: userId });
+
+//       if (!user) {
+//         if (userMessage === "ไม่มี") {
+//           user = await User.create({ name: "ไม่มี", lineId: userId });
+//           await client.replyMessage(event.replyToken, {
+//             type: "text",
+//             text: "ไม่เป็นไรครับ 😊 งั้นเริ่มกันใหม่ คุณช่วยบอกหน่อยว่าไลฟ์สไตล์ของคุณเป็นแบบไหน เช่น นั่งทำงานทั้งวัน หรือชอบออกกำลังกายครับ?",
+//           });
+//         } else {
+//           const existingUser = await User.findOne({ name: userMessage });
+//           if (existingUser) {
+//             existingUser.lineId = userId;
+//             await existingUser.save();
+//             await client.replyMessage(event.replyToken, {
+//               type: "text",
+//               text: `สวัสดีครับคุณ ${existingUser.name}! ยินดีต้อนรับกลับครับ 😊`,
+//             });
+//           } else {
+//             user = await User.create({ name: userMessage, lineId: userId });
+//             await client.replyMessage(event.replyToken, {
+//               type: "text",
+//               text: `ยินดีที่ได้รู้จักครับคุณ ${userMessage}! คุณช่วยบอกหน่อยว่าไลฟ์สไตล์ของคุณเป็นแบบไหนครับ?`,
+//             });
+//           }
+//         }
+//       } else {
+//         await client.replyMessage(event.replyToken, {
+//           type: "text",
+//           text: `สวัสดีครับคุณ ${user.name}! ผมจำคุณได้จากเว็บแอปครับ 😊`,
+//         });
+//       }
+//     }
+//   }
+
+//   return NextResponse.json({ status: "ok" });
+// }
