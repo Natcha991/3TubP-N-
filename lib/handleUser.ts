@@ -17,13 +17,11 @@ export async function getOrCreateUser(lineId: string, userMessage?: string) {
   await connectToDatabase();
 
   // ดึงผู้ใช้จาก DB
-  let user = await User.findOne({ lineId });
+  const user = await User.findOne({ lineId }) ?? new User({ lineId, awaitingName: true });
 
   // 🧩 ถ้ายังไม่มีผู้ใช้ → สร้างใหม่
-  if (!user) {
-    user = new User({ lineId, awaitingName: true });
+  if (!user._id) {  // กรณีเพิ่งสร้าง
     await user.save();
-
     return {
       user: user.toObject() as ChatUser,
       replyText: "สวัสดีครับ 😊 กรุณากรอกชื่อของคุณ หรือพิมพ์ 'ไม่มี' ถ้าไม่มีชื่อ",
@@ -32,7 +30,7 @@ export async function getOrCreateUser(lineId: string, userMessage?: string) {
 
   // 🧩 ถ้ามีผู้ใช้แต่ยังไม่ได้กรอกชื่อ
   if (user.awaitingName) {
-    let name = userMessage && userMessage !== "ไม่มี" ? userMessage : "ไม่มี";
+    const name = userMessage && userMessage !== "ไม่มี" ? userMessage : "ไม่มี";
     user.name = name;
     user.awaitingName = false;
     await user.save();

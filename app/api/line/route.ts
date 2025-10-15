@@ -34,8 +34,7 @@ export async function POST(req: NextRequest) {
       const userId = event.source.userId!;
 
       // 🔹 ดึงข้อมูลผู้ใช้จาก Mongo
-      let user: IUser | null = await User.findOne({ lineId: userId });
-
+     const user = await User.findOne({ lineId: userId });
       if (!user) {
         // ผู้ใช้ใหม่ → สร้าง user + รอกรอกชื่อ
         await client.replyMessage(event.replyToken, {
