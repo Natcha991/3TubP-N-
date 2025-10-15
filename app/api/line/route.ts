@@ -4,7 +4,7 @@ import crypto from "crypto";
 import { Client, WebhookEvent } from "@line/bot-sdk";
 import dotenv from "dotenv";
 import { connectToDatabase } from "@/lib/mongodb";
-import User, { IUser } from "@/models/User";
+import User from "@/models/User";
 
 dotenv.config();
 
