@@ -1,8 +1,8 @@
-src/app/api/line/route.ts
+// src/app/api/line/route.ts
 import { NextRequest, NextResponse } from "next/server";
 import crypto from "crypto";
 import { Client } from "@line/bot-sdk";
-import { connectToDatabase } from "@/lib/connectToDatabase";
+import { connectToDatabase } from "@/lib/mongodb";
 import User from "@/models/User";
 
 const client = new Client({
