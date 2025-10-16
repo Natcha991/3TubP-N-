@@ -11,11 +11,11 @@
     "strict": true,
     "noEmit": true,
     "esModuleInterop": true,
-    "module": "CommonJS",
+    "module": "esnext",
     "moduleResolution": "node",
     "resolveJsonModule": true,
     "isolatedModules": true,
-    // ✅ เปลี่ยน jsx เป็น react-jsx เพื่อรองรับ JSX namespace อัตโนมัติ
+    // ✅ ใช้ preserve เพราะ Next.js จะจัดการ JSX เอง
     "jsx": "preserve",
     "incremental": true,
     "plugins": [
