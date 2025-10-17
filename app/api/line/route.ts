@@ -444,62 +444,47 @@ export async function POST(req: NextRequest) {
 
     const events: WebhookEvent[] = JSON.parse(body).events;
 
-    // ===========================
-    // ✅ วนลูปจัดการ event จากผู้ใช้
-    // ===========================
     for (const event of events) {
       if (event.type !== "message" || event.message.type !== "text") continue;
 
       const userMessage = event.message.text.trim();
       const userId = event.source.userId!;
 
-      // โหลดผู้ใช้จาก DB
-      const user = await User.findOne({ lineId: userId });
+      // 🟢 ใช้ findOneAndUpdate แบบ upsert → สร้างผู้ใช้ใหม่ถ้าไม่มี
+      const user = await User.findOneAndUpdate(
+        { lineId: userId },
+        { $setOnInsert: { awaitingName: true } },
+        { new: true, upsert: true }
+      );
 
       // ===========================
-      // 🆕 ผู้ใช้ใหม่ → สร้าง user และขอชื่อ
-      // ===========================
-      if (!user) {
-        await client.replyMessage(event.replyToken, {
-          type: "text",
-          text: "สวัสดีครับ 😊 กรุณากรอกชื่อของคุณก่อน (พิมพ์ชื่อเล่นได้เลยครับ)",
-        });
-
-        await User.create({ lineId: userId, awaitingName: true });
-
-        // ✅ return เลย ป้องกัน loop
-        return NextResponse.json({ message: "OK" });
-      }
-
-      // ===========================
-      // 📝 ผู้ใช้รอกรอกชื่อ
+      // 📝 รอกรอกชื่อ
       // ===========================
       if (user.awaitingName) {
-        const name = userMessage || "ไม่มี";
-        await User.updateOne({ lineId: userId }, { name, awaitingName: false });
-
-        await client.replyMessage(event.replyToken, {
-          type: "text",
-          text: `ยินดีที่ได้รู้จักครับ คุณ ${name} 😊 ตอนนี้คุณสามารถถามเรื่องเมนูอาหารหรือสุขภาพได้เลยครับ`,
-        });
-
-        return NextResponse.json({ message: "OK" });
+        if (user.name) {
+          // ผู้ใช้มีชื่อแล้ว → ส่งข้อความต้อนรับ
+          await client.replyMessage(event.replyToken, {
+            type: "text",
+            text: `ยินดีต้อนรับคุณ ${user.name} เข้าสู่บริการ LINE Chatbot 😊`,
+          });
+          await User.updateOne({ lineId: userId }, { awaitingName: false });
+        } else {
+          // ผู้ใช้ใหม่กรอกชื่อ
+          const name = userMessage || "ไม่มี";
+          await User.updateOne(
+            { lineId: userId },
+            { name, awaitingName: false }
+          );
+          await client.replyMessage(event.replyToken, {
+            type: "text",
+            text: `ยินดีที่ได้รู้จักครับ คุณ ${name} 😊 ตอนนี้คุณสามารถถามเรื่องเมนูอาหารหรือสุขภาพได้เลยครับ`,
+          });
+        }
+        continue; // จบรอบนี้ → ไป event ถัดไป
       }
 
       // ===========================
-      // 👋 ผู้ใช้เก่า (พิมพ์ชื่อของตัวเอง)
-      // ===========================
-      if (!user.awaitingName && userMessage === user.name) {
-        await client.replyMessage(event.replyToken, {
-          type: "text",
-          text: `ยินดีต้อนรับคุณ ${user.name} เข้าสู่บริการ LINE Chatbot หวังว่าจะสร้างความสะดวกสบายให้กับคุณ และขอขอบคุณสำหรับแรงสนับสนุนตลอดมาครับ 😊`,
-        });
-
-        return NextResponse.json({ message: "OK" });
-      }
-
-      // ===========================
-      // 🤖 ส่งข้อความไปที่ Gemini
+      // 👋 ผู้ใช้เก่า → ส่งข้อความ Gemini
       // ===========================
       const geminiResponse = await fetch(
         `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=${process.env.NEXT_PUBLIC_GEMINI_API_KEY}`,
