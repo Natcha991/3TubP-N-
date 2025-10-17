@@ -12,7 +12,7 @@ export interface IUser extends Document {
   lifestyle?: string;
   lineId?: string;
   awaitingName?: boolean;
-  conversation?: { role: "user" | "assistant"; text: string }[]; // ✅ เพิ่มส่วนบันทึกบทสนทนา
+  conversation?: { role: string|"user" | "assistant"; text: string }[]; // ✅ เพิ่มส่วนบันทึกบทสนทนา
 }
 
 const UserSchema = new Schema<IUser>(
@@ -33,6 +33,7 @@ const UserSchema = new Schema<IUser>(
       {
         role: { type: String, enum: ["user", "assistant"], required: true },
         text: { type: String, required: true },
+        createdAt: { type: Date, default: Date.now }
       },
     ],
   },
