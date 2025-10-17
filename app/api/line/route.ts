@@ -389,43 +389,20 @@ import { NextRequest, NextResponse } from "next/server";
 import crypto from "crypto";
 import { Client, WebhookEvent } from "@line/bot-sdk";
 import dotenv from "dotenv";
-import { connectToDatabase } from "@/lib/mongodb";
-import User from "@/models/User";
 
 dotenv.config();
 
-// ===============================
-// 🔹 สร้าง LINE client
-// ===============================
 const client = new Client({
   channelAccessToken: process.env.LINE_CHANNEL_ACCESS_TOKEN!,
   channelSecret: process.env.LINE_CHANNEL_SECRET!,
 });
 
-// ===============================
-// 🔹 สร้าง interface สำหรับโครงสร้างข้อมูลจาก Gemini
-// ===============================
-interface GeminiPart {
-  text: string;
-}
+interface GeminiPart { text: string; }
+interface GeminiContent { role: string; parts: GeminiPart[]; }
+interface GeminiResponse { candidates?: { content: GeminiContent }[]; }
 
-interface GeminiContent {
-  role: string;
-  parts: GeminiPart[];
-}
-
-interface GeminiResponse {
-  candidates?: { content: GeminiContent }[];
-}
-
-// ===============================
-// 🔸 ฟังก์ชันหลัก POST
-// ===============================
 export async function POST(req: NextRequest) {
   try {
-    // ===========================
-    // ✅ ตรวจสอบลายเซ็น
-    // ===========================
     const body = await req.text();
     const signature = req.headers.get("x-line-signature")!;
     const hash = crypto
@@ -433,14 +410,7 @@ export async function POST(req: NextRequest) {
       .update(body)
       .digest("base64");
 
-    if (signature !== hash) {
-      return new NextResponse("Invalid signature", { status: 401 });
-    }
-
-    // ===========================
-    // ✅ เชื่อมต่อฐานข้อมูล
-    // ===========================
-    await connectToDatabase();
+    if (signature !== hash) return new NextResponse("Invalid signature", { status: 401 });
 
     const events: WebhookEvent[] = JSON.parse(body).events;
 
@@ -448,52 +418,29 @@ export async function POST(req: NextRequest) {
       if (event.type !== "message" || event.message.type !== "text") continue;
 
       const userMessage = event.message.text.trim();
-      const userId = event.source.userId!;
 
-      // 🔹 ตรวจสอบผู้ใช้ (ถ้าต้องเก็บ history) หรือไม่ก็ข้ามก็ได้
-      await User.findOneAndUpdate(
-        { lineId: userId },
-        { $setOnInsert: {} },
-        { new: true, upsert: true }
-      );
-
-      // ===========================
-      // 🤖 ส่งข้อความไปที่ Gemini
-      // ===========================
       const geminiResponse = await fetch(
         `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=${process.env.NEXT_PUBLIC_GEMINI_API_KEY}`,
         {
           method: "POST",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({
-            contents: [
-              {
-                role: "user",
-                parts: [
-                  {
-                    text: `คุณชื่อ Mr. Rice และคุณเป็นนักโภชนาการผู้ชายที่ใจดี อ่อนโยน สุภาพ และให้คำแนะนำด้านอาหารอย่างเป็นธรรมชาติ เหมือนเพื่อนที่คุยกันสบาย ๆ คุณเชี่ยวชาญเรื่องข้าว โดยเฉพาะข้าวกล้อง และชอบใช้ข้าวกล้องดูแลสุขภาพ คุณเป็นแชทบอทใน LINE ที่พูดสุภาพและเป็นมิตรกับผู้ใช้ 🧠
-แนวทางการตอบ:
-- ตอบสั้น กระชับ ไม่เกิน 4 บรรทัด
-- แบ่งย่อหน้าให้อ่านง่าย
-- ไม่ต้องถามชื่อผู้ใช้
-ข้อความจากผู้ใช้: "${userMessage}"`,
-                  },
-                ],
-              },
-            ],
+            contents: [{
+              role: "user",
+              parts: [{
+                text: `คุณชื่อ Mr. Rice เป็นนักโภชนาการ ให้คำแนะนำด้านอาหารอย่างเป็นธรรมชาติ
+ข้อความจากผู้ใช้: "${userMessage}"`
+              }],
+            }],
           }),
         }
       );
 
       const data: GeminiResponse = await geminiResponse.json();
-      const replyText =
-        data.candidates?.[0]?.content.parts?.[0]?.text ||
-        "ขอโทษครับ ผมไม่แน่ใจว่าคุณหมายถึงอะไรครับ";
+      const replyText = data.candidates?.[0]?.content.parts?.[0]?.text
+        || "ขอโทษครับ ผมไม่แน่ใจว่าคุณหมายถึงอะไรครับ";
 
-      await client.replyMessage(event.replyToken, {
-        type: "text",
-        text: replyText,
-      });
+      await client.replyMessage(event.replyToken, { type: "text", text: replyText });
     }
 
     return NextResponse.json({ message: "OK" });
