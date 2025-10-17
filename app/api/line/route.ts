@@ -450,41 +450,15 @@ export async function POST(req: NextRequest) {
       const userMessage = event.message.text.trim();
       const userId = event.source.userId!;
 
-      // 🟢 ใช้ findOneAndUpdate แบบ upsert → สร้างผู้ใช้ใหม่ถ้าไม่มี
-      const user = await User.findOneAndUpdate(
+      // 🔹 ตรวจสอบผู้ใช้ (ถ้าต้องเก็บ history) หรือไม่ก็ข้ามก็ได้
+      await User.findOneAndUpdate(
         { lineId: userId },
-        { $setOnInsert: { awaitingName: true } },
+        { $setOnInsert: {} },
         { new: true, upsert: true }
       );
 
       // ===========================
-      // 📝 รอกรอกชื่อ
-      // ===========================
-      if (user.awaitingName) {
-        if (user.name) {
-          // ผู้ใช้มีชื่อแล้ว → ส่งข้อความต้อนรับ
-          await client.replyMessage(event.replyToken, {
-            type: "text",
-            text: `ยินดีต้อนรับคุณ ${user.name} เข้าสู่บริการ LINE Chatbot 😊`,
-          });
-          await User.updateOne({ lineId: userId }, { awaitingName: false });
-        } else {
-          // ผู้ใช้ใหม่กรอกชื่อ
-          const name = userMessage || "ไม่มี";
-          await User.updateOne(
-            { lineId: userId },
-            { name, awaitingName: false }
-          );
-          await client.replyMessage(event.replyToken, {
-            type: "text",
-            text: `ยินดีที่ได้รู้จักครับ คุณ ${name} 😊 ตอนนี้คุณสามารถถามเรื่องเมนูอาหารหรือสุขภาพได้เลยครับ`,
-          });
-        }
-        continue; // จบรอบนี้ → ไป event ถัดไป
-      }
-
-      // ===========================
-      // 👋 ผู้ใช้เก่า → ส่งข้อความ Gemini
+      // 🤖 ส่งข้อความไปที่ Gemini
       // ===========================
       const geminiResponse = await fetch(
         `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=${process.env.NEXT_PUBLIC_GEMINI_API_KEY}`,
@@ -501,7 +475,7 @@ export async function POST(req: NextRequest) {
 แนวทางการตอบ:
 - ตอบสั้น กระชับ ไม่เกิน 4 บรรทัด
 - แบ่งย่อหน้าให้อ่านง่าย
-- ไม่ต้องสวัสดีผู้ใช้
+- ไม่ต้องถามชื่อผู้ใช้
 ข้อความจากผู้ใช้: "${userMessage}"`,
                   },
                 ],
