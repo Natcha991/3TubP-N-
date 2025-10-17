@@ -15,7 +15,7 @@ const client = new Client({
 
 // 🔹 กำหนดชนิดของบทสนทนา
 interface ConversationItem {
-  role: string;
+  role: "user" | "assistant";
   text: string;
 }
 
@@ -24,7 +24,7 @@ interface GeminiPart {
   text: string;
 }
 interface GeminiContent {
-  role: string;
+  role: "user" | "assistant" | "system";
   parts: GeminiPart[];
 }
 interface GeminiResponse {
@@ -40,9 +40,7 @@ export async function POST(req: NextRequest) {
       .createHmac("sha256", process.env.LINE_CHANNEL_SECRET!)
       .update(body)
       .digest("base64");
-    if (signature !== hash) {
-      return new NextResponse("Invalid signature", { status: 401 });
-    }
+    if (signature !== hash) return new NextResponse("Invalid signature", { status: 401 });
 
     // ✅ เชื่อมต่อฐานข้อมูล
     await connectToDatabase();
@@ -97,39 +95,37 @@ export async function POST(req: NextRequest) {
 
       // 🧠 ดึงบทสนทนาก่อนหน้า (ไม่เกิน 10 ข้อความล่าสุด)
       const recentConversation: ConversationItem[] = (user.conversation || []).slice(-10);
-      const history = recentConversation.map((msg: ConversationItem) => ({
+      const historyContents: GeminiContent[] = recentConversation.map(msg => ({
         role: msg.role,
         parts: [{ text: msg.text }],
       }));
 
-      // 🤖 ส่งไป Gemini พร้อมบริบทก่อนหน้า + ข้อความล่าสุด
+      // 🤖 system prompt
+      const systemPrompt: GeminiContent = {
+        role: "system",
+        parts: [
+          {
+            text: `คุณชื่อ Mr. Rice เป็นนักโภชนาการผู้ชายที่ใจดี อ่อนโยน สุภาพ 
+และให้คำแนะนำเรื่องอาหารและข้าวกล้องอย่างเป็นมิตร
+ตอบสั้น กระชับ ไม่เกิน 4 บรรทัด
+แบ่งย่อหน้าให้อ่านง่าย`
+          }
+        ]
+      };
+
+      // รวม system + history + ข้อความล่าสุด
+      const contents: GeminiContent[] = [
+        systemPrompt,
+        ...historyContents,
+        { role: "user", parts: [{ text: userMessage }] }
+      ];
+
       const geminiResponse = await fetch(
         `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=${process.env.NEXT_PUBLIC_GEMINI_API_KEY}`,
         {
           method: "POST",
           headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({
-            contents: [
-              ...history,
-              {
-                role: "user",
-                parts: [
-                  {
-                    text: `คุณชื่อ Mr. Rice และคุณเป็นนักโภชนาการผู้ชายที่ใจดี อ่อนโยน สุภาพ และให้คำแนะนำด้านอาหารอย่างเป็นธรรมชาติ
-คุณเชี่ยวชาญเรื่องข้าว โดยเฉพาะข้าวกล้อง และชอบใช้ข้าวกล้องดูแลสุขภาพ  
-คุณเป็นแชทบอทใน LINE ที่พูดสุภาพและเป็นมิตรกับผู้ใช้  
-
-🧠 แนวทางการตอบ:
-- ตอบสั้น กระชับ ไม่เกิน 4 บรรทัด
-- แบ่งย่อหน้าให้อ่านง่าย  
-- ไม่ต้องสวัสดีผู้ใช้  
-
-ข้อความจากผู้ใช้: "${userMessage}"`,
-                  },
-                ],
-              },
-            ],
-          }),
+          body: JSON.stringify({ contents }),
         }
       );
 
@@ -138,7 +134,7 @@ export async function POST(req: NextRequest) {
         data.candidates?.[0]?.content.parts?.[0]?.text ||
         "ขอโทษครับ ผมไม่แน่ใจว่าคุณหมายถึงอะไรครับ";
 
-      // 🗂️ อัปเดตบทสนทนาในฐานข้อมูล (เก็บ 10 ข้อความล่าสุด)
+      // 🗂️ บันทึกบทสนทนาใน MongoDB (เก็บ 10 ข้อความล่าสุด)
       await User.updateOne(
         { lineId: userId },
         {
@@ -148,9 +144,9 @@ export async function POST(req: NextRequest) {
                 { role: "user", text: userMessage },
                 { role: "assistant", text: replyText },
               ],
-              $slice: -10,
-            },
-          },
+              $slice: -10
+            }
+          }
         }
       );
 

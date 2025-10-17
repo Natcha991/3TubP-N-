@@ -12,7 +12,7 @@ export interface IUser extends Document {
   lifestyle?: string;
   lineId?: string;
   awaitingName?: boolean;
-  conversation?: { role: string|"user" | "assistant"; text: string }[]; // ✅ เพิ่มส่วนบันทึกบทสนทนา
+  conversation?: { role: "user" | "assistant"; text: string }[]; // ✅ เพิ่มส่วนบันทึกบทสนทนา
 }
 
 const UserSchema = new Schema<IUser>(
