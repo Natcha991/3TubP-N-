@@ -162,7 +162,7 @@
 // /app/api/line/route.ts
 import { NextRequest, NextResponse } from "next/server";
 import crypto from "crypto";
-import { Client, WebhookEvent, TextMessage } from "@line/bot-sdk";
+import { Client, WebhookEvent } from "@line/bot-sdk";
 import dotenv from "dotenv";
 import { connectToDatabase } from "@/lib/mongodb";
 import User from "@/models/User";
