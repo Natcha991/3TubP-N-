@@ -1,4 +1,4 @@
-// // /app/api/line/route.ts
+// // /app/api/line/route.ts ใช้กับผู้ใช้ใหม่ไม่ได้
 // import { NextRequest, NextResponse } from "next/server";
 // import crypto from "crypto";
 // import { Client, WebhookEvent, TextMessage } from "@line/bot-sdk";
@@ -452,6 +452,8 @@ export async function POST(req: NextRequest) {
 
       const userMessage = event.message.text.trim();
       const userId = event.source.userId!;
+
+      // โหลดผู้ใช้จาก DB
       const user = await User.findOne({ lineId: userId });
 
       // ===========================
@@ -462,8 +464,11 @@ export async function POST(req: NextRequest) {
           type: "text",
           text: "สวัสดีครับ 😊 กรุณากรอกชื่อของคุณก่อน (พิมพ์ชื่อเล่นได้เลยครับ)",
         });
+
         await User.create({ lineId: userId, awaitingName: true });
-        continue;
+
+        // ✅ return เลย ป้องกัน loop
+        return NextResponse.json({ message: "OK" });
       }
 
       // ===========================
@@ -477,7 +482,8 @@ export async function POST(req: NextRequest) {
           type: "text",
           text: `ยินดีที่ได้รู้จักครับ คุณ ${name} 😊 ตอนนี้คุณสามารถถามเรื่องเมนูอาหารหรือสุขภาพได้เลยครับ`,
         });
-        continue;
+
+        return NextResponse.json({ message: "OK" });
       }
 
       // ===========================
@@ -488,7 +494,8 @@ export async function POST(req: NextRequest) {
           type: "text",
           text: `ยินดีต้อนรับคุณ ${user.name} เข้าสู่บริการ LINE Chatbot หวังว่าจะสร้างความสะดวกสบายให้กับคุณ และขอขอบคุณสำหรับแรงสนับสนุนตลอดมาครับ 😊`,
         });
-        continue;
+
+        return NextResponse.json({ message: "OK" });
       }
 
       // ===========================
