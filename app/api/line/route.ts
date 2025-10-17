@@ -75,7 +75,7 @@ export async function POST(req: NextRequest) {
       const userId = messageEvent.source.userId!;
 
       // 🔹 ดึงข้อความผู้ใช้
-      let userMessage = (messageEvent.message as { text: string }).text.trim();
+      const userMessage = (messageEvent.message as { text: string }).text.trim();
 
       // 🔹 หาผู้ใช้ใน MongoDB
       let userDoc = await User.findOne({ lineId: userId });
