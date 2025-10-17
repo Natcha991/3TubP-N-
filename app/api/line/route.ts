@@ -195,12 +195,6 @@ function getFriendlyFallback(): string {
   return options[Math.floor(Math.random() * options.length)];
 }
 
-interface IUserData {
-  goal?: string;
-  condition?: string;
-  lifestyle?: string;
-  name?: string;
-}
 
 export async function POST(req: NextRequest) {
   try {
