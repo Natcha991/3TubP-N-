@@ -162,7 +162,7 @@
 // /app/api/line/route.ts
 import { NextRequest, NextResponse } from "next/server";
 import crypto from "crypto";
-import { Client, WebhookEvent } from "@line/bot-sdk";
+import { Client, WebhookEvent, TextMessage, FollowEvent } from "@line/bot-sdk";
 import dotenv from "dotenv";
 import { connectToDatabase } from "@/lib/mongodb";
 import User from "@/models/User";
@@ -203,32 +203,61 @@ function getFriendlyFallback(): string {
 // 🔹 ฟังก์ชันหลัก (Webhook)
 export async function POST(req: NextRequest) {
   try {
-    const body: string = await req.text();
+    const body = await req.text();
     const signature = req.headers.get("x-line-signature");
-    if (!signature) return new NextResponse("Missing signature", { status: 401 });
+    if (!signature)
+      return new NextResponse("Missing signature", { status: 401 });
 
     const hash = crypto
       .createHmac("sha256", process.env.LINE_CHANNEL_SECRET!)
       .update(body)
       .digest("base64");
 
-    if (signature !== hash) return new NextResponse("Invalid signature", { status: 401 });
+    if (signature !== hash)
+      return new NextResponse("Invalid signature", { status: 401 });
 
     await connectToDatabase();
     const parsedBody = JSON.parse(body) as { events: WebhookEvent[] };
 
     for (const event of parsedBody.events) {
+      // 🆕 ✅ เมื่อผู้ใช้ "กดเพิ่มเพื่อน"
+      if (event.type === "follow") {
+        const followEvent = event as FollowEvent;
+        const userId = followEvent.source.userId!;
+        let userDoc = await User.findOne({ lineId: userId });
+
+        // ถ้ายังไม่มี → สร้างใหม่
+        if (!userDoc) {
+          userDoc = await User.create({
+            lineId: userId,
+            awaitingName: true,
+            conversation: [],
+          });
+        }
+
+        // ส่งข้อความต้อนรับ
+        await client.replyMessage(followEvent.replyToken, {
+          type: "text",
+          text:
+            "สวัสดีครับ 😊 ผมคือ Mr. Rice ผู้ช่วยด้านโภชนาการของคุณครับ\n" +
+            "ก่อนอื่นขอทราบชื่อเล่นของคุณหน่อยครับ 🍚",
+        });
+
+        continue;
+      }
+
       // ✅ ตรวจเฉพาะข้อความเท่านั้น
       if (event.type !== "message" || event.message.type !== "text") continue;
+      const messageEvent = event as import("@line/bot-sdk").MessageEvent;
 
-      const userMessage = event.message.text.trim();
-      const userId = event.source.userId!;
-      const replyToken = event.replyToken;
+      if (messageEvent.message.type !== "text") continue;
+      const userMessage = (messageEvent.message as { text: string }).text.trim();
+      const replyToken = messageEvent.replyToken;
+      const userId = messageEvent.source.userId!;
 
-      // 🔹 ค้นหาผู้ใช้ใน MongoDB
       let userDoc = await User.findOne({ lineId: userId });
 
-      // 🆕 ถ้ายังไม่มีข้อมูล → สร้างใหม่และขอชื่อ
+      // 🆕 หากยังไม่มี (เช่นผู้ใช้เริ่มพิมพ์โดยไม่ผ่าน follow)
       if (!userDoc) {
         userDoc = await User.create({
           lineId: userId,
@@ -238,18 +267,16 @@ export async function POST(req: NextRequest) {
 
         await client.replyMessage(replyToken, {
           type: "text",
-          text: "สวัสดีครับ 😊 ผมคือ Mr. Rice ผู้ช่วยด้านโภชนาการของคุณ\nก่อนอื่นขอทราบชื่อเล่นของคุณหน่อยครับ",
+          text:
+            "สวัสดีครับ 😊 ผมคือ Mr. Rice ผู้ช่วยด้านโภชนาการของคุณ\nก่อนอื่นขอทราบชื่อเล่นของคุณหน่อยครับ",
         });
         continue;
       }
 
-      // 🔹 ถ้ากำลังรอชื่อผู้ใช้
+      // 🔹 ถ้ากำลังรอชื่อ
       if (userDoc.awaitingName) {
         const name = userMessage || "ไม่มี";
-        await User.updateOne(
-          { lineId: userId },
-          { name, awaitingName: false }
-        );
+        await User.updateOne({ lineId: userId }, { name, awaitingName: false });
 
         await client.replyMessage(replyToken, {
           type: "text",
@@ -258,7 +285,7 @@ export async function POST(req: NextRequest) {
         continue;
       }
 
-      // 🔹 ถ้าผู้ใช้พิมพ์ชื่อของตัวเอง → ต้อนรับกลับ
+      // 🔹 ถ้าพิมพ์ชื่อของตัวเอง
       if (userMessage === userDoc.name) {
         await client.replyMessage(replyToken, {
           type: "text",
@@ -332,6 +359,7 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ error: String(error) }, { status: 500 });
   }
 }
+
 
 
 // /app/api/line/route.ts เบสิก
