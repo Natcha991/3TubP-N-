@@ -169,7 +169,7 @@
 // /app/api/line/route.ts
 import { NextRequest, NextResponse } from "next/server";
 import crypto from "crypto";
-import { Client, WebhookEvent } from "@line/bot-sdk";
+import { Client, WebhookEvent, MessageEvent, TextMessage } from "@line/bot-sdk";
 import dotenv from "dotenv";
 import { connectToDatabase } from "@/lib/mongodb";
 import User from "@/models/User";
@@ -190,12 +190,15 @@ interface GeminiContent {
   role: string;
   parts: GeminiPart[];
 }
+interface GeminiCandidate {
+  content: GeminiContent;
+}
 interface GeminiResponse {
-  candidates?: { content: GeminiContent }[];
+  candidates?: GeminiCandidate[];
 }
 
-// 🔹 ข้อความ fallback ถ้า Gemini ไม่ตอบ
-function getFriendlyFallback() {
+// 🔹 ข้อความ fallback
+function getFriendlyFallback(): string {
   const options = [
     "อ๋อ ผมอาจไม่แน่ใจ แต่ลองเล่าเพิ่มหน่อยครับ",
     "น่าสนใจครับ! คุณอยากให้ผมแนะนำเมนูอีกไหม?",
@@ -204,11 +207,23 @@ function getFriendlyFallback() {
   return options[Math.floor(Math.random() * options.length)];
 }
 
+// 🔹 Interface ของผู้ใช้สำหรับเมนูแนะนำ
+interface IUserData {
+  goal?: string;
+  condition?: string;
+  lifestyle?: string;
+  name?: string;
+  birthday?: Date;
+  gender?: string;
+  height?: number;
+  weight?: number;
+}
+
 // 🔹 ฟังก์ชันวิเคราะห์และแนะนำเมนู
-function getMenuRecommendation(user: any) {
+function getMenuRecommendation(user: IUserData): { menu: string; reason: string } {
   const { goal, condition, lifestyle } = user;
-  let menu = "";
-  let reason = "";
+  let menu: string = "";
+  let reason: string = "";
 
   if (goal === "ลดน้ำหนัก") {
     menu = "สลัดอกไก่ไข่ต้ม";
@@ -237,26 +252,32 @@ function getMenuRecommendation(user: any) {
 // 🔹 ฟังก์ชันหลัก (Webhook)
 export async function POST(req: NextRequest) {
   try {
-    const body = await req.text();
-    const signature = req.headers.get("x-line-signature")!;
-    const hash = crypto
+    const body: string = await req.text();
+    const signature: string | null = req.headers.get("x-line-signature");
+    if (!signature) return new NextResponse("Missing signature", { status: 401 });
+
+    const hash: string = crypto
       .createHmac("sha256", process.env.LINE_CHANNEL_SECRET!)
       .update(body)
       .digest("base64");
+
     if (signature !== hash) return new NextResponse("Invalid signature", { status: 401 });
 
     await connectToDatabase();
-    const events: WebhookEvent[] = JSON.parse(body).events;
+    const parsedBody: { events: WebhookEvent[] } = JSON.parse(body);
+    const events: WebhookEvent[] = parsedBody.events;
 
     for (const event of events) {
-      if (event.type !== "message" || event.message.type !== "text") continue;
+      if (event.type !== "message") continue;
+      const message = event.message as TextMessage;
+      if (message.type !== "text") continue;
 
-      const userMessage = event.message.text.trim();
-      const userId = event.source.userId!;
-      const user = await User.findOne({ lineId: userId });
+      const userMessage: string = message.text.trim();
+      const userId: string = event.source.userId!;
+      const userDoc = await User.findOne({ lineId: userId });
 
       // 🆕 ผู้ใช้ใหม่ → ขอชื่อ
-      if (!user) {
+      if (!userDoc) {
         await User.create({ lineId: userId, awaitingName: true, conversation: [] });
         await client.replyMessage(event.replyToken, {
           type: "text",
@@ -266,8 +287,8 @@ export async function POST(req: NextRequest) {
       }
 
       // 📝 ผู้ใช้กรอกชื่อ
-      if (user.awaitingName) {
-        const name = userMessage || "ไม่มี";
+      if (userDoc.awaitingName) {
+        const name: string = userMessage || "ไม่มี";
         await User.updateOne({ lineId: userId }, { name, awaitingName: false });
         await client.replyMessage(event.replyToken, {
           type: "text",
@@ -276,19 +297,19 @@ export async function POST(req: NextRequest) {
         continue;
       }
 
-      // ✅ ถ้าผู้ใช้พิมพ์ "ชื่อ" ของตนเอง → แสดงข้อมูลและแนะนำเมนู
-      if (userMessage === user.name) {
-        const { menu, reason } = getMenuRecommendation(user);
+      // ✅ ผู้ใช้พิมพ์ชื่อของตนเอง → แสดงข้อมูลและแนะนำเมนู
+      if (userMessage === userDoc.name) {
+        const { menu, reason } = getMenuRecommendation(userDoc);
 
-        const reply = `
-👋 สวัสดีคุณ ${user.name}
-🎂 วันเกิด: ${user.birthday ? new Date(user.birthday).toLocaleDateString("th-TH") : "ไม่ระบุ"}
-⚧️ เพศ: ${user.gender || "ไม่ระบุ"}
-📏 ส่วนสูง: ${user.height || "-"} ซม.
-⚖️ น้ำหนัก: ${user.weight || "-"} กก.
-🎯 เป้าหมาย: ${user.goal || "-"}
-💬 สภาพร่างกาย: ${user.condition || "-"}
-💡 ไลฟ์สไตล์: ${user.lifestyle || "-"}
+        const reply: string = `
+👋 สวัสดีคุณ ${userDoc.name}
+🎂 วันเกิด: ${userDoc.birthday ? new Date(userDoc.birthday).toLocaleDateString("th-TH") : "ไม่ระบุ"}
+⚧️ เพศ: ${userDoc.gender || "ไม่ระบุ"}
+📏 ส่วนสูง: ${userDoc.height ?? "-"} ซม.
+⚖️ น้ำหนัก: ${userDoc.weight ?? "-"} กก.
+🎯 เป้าหมาย: ${userDoc.goal || "-"}
+💬 สภาพร่างกาย: ${userDoc.condition || "-"}
+💡 ไลฟ์สไตล์: ${userDoc.lifestyle || "-"}
 
 🍽️ เมนูที่เหมาะกับคุณคือ “${menu}”
 เพราะ${reason}.
@@ -298,8 +319,8 @@ export async function POST(req: NextRequest) {
         continue;
       }
 
-      // 🤖 หากไม่ใช่ชื่อ → ให้ Gemini ตอบปกติ
-      const recentConversation = (user.conversation || []).slice(-10);
+      // 🤖 หากไม่ใช่ชื่อ → ส่งไป Gemini
+      const recentConversation: { role: string; text: string }[] = (userDoc.conversation || []).slice(-10);
 
       const geminiResponse = await fetch(
         `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=${process.env.NEXT_PUBLIC_GEMINI_API_KEY}`,
@@ -308,10 +329,7 @@ export async function POST(req: NextRequest) {
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({
             contents: [
-              ...recentConversation.map((msg: { role: string; text: string }) => ({
-                role: msg.role,
-                parts: [{ text: msg.text }],
-              })),
+              ...recentConversation.map((msg) => ({ role: msg.role, parts: [{ text: msg.text }] })),
               {
                 role: "user",
                 parts: [
@@ -333,8 +351,7 @@ export async function POST(req: NextRequest) {
       );
 
       const data: GeminiResponse = await geminiResponse.json();
-      const replyText =
-        data.candidates?.[0]?.content.parts?.[0]?.text || getFriendlyFallback();
+      const replyText: string = data.candidates?.[0]?.content.parts?.[0]?.text || getFriendlyFallback();
 
       // 🗂️ บันทึกบทสนทนา
       await User.updateOne(
