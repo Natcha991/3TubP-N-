@@ -53,7 +53,7 @@ export async function POST(req: NextRequest) {
 
       const userMessage = event.message.text.trim();
       const userId = event.source.userId!;
-      let user = await User.findOne({ lineId: userId });
+      const user = await User.findOne({ lineId: userId });
 
       // 🆕 ผู้ใช้ใหม่ → ขอชื่อ
       if (!user) {
