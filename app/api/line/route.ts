@@ -70,16 +70,12 @@ export async function POST(req: NextRequest) {
       // ✅ ตรวจสอบเฉพาะข้อความ
       if (event.type !== "message" || event.message.type !== "text") continue;
 
-      // ✅ Cast ให้ TypeScript ไม่ error
       const messageEvent = event as import("@line/bot-sdk").MessageEvent;
-
-      // ตรวจสอบว่าเป็นข้อความ text ก่อนใช้งาน
-      if (messageEvent.message.type !== "text") continue;
-
-      // ดึงข้อความ
-      const userMessage = (messageEvent.message as { text: string }).text.trim();
       const replyToken = messageEvent.replyToken;
       const userId = messageEvent.source.userId!;
+
+      // 🔹 ดึงข้อความผู้ใช้
+      let userMessage = (messageEvent.message as { text: string }).text.trim();
 
       // 🔹 หาผู้ใช้ใน MongoDB
       let userDoc = await User.findOne({ lineId: userId });
@@ -139,31 +135,45 @@ export async function POST(req: NextRequest) {
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({
             contents: [
-              ...recentConversation.map((msg: { role: string; text: string }) => ({
+              ...recentConversation.map((_msg: { role: string; text: string }) => ({
+                role: _msg.role,
+                parts: [{ text: _msg.text }],
+              })),
+              {
                 role: "user",
-                parts: [{   text: `
-คุณชื่อ Mr. Rice เป็นนักโภชนาการผู้ชายที่ใจดี อ่อนโยน สุภาพ  
-เชี่ยวชาญเรื่องข้าว โดยเฉพาะข้าวกล้อง  
--ตอบสั้น กระชับ ไม่เกิน 4 บรรทัด  
+                parts: [{ text: `
+คุณชื่อ Mr. Rice เป็นนักโภชนาการผู้ชายที่ใจดี อ่อนโยน สุภาพ
+เชี่ยวชาญเรื่องข้าว โดยเฉพาะข้าวกล้อง
+-ตอบสั้น กระชับ ไม่เกิน 4 บรรทัด
 -หากผู้ใช้พิมพ์ให้ แนะนำเมนู ให้เลือกเมนูที่เหมาะกับผู้ใช้จากข้อมูลของผู้ใช้ (goal, condition, lifestyle) 
 และเขียนเหตุผลว่าเหมาะกับผู้ใช้เพราะอะไร
 -หากไม่แน่ใจให้ตอบอย่างสุภาพ ไม่พูดว่า "ไม่เข้าใจ"
 - ไม่ต้องสวัสดีผู้ใช้ 
 ข้อความจากผู้ใช้: "${userMessage}"
-                    ` }],
-              }))
-
+                ` }],
+              },
             ],
           }),
         }
       );
+
       const data: GeminiResponse = await geminiResponse.json();
       const replyText = data.candidates?.[0]?.content.parts?.[0]?.text || getFriendlyFallback();
 
       // 🔹 บันทึกบทสนทนา
       await User.updateOne(
         { lineId: userId },
-        { $push: { conversation: { $each: [{ role: "user", text: userMessage }, { role: "assistant", text: replyText }], $slice: -10 } } }
+        {
+          $push: {
+            conversation: {
+              $each: [
+                { role: "user", text: userMessage },
+                { role: "assistant", text: replyText },
+              ],
+              $slice: -10,
+            },
+          },
+        }
       );
 
       // 🔹 ส่งข้อความกลับผู้ใช้
