@@ -167,6 +167,7 @@
 
 
 // /app/api/line/route.ts
+// /app/api/line/route.ts
 import { NextRequest, NextResponse } from "next/server";
 import crypto from "crypto";
 import { Client, WebhookEvent, TextMessage } from "@line/bot-sdk";
@@ -176,28 +177,16 @@ import User from "@/models/User";
 
 dotenv.config();
 
-// 🔹 สร้าง LINE client
 const client = new Client({
   channelAccessToken: process.env.LINE_CHANNEL_ACCESS_TOKEN!,
   channelSecret: process.env.LINE_CHANNEL_SECRET!,
 });
 
-// 🔹 โครงสร้าง Gemini Response
-interface GeminiPart {
-  text: string;
-}
-interface GeminiContent {
-  role: string;
-  parts: GeminiPart[];
-}
-interface GeminiCandidate {
-  content: GeminiContent;
-}
-interface GeminiResponse {
-  candidates?: GeminiCandidate[];
-}
+interface GeminiPart { text: string; }
+interface GeminiContent { role: string; parts: GeminiPart[]; }
+interface GeminiCandidate { content: GeminiContent; }
+interface GeminiResponse { candidates?: GeminiCandidate[]; }
 
-// 🔹 ข้อความ fallback
 function getFriendlyFallback(): string {
   const options = [
     "อ๋อ ผมอาจไม่แน่ใจ แต่ลองเล่าเพิ่มหน่อยครับ",
@@ -207,23 +196,17 @@ function getFriendlyFallback(): string {
   return options[Math.floor(Math.random() * options.length)];
 }
 
-// 🔹 Interface ของผู้ใช้สำหรับเมนูแนะนำ
 interface IUserData {
   goal?: string;
   condition?: string;
   lifestyle?: string;
   name?: string;
-  birthday?: Date;
-  gender?: string;
-  height?: number;
-  weight?: number;
 }
 
-// 🔹 ฟังก์ชันวิเคราะห์และแนะนำเมนู
 function getMenuRecommendation(user: IUserData): { menu: string; reason: string } {
   const { goal, condition, lifestyle } = user;
-  let menu: string = "";
-  let reason: string = "";
+  let menu = "";
+  let reason = "";
 
   if (goal === "ลดน้ำหนัก") {
     menu = "สลัดอกไก่ไข่ต้ม";
@@ -249,7 +232,6 @@ function getMenuRecommendation(user: IUserData): { menu: string; reason: string 
   return { menu, reason };
 }
 
-// 🔹 ฟังก์ชันหลัก (Webhook)
 export async function POST(req: NextRequest) {
   try {
     const body: string = await req.text();
@@ -260,7 +242,6 @@ export async function POST(req: NextRequest) {
       .createHmac("sha256", process.env.LINE_CHANNEL_SECRET!)
       .update(body)
       .digest("base64");
-
     if (signature !== hash) return new NextResponse("Invalid signature", { status: 401 });
 
     await connectToDatabase();
@@ -276,7 +257,7 @@ export async function POST(req: NextRequest) {
       const userId: string = event.source.userId!;
       const userDoc = await User.findOne({ lineId: userId });
 
-      // 🆕 ผู้ใช้ใหม่ → ขอชื่อ
+      // ผู้ใช้ใหม่
       if (!userDoc) {
         await User.create({ lineId: userId, awaitingName: true, conversation: [] });
         await client.replyMessage(event.replyToken, {
@@ -286,7 +267,7 @@ export async function POST(req: NextRequest) {
         continue;
       }
 
-      // 📝 ผู้ใช้กรอกชื่อ
+      // ผู้ใช้กรอกชื่อ
       if (userDoc.awaitingName) {
         const name: string = userMessage || "ไม่มี";
         await User.updateOne({ lineId: userId }, { name, awaitingName: false });
@@ -297,29 +278,24 @@ export async function POST(req: NextRequest) {
         continue;
       }
 
-      // ✅ ผู้ใช้พิมพ์ชื่อของตนเอง → แสดงข้อมูลและแนะนำเมนู
+      // ผู้ใช้พิมพ์ชื่อของตนเอง → แสดงข้อความต้อนรับเท่านั้น
       if (userMessage === userDoc.name) {
+        await client.replyMessage(event.replyToken, {
+          type: "text",
+          text: `ยินดีต้อนรับคุณ ${userDoc.name} กลับมาครับ 😊`,
+        });
+        continue;
+      }
+
+      // ถ้าผู้ใช้พิมพ์ข้อความขอแนะนำเมนู (เช่น "แนะนำเมนู")
+      if (userMessage.includes("เมนู")) {
         const { menu, reason } = getMenuRecommendation(userDoc);
-
-        const reply: string = `
-👋 สวัสดีคุณ ${userDoc.name}
-🎂 วันเกิด: ${userDoc.birthday ? new Date(userDoc.birthday).toLocaleDateString("th-TH") : "ไม่ระบุ"}
-⚧️ เพศ: ${userDoc.gender || "ไม่ระบุ"}
-📏 ส่วนสูง: ${userDoc.height ?? "-"} ซม.
-⚖️ น้ำหนัก: ${userDoc.weight ?? "-"} กก.
-🎯 เป้าหมาย: ${userDoc.goal || "-"}
-💬 สภาพร่างกาย: ${userDoc.condition || "-"}
-💡 ไลฟ์สไตล์: ${userDoc.lifestyle || "-"}
-
-🍽️ เมนูที่เหมาะกับคุณคือ “${menu}”
-เพราะ${reason}.
-        `;
-
+        const reply = `🍽️ เมนูที่เหมาะกับคุณคือ “${menu}”\nเพราะ${reason}.`;
         await client.replyMessage(event.replyToken, { type: "text", text: reply });
         continue;
       }
 
-      // 🤖 หากไม่ใช่ชื่อ → ส่งไป Gemini
+      // ส่งข้อความไป Gemini
       const recentConversation: { role: string; text: string }[] = (userDoc.conversation || []).slice(-10);
 
       const geminiResponse = await fetch(
@@ -334,14 +310,12 @@ export async function POST(req: NextRequest) {
                 role: "user",
                 parts: [
                   {
-                    text: `
-คุณชื่อ Mr. Rice เป็นนักโภชนาการผู้ชายที่ใจดี อ่อนโยน สุภาพ  
+                    text: `คุณชื่อ Mr. Rice เป็นนักโภชนาการผู้ชายที่ใจดี อ่อนโยน สุภาพ  
 เชี่ยวชาญเรื่องข้าว โดยเฉพาะข้าวกล้อง  
 ตอบสั้น กระชับ ไม่เกิน 4 บรรทัด  
 หากไม่แน่ใจให้ตอบอย่างสุภาพ ไม่พูดว่า "ไม่เข้าใจ"
 
-ข้อความจากผู้ใช้: "${userMessage}"
-                    `,
+ข้อความจากผู้ใช้: "${userMessage}"`,
                   },
                 ],
               },
@@ -353,7 +327,6 @@ export async function POST(req: NextRequest) {
       const data: GeminiResponse = await geminiResponse.json();
       const replyText: string = data.candidates?.[0]?.content.parts?.[0]?.text || getFriendlyFallback();
 
-      // 🗂️ บันทึกบทสนทนา
       await User.updateOne(
         { lineId: userId },
         {
@@ -369,7 +342,6 @@ export async function POST(req: NextRequest) {
         }
       );
 
-      // 📤 ส่งกลับ
       await client.replyMessage(event.replyToken, { type: "text", text: replyText });
     }
 
