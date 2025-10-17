@@ -169,22 +169,47 @@
 // /app/api/line/route.ts
 import { NextRequest, NextResponse } from "next/server";
 import crypto from "crypto";
-import { Client } from "@line/bot-sdk";
+import { Client, WebhookEvent } from "@line/bot-sdk";
+import dotenv from "dotenv";
 import { connectToDatabase } from "@/lib/mongodb";
 import User from "@/models/User";
 
+dotenv.config();
+
+// 🔹 สร้าง LINE client
 const client = new Client({
   channelAccessToken: process.env.LINE_CHANNEL_ACCESS_TOKEN!,
   channelSecret: process.env.LINE_CHANNEL_SECRET!,
 });
 
-// 🔹 ฟังก์ชันแนะนำเมนูตามข้อมูลผู้ใช้
+// 🔹 โครงสร้าง Gemini Response
+interface GeminiPart {
+  text: string;
+}
+interface GeminiContent {
+  role: string;
+  parts: GeminiPart[];
+}
+interface GeminiResponse {
+  candidates?: { content: GeminiContent }[];
+}
+
+// 🔹 ข้อความ fallback ถ้า Gemini ไม่ตอบ
+function getFriendlyFallback() {
+  const options = [
+    "อ๋อ ผมอาจไม่แน่ใจ แต่ลองเล่าเพิ่มหน่อยครับ",
+    "น่าสนใจครับ! คุณอยากให้ผมแนะนำเมนูอีกไหม?",
+    "ฮ่า ๆ ผมอาจตีความไม่ถูก แต่เรามาคุยเรื่องอาหารต่อกันดีกว่า",
+  ];
+  return options[Math.floor(Math.random() * options.length)];
+}
+
+// 🔹 ฟังก์ชันวิเคราะห์และแนะนำเมนู
 function getMenuRecommendation(user: any) {
   const { goal, condition, lifestyle } = user;
   let menu = "";
   let reason = "";
 
-  // ✅ วิเคราะห์ตาม goal
   if (goal === "ลดน้ำหนัก") {
     menu = "สลัดอกไก่ไข่ต้ม";
     reason = `เป็นเมนูพลังงานต่ำและมีโปรตีนจาก "อกไก่" ที่ช่วยให้อิ่มนาน เหมาะกับเป้าหมายการลดน้ำหนักของคุณ`;
@@ -196,14 +221,12 @@ function getMenuRecommendation(user: any) {
     reason = `เป็นเมนูสมดุล ให้พลังงานและไฟเบอร์พอเหมาะ`;
   }
 
-  // ✅ วิเคราะห์ lifestyle เสริม
   if (lifestyle === "นั่งทำงานนาน") {
     reason += ` และมีไฟเบอร์สูงช่วยเรื่องระบบขับถ่ายจากการนั่งทำงานนาน`;
   } else if (lifestyle === "ออกกำลังกายบ่อย") {
     reason += ` และมีคาร์บเพียงพอสำหรับฟื้นฟูกล้ามเนื้อหลังออกกำลังกาย`;
   }
 
-  // ✅ วิเคราะห์ condition เสริม
   if (condition === "เบาหวาน") {
     reason += ` โดยไม่มีน้ำตาลส่วนเกิน เหมาะกับผู้ที่ควบคุมน้ำตาลในเลือด`;
   }
@@ -211,58 +234,131 @@ function getMenuRecommendation(user: any) {
   return { menu, reason };
 }
 
+// 🔹 ฟังก์ชันหลัก (Webhook)
 export async function POST(req: NextRequest) {
-  const body = await req.text();
-  const signature = req.headers.get("x-line-signature") || "";
-  const isValid = crypto
-    .createHmac("sha256", process.env.LINE_CHANNEL_SECRET!)
-    .update(body)
-    .digest("base64") === signature;
+  try {
+    const body = await req.text();
+    const signature = req.headers.get("x-line-signature")!;
+    const hash = crypto
+      .createHmac("sha256", process.env.LINE_CHANNEL_SECRET!)
+      .update(body)
+      .digest("base64");
+    if (signature !== hash) return new NextResponse("Invalid signature", { status: 401 });
 
-  if (!isValid) return NextResponse.json({ status: "Invalid signature" }, { status: 403 });
+    await connectToDatabase();
+    const events: WebhookEvent[] = JSON.parse(body).events;
 
-  const events = JSON.parse(body).events;
+    for (const event of events) {
+      if (event.type !== "message" || event.message.type !== "text") continue;
 
-  for (const event of events) {
-    if (event.type === "message" && event.message.type === "text") {
       const userMessage = event.message.text.trim();
+      const userId = event.source.userId!;
+      const user = await User.findOne({ lineId: userId });
 
-      // 🔹 กรณีผู้ใช้พิมพ์ชื่อ
-      const db = await connectToDatabase();
-      const user = await User.findOne({ name: userMessage });
+      // 🆕 ผู้ใช้ใหม่ → ขอชื่อ
+      if (!user) {
+        await User.create({ lineId: userId, awaitingName: true, conversation: [] });
+        await client.replyMessage(event.replyToken, {
+          type: "text",
+          text: "สวัสดีครับ 😊 กรุณาพิมพ์ชื่อเล่นของคุณก่อนครับ",
+        });
+        continue;
+      }
 
-      if (user) {
-        // ถ้าพบชื่อ → แนะนำเมนูตามข้อมูล
+      // 📝 ผู้ใช้กรอกชื่อ
+      if (user.awaitingName) {
+        const name = userMessage || "ไม่มี";
+        await User.updateOne({ lineId: userId }, { name, awaitingName: false });
+        await client.replyMessage(event.replyToken, {
+          type: "text",
+          text: `ยินดีที่ได้รู้จักครับ คุณ ${name} 😊 ตอนนี้คุณสามารถถามเรื่องเมนูอาหารหรือสุขภาพได้เลยครับ`,
+        });
+        continue;
+      }
+
+      // ✅ ถ้าผู้ใช้พิมพ์ "ชื่อ" ของตนเอง → แสดงข้อมูลและแนะนำเมนู
+      if (userMessage === user.name) {
         const { menu, reason } = getMenuRecommendation(user);
 
         const reply = `
 👋 สวัสดีคุณ ${user.name}
-🎂 อายุ: ${new Date().getFullYear() - new Date(user.birthday).getFullYear()} ปี
-⚖️ น้ำหนัก: ${user.weight} กก.
-📏 ส่วนสูง: ${user.height} ซม.
-🎯 เป้าหมาย: ${user.goal}
-💬 ข้อเสนอแนะ: 
-วันนี้ขอแนะนำเมนู "${menu}"
-เพราะ${reason} 🍽️
+🎂 วันเกิด: ${user.birthday ? new Date(user.birthday).toLocaleDateString("th-TH") : "ไม่ระบุ"}
+⚧️ เพศ: ${user.gender || "ไม่ระบุ"}
+📏 ส่วนสูง: ${user.height || "-"} ซม.
+⚖️ น้ำหนัก: ${user.weight || "-"} กก.
+🎯 เป้าหมาย: ${user.goal || "-"}
+💬 สภาพร่างกาย: ${user.condition || "-"}
+💡 ไลฟ์สไตล์: ${user.lifestyle || "-"}
+
+🍽️ เมนูที่เหมาะกับคุณคือ “${menu}”
+เพราะ${reason}.
         `;
 
-        await client.replyMessage(event.replyToken, {
-          type: "text",
-          text: reply,
-        });
-      } else if (userMessage.includes("แนะนำเมนู")) {
-        await client.replyMessage(event.replyToken, {
-          type: "text",
-          text: `พิมพ์ชื่อของคุณก่อน เช่น "Natcha" เพื่อให้ฉันดึงข้อมูลของคุณมาวิเคราะห์ได้ครับ 😊`,
-        });
-      } else {
-        await client.replyMessage(event.replyToken, {
-          type: "text",
-          text: "ไม่พบข้อมูลผู้ใช้ในระบบครับ 😅 กรุณาลงทะเบียนก่อน",
-        });
+        await client.replyMessage(event.replyToken, { type: "text", text: reply });
+        continue;
       }
-    }
-  }
 
-  return NextResponse.json({ status: "ok" });
+      // 🤖 หากไม่ใช่ชื่อ → ให้ Gemini ตอบปกติ
+      const recentConversation = (user.conversation || []).slice(-10);
+
+      const geminiResponse = await fetch(
+        `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=${process.env.NEXT_PUBLIC_GEMINI_API_KEY}`,
+        {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            contents: [
+              ...recentConversation.map((msg: { role: string; text: string }) => ({
+                role: msg.role,
+                parts: [{ text: msg.text }],
+              })),
+              {
+                role: "user",
+                parts: [
+                  {
+                    text: `
+คุณชื่อ Mr. Rice เป็นนักโภชนาการผู้ชายที่ใจดี อ่อนโยน สุภาพ  
+เชี่ยวชาญเรื่องข้าว โดยเฉพาะข้าวกล้อง  
+ตอบสั้น กระชับ ไม่เกิน 4 บรรทัด  
+หากไม่แน่ใจให้ตอบอย่างสุภาพ ไม่พูดว่า "ไม่เข้าใจ"
+
+ข้อความจากผู้ใช้: "${userMessage}"
+                    `,
+                  },
+                ],
+              },
+            ],
+          }),
+        }
+      );
+
+      const data: GeminiResponse = await geminiResponse.json();
+      const replyText =
+        data.candidates?.[0]?.content.parts?.[0]?.text || getFriendlyFallback();
+
+      // 🗂️ บันทึกบทสนทนา
+      await User.updateOne(
+        { lineId: userId },
+        {
+          $push: {
+            conversation: {
+              $each: [
+                { role: "user", text: userMessage },
+                { role: "assistant", text: replyText },
+              ],
+              $slice: -10,
+            },
+          },
+        }
+      );
+
+      // 📤 ส่งกลับ
+      await client.replyMessage(event.replyToken, { type: "text", text: replyText });
+    }
+
+    return NextResponse.json({ message: "OK" });
+  } catch (error) {
+    console.error("❌ Error:", error);
+    return NextResponse.json({ error: String(error) }, { status: 500 });
+  }
 }
