@@ -13,18 +13,12 @@ const client = new Client({
   channelSecret: process.env.LINE_CHANNEL_SECRET!,
 });
 
-// 🔹 กำหนดชนิดของบทสนทนา
-interface ConversationItem {
-  role: "user" | "assistant";
-  text: string;
-}
-
 // 🔹 โครงสร้าง Gemini Response
 interface GeminiPart {
   text: string;
 }
 interface GeminiContent {
-  role: "user" | "assistant" | "system";
+  role: string;
   parts: GeminiPart[];
 }
 interface GeminiResponse {
@@ -40,7 +34,9 @@ export async function POST(req: NextRequest) {
       .createHmac("sha256", process.env.LINE_CHANNEL_SECRET!)
       .update(body)
       .digest("base64");
-    if (signature !== hash) return new NextResponse("Invalid signature", { status: 401 });
+    if (signature !== hash) {
+      return new NextResponse("Invalid signature", { status: 401 });
+    }
 
     // ✅ เชื่อมต่อฐานข้อมูล
     await connectToDatabase();
@@ -66,7 +62,10 @@ export async function POST(req: NextRequest) {
       // 📝 ผู้ใช้กรอกชื่อ
       if (user.awaitingName) {
         const name = userMessage || "ไม่มี";
-        await User.updateOne({ lineId: userId }, { name, awaitingName: false });
+        await User.updateOne(
+          { lineId: userId },
+          { name, awaitingName: false }
+        );
         await client.replyMessage(event.replyToken, {
           type: "text",
           text: `ยินดีที่ได้รู้จักครับ คุณ ${name} 😊 ตอนนี้คุณสามารถถามเรื่องเมนูอาหารหรือสุขภาพได้เลยครับ`,
@@ -83,49 +82,36 @@ export async function POST(req: NextRequest) {
         continue;
       }
 
-      // 🧹 คำสั่งรีเซ็ตบทสนทนา
-      if (userMessage.toLowerCase() === "รีเซ็ต" || userMessage.toLowerCase() === "reset") {
-        await User.updateOne({ lineId: userId }, { $set: { conversation: [] } });
-        await client.replyMessage(event.replyToken, {
-          type: "text",
-          text: "ผมได้ล้างประวัติการคุยทั้งหมดแล้วครับ 😊 คุณสามารถเริ่มคุยเรื่องใหม่ได้เลยครับ",
-        });
-        continue;
-      }
+      // 🧠 ดึงบทสนทนาก่อนหน้า (ไม่เกิน 5 ข้อความล่าสุด)
+      const recentConversation = (user.conversation || []).slice(-5);
 
-      // 🧠 ดึงบทสนทนาก่อนหน้า (ไม่เกิน 10 ข้อความล่าสุด)
-      const recentConversation: ConversationItem[] = (user.conversation || []).slice(-10);
-      const historyContents: GeminiContent[] = recentConversation.map(msg => ({
-        role: msg.role,
-        parts: [{ text: msg.text }],
-      }));
-
-      // 🤖 system prompt
-      const systemPrompt: GeminiContent = {
-        role: "system",
-        parts: [
-          {
-            text: `คุณชื่อ Mr. Rice เป็นนักโภชนาการผู้ชายที่ใจดี อ่อนโยน สุภาพ 
-และให้คำแนะนำเรื่องอาหารและข้าวกล้องอย่างเป็นมิตร
-ตอบสั้น กระชับ ไม่เกิน 4 บรรทัด
-แบ่งย่อหน้าให้อ่านง่าย`
-          }
-        ]
-      };
-
-      // รวม system + history + ข้อความล่าสุด
-      const contents: GeminiContent[] = [
-        systemPrompt,
-        ...historyContents,
-        { role: "user", parts: [{ text: userMessage }] }
-      ];
-
+      // 🤖 ส่งไป Gemini พร้อมบริบทก่อนหน้า
       const geminiResponse = await fetch(
-        `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=${process.env.NEXT_PUBLIC_GEMINI_API_KEY}`,
+        `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=${process.env.NEXT_PUBLIC_GEMINI_API_KEY}`,
         {
           method: "POST",
           headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ contents }),
+          body: JSON.stringify({
+            contents: [
+              ...recentConversation.map((msg: { role: string; text: string }) => ({
+                role: msg.role,
+                parts: [{ text: msg.text }],
+              })),
+              {
+                role: "user",
+                parts: [
+                  {
+                    text: `
+คุณชื่อ Mr. Rice และคุณเป็นนักโภชนาการผู้ชายที่สุภาพ อ่อนโยน และให้คำแนะนำเรื่องอาหารสุขภาพ  
+คุณมีบุคลิกเหมือนเพื่อนที่คุยด้วยแล้วรู้สึกสบายใจ  
+อย่าทักทายซ้ำบ่อย ๆ แค่ตอบตามบทสนทนาได้เลย  
+ข้อความจากผู้ใช้: "${userMessage}"
+                    `,
+                  },
+                ],
+              },
+            ],
+          }),
         }
       );
 
@@ -134,24 +120,24 @@ export async function POST(req: NextRequest) {
         data.candidates?.[0]?.content.parts?.[0]?.text ||
         "ขอโทษครับ ผมไม่แน่ใจว่าคุณหมายถึงอะไรครับ";
 
-      // 🗂️ บันทึกบทสนทนาใน MongoDB (เก็บ 10 ข้อความล่าสุด)
+      // 🗂️ อัปเดตบทสนทนาในฐานข้อมูล
       await User.updateOne(
         { lineId: userId },
         {
           $push: {
-            conversation: {
-              $each: [
-                { role: "user", text: userMessage },
-                { role: "assistant", text: replyText },
-              ],
-              $slice: -10
-            }
-          }
+            conversation: { $each: [
+              { role: "user", text: userMessage },
+              { role: "assistant", text: replyText },
+            ], $slice: -10 } // เก็บไว้สูงสุด 10 ข้อความ
+          },
         }
       );
 
       // 📤 ส่งข้อความกลับ LINE
-      await client.replyMessage(event.replyToken, { type: "text", text: replyText });
+      await client.replyMessage(event.replyToken, {
+        type: "text",
+        text: replyText,
+      });
     }
 
     return NextResponse.json({ message: "OK" });
