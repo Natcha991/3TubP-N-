@@ -4,26 +4,27 @@ import dotenv from "dotenv";
 
 dotenv.config();
 
+// ✅ ตรวจสอบการตั้งค่า MongoDB URI
 const MONGODB_URI = process.env.MONGODB_URI as string;
-
 if (!MONGODB_URI) {
   throw new Error("⚠️ กรุณาตั้งค่า MONGODB_URI ในไฟล์ .env.local");
 }
 
-type MongooseCache = {
-  conn: Connection | null;
-  promise: Promise<Connection> | null;
+// ✅ สร้างตัวแคช global ป้องกันการเชื่อมต่อซ้ำ
+type GlobalWithMongooseCache = typeof globalThis & {
+  mongoose?: {
+    conn: Connection | null;
+    promise: Promise<Connection> | null;
+  };
 };
 
-// ใช้ global เพื่อเก็บ cache การเชื่อมต่อ (ป้องกัน connect ซ้ำ)
-const globalForMongoose = globalThis as unknown as { mongoose?: MongooseCache };
+const globalWithMongoose = global as GlobalWithMongooseCache;
 
-if (!globalForMongoose.mongoose) {
-  globalForMongoose.mongoose = { conn: null, promise: null };
-}
+const cached =
+  globalWithMongoose.mongoose ??
+  (globalWithMongoose.mongoose = { conn: null, promise: null });
 
-const cached = globalForMongoose.mongoose;
-
+// ✅ ฟังก์ชันเชื่อมต่อ MongoDB
 export async function connectToDatabase(): Promise<Connection> {
   if (cached.conn) return cached.conn;
 
