@@ -48,18 +48,23 @@ export async function POST(req: NextRequest) {
     }
 
     // ✅ เชื่อมต่อฐานข้อมูล
+    // await connectToDatabase();
+    // const events: WebhookEvent[] = JSON.parse(body).events;
+
     await connectToDatabase();
-    const events: WebhookEvent[] = JSON.parse(body).events;
+    const parsedBody: { events: WebhookEvent[] } = JSON.parse(body);
+    const events: WebhookEvent[] = parsedBody.events;
+
 
     for (const event of events) {
       if (event.type !== "message" || event.message.type !== "text") continue;
 
       const userMessage = event.message.text.trim();
       const userId = event.source.userId!;
-      const user = await User.findOne({ lineId: userId });
+      const userDoc = await User.findOne({ lineId: userId });
 
       // 🆕 ผู้ใช้ใหม่ → ขอชื่อ
-      if (!user) {
+      if (!userDoc) {
         await User.create({ lineId: userId, awaitingName: true, conversation: [] });
         await client.replyMessage(event.replyToken, {
           type: "text",
@@ -69,12 +74,9 @@ export async function POST(req: NextRequest) {
       }
 
       // 📝 ผู้ใช้กรอกชื่อ
-      if (user.awaitingName) {
-        const name = userMessage || "ไม่มี";
-        await User.updateOne(
-          { lineId: userId },
-          { name, awaitingName: false }
-        );
+      if (userDoc.awaitingName) {
+        const name: string = userMessage || "ไม่มี";
+        await User.updateOne({ lineId: userId }, { name, awaitingName: false });
         await client.replyMessage(event.replyToken, {
           type: "text",
           text: `ยินดีที่ได้รู้จักครับ คุณ ${name} 😊 ตอนนี้คุณสามารถถามเรื่องเมนูอาหารหรือสุขภาพได้เลยครับ`,
@@ -82,17 +84,19 @@ export async function POST(req: NextRequest) {
         continue;
       }
 
+
       // 👋 ผู้ใช้เก่า (ถ้าพิมพ์ชื่อของตนเอง)
-      if (!user.awaitingName && userMessage === user.name) {
+      if (userMessage === userDoc.name) {
         await client.replyMessage(event.replyToken, {
           type: "text",
-          text: `ยินดีต้อนรับคุณ ${user.name} กลับมาครับ 😊`,
+          text: `ยินดีต้อนรับคุณ ${userDoc.name} กลับมาครับ 😊`,
         });
         continue;
       }
 
+
       // 🧠 ดึงบทสนทนาก่อนหน้า (ไม่เกิน 5 ข้อความล่าสุด)
-      const recentConversation = (user.conversation || []).slice(-10);
+      const recentConversation: { role: string; text: string }[] = (userDoc.conversation || []).slice(-10);
 
       // 🤖 ส่งไป Gemini พร้อมบริบทก่อนหน้า
       const geminiResponse = await fetch(
@@ -102,10 +106,7 @@ export async function POST(req: NextRequest) {
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({
             contents: [
-              ...recentConversation.map((msg: { role: string; text: string }) => ({
-                role: msg.role,
-                parts: [{ text: msg.text }],
-              })),
+              ...recentConversation.map((msg) => ({ role: msg.role, parts: [{ text: msg.text }] })),
               {
                 role: "user",
                 parts: [
