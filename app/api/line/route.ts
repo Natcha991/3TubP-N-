@@ -96,7 +96,7 @@ export async function POST(req: NextRequest) {
 
 
       // 🧠 ดึงบทสนทนาก่อนหน้า (ไม่เกิน 5 ข้อความล่าสุด)
-      const recentConversation: { role: string; text: string }[] = (userDoc.conversation || []).slice(-10);
+         const recentConversation: { role: string; text: string }[] = (userDoc.conversation || []).slice(-10);
 
       // 🤖 ส่งไป Gemini พร้อมบริบทก่อนหน้า
       const geminiResponse = await fetch(
@@ -106,7 +106,10 @@ export async function POST(req: NextRequest) {
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({
             contents: [
-              ...recentConversation.map((msg) => ({ role: msg.role, parts: [{ text: msg.text }] })),
+              ...recentConversation.map((msg: { role: string; text: string }) => ({
+                role: msg.role,
+                parts: [{ text: msg.text }],
+              })),
               {
                 role: "user",
                 parts: [
