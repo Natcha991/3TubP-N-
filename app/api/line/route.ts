@@ -81,6 +81,12 @@ export async function POST(req: NextRequest) {
             user.conversation = user.conversation.slice(-10); // เก็บเฉพาะ 10 ข้อความล่าสุด
             await user.save();
           }
+
+          await client.replyMessage(event.replyToken, {
+            type: "text",
+            text: `สวัสดีครับ ผมชื่อ MR.Rice ยินดีให้บริการครับ`,
+          });
+
           continue; // ไม่ต้องทำโค้ดถามข้อมูลส่วนตัว
         }
 
