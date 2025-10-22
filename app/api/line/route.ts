@@ -64,6 +64,35 @@ export async function POST(req: NextRequest) {
       if (event.type === "message" && event.message.type === "text") {
         const userMessage = event.message.text.trim();
         const userId = event.source.userId!;
+
+        // =========================
+        // 🆕 ส่วนของกลุ่ม
+        // =========================
+        if (event.source.type === "group") {
+          let user = await User.findOne({ lineId: userId });
+
+          if (!user) {
+            user = await User.create({
+              lineId: userId,
+              conversation: [{ role: "user", text: userMessage }],
+            });
+          } else {
+            user.conversation.push({ role: "user", text: userMessage });
+            user.conversation = user.conversation.slice(-10); // เก็บเฉพาะ 10 ข้อความล่าสุด
+            await user.save();
+          }
+
+          await client.replyMessage(event.replyToken, {
+            type: "text",
+            text: `สวัสดีครับ กลุ่มนี้! คุณพิมพ์ว่า: ${userMessage}`,
+          });
+
+          continue; // ไม่ต้องทำโค้ดถามข้อมูลส่วนตัว
+        }
+
+        // =========================
+        // 👤 ส่วนของผู้ใช้ส่วนตัว
+        // =========================
         let user = await User.findOne({ lineId: userId });
 
         // 🆕 ผู้ใช้ใหม่
