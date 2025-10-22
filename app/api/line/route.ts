@@ -85,8 +85,8 @@ export async function POST(req: NextRequest) {
               awaitingName: true,
               awaitingField: null,
           });
+          continue;
         }
-
 
         // 👥 ถ้าเป็นกลุ่ม — ส่งต่อข้อความไป Gemini ทันที
         if (isGroup) {
