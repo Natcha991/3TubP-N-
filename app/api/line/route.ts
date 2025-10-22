@@ -63,7 +63,11 @@ export async function POST(req: NextRequest) {
     for (const event of events) {
       if (event.type === "message" && event.message.type === "text") {
         const userMessage = event.message.text.trim();
-        const userId = event.source.userId!;
+        const sourceType = event.source.type;
+        const userId = event.source.userId || null;
+        const groupId = sourceType === "group" ? event.source.groupId : null;
+        const uniqueId = groupId ? `${groupId}-${userId || "anonymous"}` : userId;
+
 
         // =========================
         // 🆕 ส่วนของกลุ่ม
@@ -73,7 +77,7 @@ export async function POST(req: NextRequest) {
 
           if (!user) {
             user = await User.create({
-              lineId: userId,
+              lineId: uniqueId,
               conversation: [{ role: "user", text: userMessage }],
             });
           } else {
@@ -84,7 +88,7 @@ export async function POST(req: NextRequest) {
 
           await client.replyMessage(event.replyToken, {
             type: "text",
-            text: `สวัสดีครับ ผมชื่อ MR.Rice ยินดีให้บริการครับ`,
+            text: "สวัสดีครับ ผมชื่อ MR.Rice ยินดีให้บริการครับ",
           });
 
           continue; // ไม่ต้องทำโค้ดถามข้อมูลส่วนตัว
@@ -93,7 +97,7 @@ export async function POST(req: NextRequest) {
         // =========================
         // 👤 ส่วนของผู้ใช้ส่วนตัว
         // =========================
-        let user = await User.findOne({ lineId: userId });
+        let user = await User.findOne({ lineId: uniqueId });
 
         // 🆕 ผู้ใช้ใหม่
         if (!user) {
