@@ -80,12 +80,11 @@ export async function POST(req: NextRequest) {
         // 🆕 ถ้าเป็น "ผู้ใช้ใหม่ในกลุ่ม" — เก็บเฉพาะ lineId ยังไม่ต้องมีชื่อ
         if (!user) {
           user = await User.create({
-            lineId: event.source.userId!,
-            conversation: [],
-            awaitingName: false,
-            awaitingField: null,
+              lineId: event.source.userId!,
+              conversation: [],
+              awaitingName: true,
+              awaitingField: null,
           });
-          console.log(`✅ บันทึกผู้ใช้ใหม่จากกลุ่ม: ${lineId}`);
         }
 
 
