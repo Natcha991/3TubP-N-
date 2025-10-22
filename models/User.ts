@@ -12,7 +12,8 @@ export interface IUser extends Document {
   lifestyle?: string;
   lineId?: string;
   awaitingName?: boolean;
-  conversation?: { role: "user" | "assistant"; text: string }[]; // ✅ เพิ่มส่วนบันทึกบทสนทนา
+  conversation: { role: string; text: string }[];
+  awaitingField?: string | null; 
 }
 
 const UserSchema = new Schema<IUser>(
@@ -27,6 +28,7 @@ const UserSchema = new Schema<IUser>(
     lifestyle: String,
     lineId: { type: String, unique: true, sparse: true },
     awaitingName: { type: Boolean, default: true },
+    awaitingField: { type: String, default: null }, // เพิ่มตรงนี้
 
     // ✅ เก็บบทสนทนา (จำสิ่งที่คุยไปก่อนหน้า)
     conversation: [
