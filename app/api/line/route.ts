@@ -68,27 +68,26 @@ export async function POST(req: NextRequest) {
         const userMessage = event.message.text.trim();
 
         // ✅ ตรวจสอบว่าเป็นกลุ่มหรือไม่
+        // ✅ ตรวจสอบว่าเป็นกลุ่มหรือไม่
         const isGroup = event.source.type === "group" || event.source.type === "room";
-        const lineId = isGroup
-          ? event.source.groupId || event.source.roomId
-          : event.source.userId;
+        const lineId = event.source.userId; // ✅ เก็บ userId ของคนที่พิมพ์แทน groupId
 
         if (!lineId) continue; // ป้องกันกรณีไม่มี id
 
         // ✅ ประกาศ user แค่ครั้งเดียว
         let user = await User.findOne({ lineId });
 
-        // 🆕 ถ้าเป็น "กลุ่มใหม่" — เก็บเฉพาะ lineId
-        if (!user && isGroup) {
+        // 🆕 ถ้าเป็น "ผู้ใช้ใหม่ในกลุ่ม" — เก็บเฉพาะ lineId ยังไม่ต้องมีชื่อ
+        if (!user) {
           user = await User.create({
-            name: "กลุ่ม",
             lineId,
             conversation: [],
             awaitingName: false,
             awaitingField: null,
           });
-          console.log(`✅ บันทึกกลุ่มใหม่: ${lineId}`);
+          console.log(`✅ บันทึกผู้ใช้ใหม่จากกลุ่ม: ${lineId}`);
         }
+
 
         // 👥 ถ้าเป็นกลุ่ม — ส่งต่อข้อความไป Gemini ทันที
         if (isGroup) {
