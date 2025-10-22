@@ -1,40 +1,43 @@
-// /lib/mongodb.ts
 import mongoose, { Connection } from "mongoose";
 import dotenv from "dotenv";
 
 dotenv.config();
 
-// ✅ ตรวจสอบการตั้งค่า MongoDB URI
 const MONGODB_URI = process.env.MONGODB_URI as string;
 if (!MONGODB_URI) {
   throw new Error("⚠️ กรุณาตั้งค่า MONGODB_URI ในไฟล์ .env.local");
 }
 
-// ✅ สร้างตัวแคช global ป้องกันการเชื่อมต่อซ้ำ
+// ✅ แคชการเชื่อมต่อของแต่ละกลุ่ม
 type GlobalWithMongooseCache = typeof globalThis & {
-  mongoose?: {
-    conn: Connection | null;
-    promise: Promise<Connection> | null;
-  };
+  mongooseGroups?: Record<
+    string,
+    { conn: Connection | null; promise: Promise<Connection> | null }
+  >;
 };
 
 const globalWithMongoose = global as GlobalWithMongooseCache;
+globalWithMongoose.mongooseGroups ??= {};
 
-const cached =
-  globalWithMongoose.mongoose ??
-  (globalWithMongoose.mongoose = { conn: null, promise: null });
+export async function connectToDatabase(groupId = "default"): Promise<Connection> {
+  // ตรวจสอบว่ามีกลุ่มนี้ใน cache หรือยัง
+  if (!globalWithMongoose.mongooseGroups![groupId]) {
+    globalWithMongoose.mongooseGroups![groupId] = { conn: null, promise: null };
+  }
 
-// ✅ ฟังก์ชันเชื่อมต่อ MongoDB
-export async function connectToDatabase(): Promise<Connection> {
+  const cached = globalWithMongoose.mongooseGroups![groupId];
+
+  // ใช้การเชื่อมต่อเดิมถ้ามีอยู่แล้ว
   if (cached.conn) return cached.conn;
 
+  // ถ้ายังไม่เชื่อมต่อ ให้เชื่อมต่อใหม่
   if (!cached.promise) {
     cached.promise = mongoose
-      .connect(MONGODB_URI, {
-        dbName: "3tubptest",
+      .createConnection(MONGODB_URI, {
+        dbName: `3tubptest_${groupId}`, // ✅ ใช้ชื่อฐานตามกลุ่ม
         bufferCommands: false,
       })
-      .then((m) => m.connection);
+      .asPromise();
   }
 
   cached.conn = await cached.promise;
