@@ -66,63 +66,35 @@ export async function POST(req: NextRequest) {
     const events = JSON.parse(body).events;
 
     for (const event of events) {
-      // ✅ รองรับเฉพาะข้อความ
       if (event.type !== "message" || event.message.type !== "text") continue;
 
       const userMessage = event.message.text.trim();
-      const isGroup = event.source.type === "group" || event.source.type === "room";
+      const sourceType = event.source.type;
       const lineId = event.source.userId;
 
-      if (!lineId) continue; // ป้องกันกรณีไม่มี userId
+      if (!lineId) continue;
 
-      // ✅ หา user จากฐานข้อมูล
       let user = await User.findOne({ lineId });
 
-      // 🆕 ถ้าเป็นผู้ใช้ใหม่ในกลุ่ม — เก็บแค่ lineId
-      if (isGroup && !user) {
-        user = await User.create({
-          lineId,
-          awaitingName: true, // จะรอถามชื่อเมื่อคุยในแชทส่วนตัว
-        });
-        console.log(`✅ เพิ่มผู้ใช้ใหม่จากกลุ่ม: ${lineId}`);
-        continue; // ยังไม่ตอบกลับอะไร
-      }
+      // ✅ ถ้าเป็น "กลุ่ม" — เก็บเฉพาะ lineId ของผู้ส่งข้อความ
+      if (sourceType === "group" || sourceType === "room") {
+        if (!user) {
+          user = await User.create({
+            lineId,
+            conversation: [],
+            awaitingName: false,
+            awaitingField: null,
+          });
+        }
 
-      // 👥 ถ้าเป็นกลุ่ม — ส่งต่อข้อความไป Gemini โดยไม่เก็บข้อมูลเพิ่ม
-      if (isGroup) {
-        const recentConversation = (user?.conversation || []).slice(-10);
+        // เก็บบทสนทนา (สำหรับใช้ในภายหลัง)
+        user.conversation.push({ role: "user", text: userMessage });
+        await user.save();
 
-        const geminiResponse = await fetch(
-          `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=${process.env.NEXT_PUBLIC_GEMINI_API_KEY}`,
-          {
-            method: "POST",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({
-              contents: [
-                ...recentConversation.map((msg: { role: string; text: string }) => ({
-                  role: msg.role,
-                  parts: [{ text: msg.text }],
-                })),
-                {
-                  role: "user",
-                  parts: [
-                    {
-                      text: `คุณชื่อ Mr. Rice เป็นนักโภชนาการผู้ชายที่ใจดี อ่อนโยน สุภาพ ตอบสั้นไม่เกิน 4 บรรทัด และพูดเหมือนคุยกับหลายคนในกลุ่ม ข้อความจากกลุ่ม: "${userMessage}"`,
-                    },
-                  ],
-                },
-              ],
-            }),
-          }
-        );
-
-        const data: GeminiResponse = await geminiResponse.json();
-        const replyText =
-          data.candidates?.[0]?.content.parts?.[0]?.text || getFriendlyFallback();
-
+        // ตอบกลับ (สามารถต่อยอดให้ Gemini ตอบได้ด้วย)
         await client.replyMessage(event.replyToken, {
           type: "text",
-          text: replyText,
+          text: "✅ รับข้อความของคุณไว้แล้วครับ (จากในกลุ่ม)",
         });
         continue;
       }
