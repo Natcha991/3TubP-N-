@@ -294,7 +294,8 @@ export async function POST(req: NextRequest) {
             // ➕ สร้าง user ใหม่ พร้อม conversation ว่าง
             user = await User.create({
               lineId: userId,
-              awaitingName: true, // ยังไม่มีข้อมูลส่วนตัว
+              name: "Guest",
+              awaitingName: false, // ยังไม่มีข้อมูลส่วนตัว
               conversation: [],   // 🔹 สำคัญ: ให้ conversation เป็น array ว่าง เพื่อเก็บข้อความต่อเนื่อง
               awaitingField: null,
             });
