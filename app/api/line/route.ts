@@ -64,10 +64,77 @@ export async function POST(req: NextRequest) {
     const events = JSON.parse(body).events;
 
     for (const event of events) {
-      if (event.type === "message" && event.message.type === "text") {
-        const userMessage = event.message.text.trim();
-        const userId = event.source.userId!;
-        let user = await User.findOne({ lineId: userId });
+  if (event.type === "message" && event.message.type === "text") {
+    const userMessage = event.message.text.trim();
+    const userId = event.source.userId!;
+    const isGroupChat = event.source.type === "group"; // 🔹 ตรวจสอบว่ากลุ่มหรือไม่
+    let user = await User.findOne({ lineId: userId });
+
+    // 🆕 ถ้าอยู่ในกลุ่ม
+    if (isGroupChat) {
+      if (!user) {
+        // ➕ สร้างเฉพาะ lineId สำหรับผู้ใช้ใหม่ในกลุ่ม
+        user = await User.create({
+          lineId: userId,
+          awaitingName: true, // ยังไม่มีข้อมูลส่วนตัว
+        });
+      }
+
+      // ➤ ส่งข้อความไป Gemini ทันที (ไม่ถามข้อมูลส่วนตัว)
+      const recentConversation = (user.conversation || []).slice(-10);
+
+      const geminiResponse = await fetch(
+        `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=${process.env.NEXT_PUBLIC_GEMINI_API_KEY}`,
+        {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            contents: [
+              ...recentConversation.map((msg: { role: string; text: string }) => ({
+                role: msg.role,
+                parts: [{ text: msg.text }],
+              })),
+              {
+                role: "user",
+                parts: [
+                  {
+                    text: `คุณชื่อ Mr. Rice และคุณเป็นนักโภชนาการผู้ชายที่ใจดี อ่อนโยน สุภาพ คุณเชี่ยวชาญเรื่องข้าว โดยเฉพาะข้าวกล้อง ตอบสั้น กระชับ ไม่เกิน 4 บรรทัด - ไม่ต้องสวัสดีผู้ใช้ ข้อความจากผู้ใช้: "${userMessage}"`,
+                  },
+                ],
+              },
+            ],
+          }),
+        }
+      );
+
+      const data: GeminiResponse = await geminiResponse.json();
+      const replyText =
+        data.candidates?.[0]?.content.parts?.[0]?.text || getFriendlyFallback();
+
+      // 🗂️ อัปเดตบทสนทนา
+      await User.updateOne(
+        { lineId: userId },
+        {
+          $push: {
+            conversation: {
+              $each: [
+                { role: "user", text: userMessage },
+                { role: "assistant", text: replyText },
+              ],
+              $slice: -10,
+            },
+          },
+        }
+      );
+
+      // 📤 ส่งกลับ LINE
+      await client.replyMessage(event.replyToken, {
+        type: "text",
+        text: replyText,
+      });
+
+      continue; // ✅ จบขั้นตอนสำหรับกลุ่ม
+    }
 
         // 🆕 ผู้ใช้ใหม่
         if (!user) {
