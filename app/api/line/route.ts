@@ -147,6 +147,20 @@ export async function POST(req: NextRequest) {
         // 🆕 ผู้ใช้ส่วนตัว (Private chat) → ใช้โค้ดเดิมทั้งหมด
         if (!user) {
 
+          // 🆕 ถ้าเป็นผู้ใช้ส่วนตัว และชื่อเป็น Guest
+          if (!isGroupChat && /^Guest\d*$/.test(user.name)) {
+            user.name = userMessage;     // เปลี่ยนจาก GuestX เป็นชื่อผู้ใช้ที่พิมพ์
+            user.awaitingName = false;   // ไม่ต้องรอชื่อแล้ว
+            user.awaitingField = "birthday"; // เริ่มถามข้อมูลถัดไป
+            await user.save();
+
+            await client.replyMessage(event.replyToken, {
+              type: "text",
+              text: `ยินดีที่ได้รู้จักครับคุณ ${userMessage}! 🎉\n${questionFlow[0].text}`,
+            });
+            continue;
+          }
+
           if (userMessage === "ไม่มี") {
             user = await User.create({
               name: "ไม่มี",
