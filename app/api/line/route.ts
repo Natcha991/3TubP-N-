@@ -76,8 +76,9 @@ export async function POST(req: NextRequest) {
 
       let user = await User.findOne({ lineId });
 
-      // ✅ ถ้าเป็น "กลุ่ม" — เก็บเฉพาะ lineId ของผู้ส่งข้อความ
+      // ✅ ถ้าเป็น "กลุ่ม" หรือ "รูม"
       if (sourceType === "group" || sourceType === "room") {
+        // ➤ ถ้าเป็นผู้ใช้ใหม่ ให้เก็บเฉพาะ lineId
         if (!user) {
           user = await User.create({
             lineId,
@@ -87,17 +88,47 @@ export async function POST(req: NextRequest) {
           });
         }
 
-        // เก็บบทสนทนา (สำหรับใช้ในภายหลัง)
+        // ➤ เก็บข้อความผู้ใช้ลงในบทสนทนา
         user.conversation.push({ role: "user", text: userMessage });
         await user.save();
 
-        // ตอบกลับ (สามารถต่อยอดให้ Gemini ตอบได้ด้วย)
+        // 💬 ใช้ Gemini ตัวเดียวกับแชทส่วนตัว
+        const recentConversation = (user.conversation || []).slice(-10);
+        const geminiResponse = await fetch(
+          `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=${process.env.NEXT_PUBLIC_GEMINI_API_KEY}`,
+          {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({
+              contents: [
+                ...recentConversation.map((msg: { role: string; text: string }) => ({
+                  role: msg.role,
+                  parts: [{ text: msg.text }],
+                })),
+                {
+                  role: "user",
+                  parts: [
+                    {
+                      text: `คุณชื่อ Mr. Rice เป็นนักโภชนาการผู้ชายที่ใจดี อ่อนโยน สุภาพ ตอบในบริบทกลุ่ม ข้อความจากผู้ใช้: "${userMessage}"`,
+                    },
+                  ],
+                },
+              ],
+            }),
+          }
+        );
+
+        const data: GeminiResponse = await geminiResponse.json();
+        const replyText =
+          data.candidates?.[0]?.content.parts?.[0]?.text || getFriendlyFallback();
+
         await client.replyMessage(event.replyToken, {
           type: "text",
-          text: "✅ รับข้อความของคุณไว้แล้วครับ (จากในกลุ่ม)",
+          text: replyText,
         });
         continue;
       }
+
 
       // 👇 ด้านล่างคือระบบสำหรับแชทส่วนตัว (เหมือนเดิม)
       if (!user) {
@@ -183,7 +214,7 @@ export async function POST(req: NextRequest) {
       // 💬 ส่วนของการส่งข้อความไป Gemini สำหรับแชทส่วนตัว
       const recentConversation = (user.conversation || []).slice(-10);
       const geminiResponse = await fetch(
-        `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=${process.env.NEXT_PUBLIC_GEMINI_API_KEY}`,
+        `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=${process.env.NEXT_PUBLIC_GEMINI_API_KEY}`,
         {
           method: "POST",
           headers: { "Content-Type": "application/json" },
