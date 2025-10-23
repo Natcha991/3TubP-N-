@@ -84,28 +84,28 @@ export async function POST(req: NextRequest) {
       const recentConversation = (user.conversation || []).slice(-10);
 
       const geminiResponse = await fetch(
-        `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=${process.env.NEXT_PUBLIC_GEMINI_API_KEY}`,
-        {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({
-            contents: [
-              ...recentConversation.map((msg: { role: string; text: string }) => ({
-                role: msg.role,
-                parts: [{ text: msg.text }],
-              })),
-              {
-                role: "user",
-                parts: [
-                  {
-                    text: `คุณชื่อ Mr. Rice และคุณเป็นนักโภชนาการผู้ชายที่ใจดี อ่อนโยน สุภาพ คุณเชี่ยวชาญเรื่องข้าว โดยเฉพาะข้าวกล้อง ตอบสั้น กระชับ ไม่เกิน 4 บรรทัด - ไม่ต้องสวัสดีผู้ใช้ ข้อความจากผู้ใช้: "${userMessage}"`,
-                  },
-                ],
-              },
-            ],
-          }),
-        }
-      );
+          `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=${process.env.NEXT_PUBLIC_GEMINI_API_KEY}`,
+          {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({
+              contents: [
+                ...recentConversation.map((msg: { role: string; text: string }) => ({
+                  role: msg.role,
+                  parts: [{ text: msg.text }],
+                })),
+                {
+                  role: "user",
+                  parts: [
+                    {
+                      text: `คุณชื่อ Mr. Rice และคุณเป็นนักโภชนาการผู้ชายที่ใจดี อ่อนโยน สุภาพ คุณเชี่ยวชาญเรื่องข้าว โดยเฉพาะข้าวกล้อง ตอบสั้น กระชับ ไม่เกิน 4 บรรทัด - ไม่ต้องสวัสดีผู้ใช้ ข้อความจากผู้ใช้: "${userMessage}"`,
+                    },
+                  ],
+                },
+              ],
+            }),
+          }
+        );
 
       const data: GeminiResponse = await geminiResponse.json();
       const replyText =
@@ -225,7 +225,7 @@ export async function POST(req: NextRequest) {
 
         // 🤖 ส่งไป Gemini
         const geminiResponse = await fetch(
-          `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=${process.env.NEXT_PUBLIC_GEMINI_API_KEY}`,
+          `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=${process.env.NEXT_PUBLIC_GEMINI_API_KEY}`,
           {
             method: "POST",
             headers: { "Content-Type": "application/json" },
