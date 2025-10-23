@@ -70,7 +70,6 @@ export async function POST(req: NextRequest) {
 
       const userMessage = event.message.text.trim();
       const lineId = event.source.userId;
-      const isGroup = event.source.type === "group";
 
 
       let user = await User.findOne({ lineId });
@@ -78,23 +77,6 @@ export async function POST(req: NextRequest) {
 
       // 👇 ด้านล่างคือระบบสำหรับแชทส่วนตัว (เหมือนเดิม)
       if (!user) {
-
-        if (isGroup) {
-          // ถ้าเป็นผู้ใช้ใหม่ → เก็บเฉพาะ lineId
-          user = await User.create({
-            lineId,
-            conversation: [],
-          });
-
-          // ส่งข้อความไปให้ Gemini (ไม่ถามชื่อ)
-          await client.replyMessage(event.replyToken, {
-            type: "text",
-            text: "ยินดีต้อนรับผู้ใช้ใหม่คับ",
-          });
-
-          continue;
-        }
-
         if (userMessage === "ไม่มี") {
           user = await User.create({
             name: "ไม่มี",
