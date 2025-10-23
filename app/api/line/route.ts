@@ -290,13 +290,17 @@ export async function POST(req: NextRequest) {
 
         // 🆕 ถ้าอยู่ในกลุ่ม
         if (isGroupChat) {
-          if (!user) {
+          if (!user && isGroupChat) {
+            // 🔹 นับจำนวน Guest เดิมใน MongoDB
+            const guestCount = await User.countDocuments({ name: /^Guest/ });
+            const guestName = `Guest${guestCount + 1}`; // สร้างชื่อ Guest ใหม่ไม่ซ้ำ
+
             // ➕ สร้าง user ใหม่ พร้อม conversation ว่าง
             user = await User.create({
               lineId: userId,
-              name: "Guest",
-              awaitingName: false, // ยังไม่มีข้อมูลส่วนตัว
-              conversation: [],   // 🔹 สำคัญ: ให้ conversation เป็น array ว่าง เพื่อเก็บข้อความต่อเนื่อง
+              name: guestName,
+              awaitingName: false, // ไม่รอชื่อในกลุ่ม
+              conversation: [],    // เก็บข้อความต่อเนื่อง
               awaitingField: null,
             });
           }
@@ -360,6 +364,22 @@ export async function POST(req: NextRequest) {
 
         // 🆕 ผู้ใช้ส่วนตัว (Private chat) → ใช้โค้ดเดิมทั้งหมด
         if (!user) {
+
+          // 🆕 ถ้าเป็นผู้ใช้ส่วนตัว และชื่อเป็น Guest
+          if (!isGroupChat && /^Guest\d*$/.test(user.name)) {
+            user.name = userMessage;     // เปลี่ยนจาก GuestX เป็นชื่อผู้ใช้ที่พิมพ์
+            user.awaitingName = false;   // ไม่ต้องรอชื่อแล้ว
+            user.awaitingField = "birthday"; // เริ่มถามข้อมูลถัดไป
+            await user.save();
+
+            await client.replyMessage(event.replyToken, {
+              type: "text",
+              text: `ยินดีที่ได้รู้จักครับคุณ ${userMessage}! 🎉\n${questionFlow[0].text}`,
+            });
+            continue;
+          }
+
+
           if (userMessage === "ไม่มี") {
             user = await User.create({
               name: "ไม่มี",
