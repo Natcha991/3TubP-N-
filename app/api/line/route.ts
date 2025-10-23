@@ -366,11 +366,15 @@ export async function POST(req: NextRequest) {
         if (!user) {
 
           // 🆕 ถ้าเป็นผู้ใช้ส่วนตัว และชื่อเป็น Guest
-          if (!isGroupChat && /^Guest\d*$/.test(user.name)) {
-            user.name = userMessage;     // เปลี่ยนจาก GuestX เป็นชื่อผู้ใช้ที่พิมพ์
-            user.awaitingName = false;   // ไม่ต้องรอชื่อแล้ว
-            user.awaitingField = "birthday"; // เริ่มถามข้อมูลถัดไป
-            await user.save();
+          // 🔹 ตรวจว่าเป็นแชทส่วนตัวและชื่อยังเป็น Guest อยู่
+          if (!isGroupChat && user && /^Guest\d*$/.test(user.name)) {
+            // เปลี่ยนชื่อเป็นสิ่งที่ผู้ใช้พิมพ์มา
+            user.name = userMessage;
+            user.awaitingName = false;
+            user.awaitingField = "birthday";
+            await user.save(); // บันทึกลง MongoDB
+
+            console.log(`✅ Updated user name for ${user.lineId} -> ${user.name}`);
 
             await client.replyMessage(event.replyToken, {
               type: "text",
@@ -378,6 +382,7 @@ export async function POST(req: NextRequest) {
             });
             continue;
           }
+
 
 
           if (userMessage === "ไม่มี") {
