@@ -415,7 +415,7 @@ export async function POST(req: NextRequest) {
 
           const data: GeminiResponse = await geminiResponse.json();
           const replyText =
-            data.candidates?.[0]?.content.parts?.[0]?.text || getFriendlyFallback();
+            data.candidates?.[0]?.content.parts?.[0]?.text;
 
           await User.updateOne(
             { lineId: userId },
@@ -431,11 +431,6 @@ export async function POST(req: NextRequest) {
               },
             }
           );
-
-          await client.replyMessage(event.replyToken, {
-            type: "text",
-            text: replyText,
-          });
 
           continue;
         }
