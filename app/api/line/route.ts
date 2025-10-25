@@ -353,6 +353,31 @@ export async function POST(req: NextRequest) {
     await connectToDatabase();
     const events = JSON.parse(body).events;
 
+    async function isNutritionRelated(message: string): Promise<boolean> {
+      const prompt = `
+  ให้คุณวิเคราะห์ว่า ข้อความนี้เกี่ยวข้องกับเรื่องโภชนาการ อาหาร ข้าว สุขภาพ หรือ คำทักทาย ไหม
+  ตอบแค่ "ใช่" หรือ "ไม่" เท่านั้น
+  ข้อความ: "${message}"
+  `;
+
+      const response = await fetch(
+        `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=${process.env.NEXT_PUBLIC_GEMINI_API_KEY}`,
+        {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            contents: [{ role: "user", parts: [{ text: prompt }] }],
+          }),
+        }
+      );
+
+      const data = await response.json();
+      const replyText = data.candidates?.[0]?.content?.parts?.[0]?.text?.trim();
+
+      return replyText?.includes("ใช่");
+    }
+
+
     for (const event of events) {
       if (event.type === "message" && event.message.type === "text") {
         const userMessage = event.message.text.trim();
@@ -386,6 +411,13 @@ export async function POST(req: NextRequest) {
               conversation: [],
               awaitingField: null,
             });
+          }
+
+          // 🔹 ตรวจสอบว่าเกี่ยวข้องกับโภชนาการไหม (ด้วย Gemini)
+          const isNutritionTopic = await isNutritionRelated(userMessage);
+
+          if (!isNutritionTopic) {
+            continue; // ❌ ข้ามข้อความที่ไม่เกี่ยวข้อง
           }
 
           const recentConversation = (user.conversation || []).slice(-10);
@@ -431,6 +463,11 @@ export async function POST(req: NextRequest) {
               },
             }
           );
+          await client.replyMessage(event.replyToken, {
+            type: "text",
+            text: replyText || "เรื่องนี้ผมอาจไม่ถนัดครับ 😊 ถ้าอยากคุยเรื่องอาหารสุขภาพ ผมยินดีเลย!",
+          });
+
 
           continue;
         }
@@ -536,7 +573,11 @@ export async function POST(req: NextRequest) {
                   role: "user",
                   parts: [
                     {
-                      text: `คุณชื่อ Mr. Rice และคุณเป็นนักโภชนาการผู้ชายที่ใจดี อ่อนโยน สุภาพ คุณเชี่ยวชาญเรื่องข้าว โดยเฉพาะข้าวกล้อง ตอบสั้น กระชับ ไม่เกิน 4 บรรทัด - ไม่ต้องสวัสดีผู้ใช้ ข้อความจากผู้ใช้: "${userMessage}"`,
+                      text: `
+                      คุณชื่อ Mr. Rice และคุณเป็นนักโภชนาการผู้ชายที่ใจดี 
+                      อ่อนโยน สุภาพ คุณเชี่ยวชาญเรื่องข้าว โดยเฉพาะข้าวกล้อง 
+                      ตอบสั้น กระชับ ไม่เกิน 4 บรรทัด 
+                      - ไม่ต้องสวัสดีผู้ใช้ ข้อความจากผู้ใช้: "${userMessage}"`,
                     },
                   ],
                 },
