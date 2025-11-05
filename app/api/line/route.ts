@@ -319,8 +319,8 @@ interface GeminiResponse {
   candidates?: { content: GeminiContent }[];
 }
 
-function getFriendlyFallback() {
-  const options = [
+function getFriendlyFallback(): string {
+  const options: string[] = [
     "อ๋อ ผมอาจไม่แน่ใจ แต่ลองเล่าเพิ่มหน่อยครับ",
     "น่าสนใจครับ! คุณอยากให้ผมแนะนำเมนูอีกไหม?",
     "ฮ่า ๆ ผมอาจตีความไม่ถูก แต่เรามาคุยเรื่องอาหารต่อกันดีกว่า",
@@ -328,7 +328,7 @@ function getFriendlyFallback() {
   return options[Math.floor(Math.random() * options.length)];
 }
 
-const questionFlow = [
+const questionFlow: { key: string; text: string }[] = [
   { key: "birthday", text: "คุณเกิดวันที่เท่าไรครับ? (เช่น 15/02/2008)" },
   { key: "gender", text: "เพศของคุณคืออะไรครับ? (ชาย / หญิง / อื่น ๆ)" },
   { key: "weight", text: "น้ำหนักของคุณตอนนี้กี่กิโลกรัมครับ?" },
